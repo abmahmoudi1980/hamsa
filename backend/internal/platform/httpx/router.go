@@ -17,7 +17,7 @@ func NewRouter(log *slog.Logger, env string) *gin.Engine {
 	}
 
 	r := gin.New()
-	r.Use(RequestID(), Logger(log), Recovery(log))
+	r.Use(RequestID(), Logger(log), Recovery(log), CORS())
 
 	// Liveness probe — outside /api/v1; must not depend on the database so
 	// it reports process health even during a transient DB blip.

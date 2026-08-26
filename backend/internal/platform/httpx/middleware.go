@@ -91,3 +91,20 @@ func RequestIDOf(c *gin.Context) string {
 	}
 	return ""
 }
+
+// CORS allows browser clients (Flutter web during development) to call the
+// API cross-origin. The JSON content type triggers preflights, so OPTIONS is
+// answered directly. Permissive for P0 — the only consumer is the first-party
+// Flutter client; tighten allowed origins before exposing beyond localhost.
+func CORS() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.Header("Access-Control-Allow-Origin", "*")
+		c.Header("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS")
+		c.Header("Access-Control-Allow-Headers", "Authorization, Content-Type")
+		if c.Request.Method == http.MethodOptions {
+			c.AbortWithStatus(http.StatusNoContent)
+			return
+		}
+		c.Next()
+	}
+}
