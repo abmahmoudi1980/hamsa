@@ -1,0 +1,60 @@
+# --- Go backend ---
+backend/server
+backend/server.exe
+backend/cmd/server/server
+backend/cmd/server/server.exe
+*.exe
+*.exe~
+*.test
+*.out
+*.prof
+coverage.out
+coverage.txt
+
+# Go workspace files
+go.work
+go.work.sum
+
+# Backend build output & local data
+backend/bin/
+backend/data/
+
+# --- Flutter / Dart mobile app ---
+mobile/.dart_tool/
+mobile/.packages
+mobile/.pub-cache/
+mobile/.pub/
+mobile/.flutter-plugins
+mobile/.flutter-plugins-dependencies
+mobile/build/
+mobile/.fvm/
+mobile/.fvmrc
+
+# Dart / Flutter generated
+mobile/lib/**/*.g.dart
+mobile/lib/**/*.freezed.dart
+mobile/*.mocks.dart
+
+# --- Environment & secrets ---
+.env
+.env.*
+*.local.yaml
+backend/config.yaml
+
+# --- IDE & OS ---
+.idea/
+.vscode/
+*.iml
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# --- Logs & temp ---
+*.log
+*.tmp
+
+# --- Test & coverage ---
+coverage/
+*.cover

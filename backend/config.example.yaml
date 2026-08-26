@@ -1,0 +1,48 @@
+# Hamsa backend configuration — copy to config.yaml and adjust.
+# config.yaml is git-ignored; never commit real secrets.
+
+app:
+  # dev | production — dev enables: OTP code in API response & server log,
+  # mock payment gateway, console SMS sender, verbose logging.
+  env: dev
+  # HTTP listen address
+  addr: ":8080"
+  # Base URL used to build gateway callback URLs (no trailing slash).
+  base_url: "http://localhost:8080"
+
+db:
+  # PostgreSQL DSN (docker-compose.yml provides this locally)
+  dsn: "host=localhost port=5432 user=hamsa password=hamsa dbname=hamsa sslmode=disable"
+  # Run pending migrations on startup
+  auto_migrate: true
+
+auth:
+  # JWT signing secret (CHANGE IN PRODUCTION — 32+ random bytes)
+  jwt_secret: "change-me-to-a-long-random-secret"
+  # Access token lifetime
+  access_ttl: 15m
+  # Refresh token lifetime (rotating)
+  refresh_ttl: 720h
+
+sms:
+  # console | kavenegar — console logs the OTP (dev); kavenegar sends real SMS
+  provider: console
+  kavenegar:
+    api_key: ""
+    sender: ""
+
+payment:
+  # mock | zarinpal — mock auto-verifies payments in dev
+  provider: mock
+  zarinpal:
+    merchant_id: ""
+    # Use sandbox while developing (sandbox.zarinpal.com)
+    sandbox: true
+
+storage:
+  # Local disk storage root for uploaded files (receipts, photos, attachments)
+  path: "./data/files"
+
+push:
+  # FCM is best-effort; leave empty to disable push (in-app notifications remain)
+  fcm_credentials_file: ""

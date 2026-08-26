@@ -1,0 +1,29 @@
+# golangci-lint configuration for the hamsa backend.
+# Docs: https://golangci-lint.run/usage/configuration/
+run:
+  timeout: 5m
+
+linters:
+  enable:
+    - errcheck
+    - govet
+    - staticcheck
+    - unused
+    - gosimple
+    - ineffassign
+    - misspell
+    - revive
+    - gofmt
+    - goimports
+
+issues:
+  exclude-rules:
+    # Table-driven tests tolerate long functions and duplicated setup.
+    - path: _test\.go
+      linters:
+        - funlen
+        - dupl
+    # Migrations and generated SQL are out of Go lint scope.
+    - path: migrations/
+      linters:
+        - all

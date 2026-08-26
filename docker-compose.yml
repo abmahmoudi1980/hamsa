@@ -1,0 +1,22 @@
+# Hamsa — Building Management MVP (P0) local infrastructure
+# Usage: docker compose up -d
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: hamsa-pg
+    environment:
+      POSTGRES_USER: hamsa
+      POSTGRES_PASSWORD: hamsa
+      POSTGRES_DB: hamsa
+    ports:
+      - "5432:5432"
+    volumes:
+      - hamsa_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U hamsa -d hamsa"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  hamsa_pgdata:

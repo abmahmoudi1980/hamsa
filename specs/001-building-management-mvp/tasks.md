@@ -25,11 +25,11 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per plan.md: `backend/` (Go) and `mobile/` (Flutter) directories, root `.gitignore`, and `docker-compose.yml` with PostgreSQL 16 (db name `hamsa`, password `hamsa`, port 5432)
-- [ ] T002 Initialize Go module in `backend/go.mod` (Go 1.23+) with dependencies: gin, gorm + postgres driver, golang-migrate, golang-jwt/v5, go-persian-calendar, uuid; create empty `backend/cmd/server/main.go`
-- [ ] T003 [P] Create `backend/config.example.yaml` (APP_ENV=dev, DB DSN, JWT secret, SMS/gateway provider keys, file storage path) and config loader in `backend/internal/platform/config/config.go`
-- [ ] T004 [P] Initialize Flutter project in `mobile/` (Android-only platform) with dependencies in `mobile/pubspec.yaml`: flutter_riverpod, go_router, dio, freezed + json_serializable + build_runner, shamsi_date, persian_datetime_picker, flutter_localizations (fa only), flutter_secure_storage, image_picker, Vazirmatn font asset
-- [ ] T005 [P] Configure lint/format: `backend/.golangci.yml` and `mobile/analysis_options.yaml`; add `make lint` / `make test` targets in root `Makefile`
+- [x] T001 Create project structure per plan.md: `backend/` (Go) and `mobile/` (Flutter) directories, root `.gitignore`, and `docker-compose.yml` with PostgreSQL 16 (db name `hamsa`, password `hamsa`, port 5432)
+- [x] T002 Initialize Go module in `backend/go.mod` (Go 1.23+) with dependencies: gin, gorm + postgres driver, golang-migrate, golang-jwt/v5, go-persian-calendar, uuid; create empty `backend/cmd/server/main.go`
+- [x] T003 [P] Create `backend/config.example.yaml` (APP_ENV=dev, DB DSN, JWT secret, SMS/gateway provider keys, file storage path) and config loader in `backend/internal/platform/config/config.go`
+- [x] T004 [P] Initialize Flutter project in `mobile/` (Android-only platform) with dependencies in `mobile/pubspec.yaml`: flutter_riverpod, go_router, dio, freezed + json_serializable + build_runner, shamsi_date, persian_datetime_picker, flutter_localizations (fa only), flutter_secure_storage, image_picker, Vazirmatn font asset
+- [x] T005 [P] Configure lint/format: `backend/.golangci.yml` and `mobile/analysis_options.yaml`; add `make lint` / `make test` targets in root `Makefile`
 
 ---
 

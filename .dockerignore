@@ -1,0 +1,24 @@
+.git/
+.gitignore
+.opencode/
+.specify/
+specs/
+mobile/
+docs/
+*.md
+docker-compose.yml
+Makefile
+
+# Go build/test artifacts
+backend/server
+backend/server.exe
+backend/*.test
+backend/*.out
+backend/config.yaml
+backend/config.example.yaml
+
+# Local data & secrets
+.env
+.env.*
+*.log
+*.tmp
