@@ -1,0 +1,163 @@
+import 'package:flutter/material.dart';
+import 'package:hamsa/core/l10n/app_localizations.dart';
+import 'package:persian_datetime_picker/persian_datetime_picker.dart';
+
+/// Jalali ↔ Gregorian conversion and Persian-digit formatting.
+///
+/// Storage and API stay Gregorian ISO-8601 (research.md R6); everything here
+/// is presentation-only. [JalaliDatePickerField] below is the ONLY date input
+/// component allowed anywhere in the app.
+
+const List<String> _jalaliMonthNames = [
+  'فروردین',
+  'اردیبهشت',
+  'خرداد',
+  'تیر',
+  'مرداد',
+  'شهریور',
+  'مهر',
+  'آبان',
+  'آذر',
+  'دی',
+  'بهمن',
+  'اسفند',
+];
+
+const List<String> _persianDigits = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
+
+/// Converts Latin digits in [input] to Persian digits.
+String toPersianDigits(String input) {
+  final buffer = StringBuffer();
+  for (final rune in input.runes) {
+    final code = rune - 0x30; // ASCII '0'
+    buffer.write(code >= 0 && code <= 9 ? _persianDigits[code] : String.fromCharCode(rune));
+  }
+  return buffer.toString();
+}
+
+/// Converts Persian digits in [input] back to Latin digits (for parsing).
+String fromPersianDigits(String input) {
+  final buffer = StringBuffer();
+  for (final rune in input.runes) {
+    var mapped = false;
+    for (var i = 0; i < _persianDigits.length; i++) {
+      if (String.fromCharCode(rune) == _persianDigits[i]) {
+        buffer.write(i);
+        mapped = true;
+        break;
+      }
+    }
+    if (!mapped) buffer.writeCharCode(rune);
+  }
+  return buffer.toString();
+}
+
+/// Gregorian instant → Jalali parts.
+Jalali jalaliOf(DateTime dt) => Jalali.fromDateTime(dt.toLocal());
+
+/// Jalali parts → Gregorian [DateTime].
+DateTime gregorianOf({required int jy, required int jm, required int jd}) =>
+    Jalali(jy, jm, jd).toDateTime();
+
+/// `۱۴۰۴/۰۶/۰۱`
+String formatJalaliDate(DateTime dt) {
+  final j = jalaliOf(dt);
+  return toPersianDigits('${j.year}/${_two(j.month)}/${_two(j.day)}');
+}
+
+/// `۱ شهریور ۱۴۰۴`
+String formatJalaliLongDate(DateTime dt) {
+  final j = jalaliOf(dt);
+  return '${toPersianDigits('${j.day}')} ${_jalaliMonthNames[j.month - 1]} '
+      '${toPersianDigits('${j.year}')}';
+}
+
+/// `۱۴۰۴/۰۶/۰۱ ۱۴:۳۰`
+String formatJalaliDateTime(DateTime dt) {
+  final local = dt.toLocal();
+  return '${formatJalaliDate(local)} ${toPersianDigits(_two(local.hour))}:'
+      '${toPersianDigits(_two(local.minute))}';
+}
+
+String _two(int n) => n.toString().padLeft(2, '0');
+
+/// The single date-entry component of the entire app (plan.md constraint).
+///
+/// Wraps `showPersianDatePicker`; emits/receives Gregorian [DateTime] so
+/// callers never touch the Jalali calendar themselves.
+class JalaliDatePickerField extends FormField<DateTime> {
+  const JalaliDatePickerField({
+    super.key,
+    this.label,
+    super.initialValue,
+    this.firstDate,
+    this.lastDate,
+    this.onChanged,
+    super.validator,
+  }) : super(builder: _noBuilder);
+
+  // The state class below owns rendering; FormField only requires a builder.
+  static Widget _noBuilder(FormFieldState<DateTime> state) => const SizedBox.shrink();
+
+  /// Field caption shown above the box.
+  final String? label;
+
+  /// Inclusive lower bound (Gregorian).
+  final DateTime? firstDate;
+
+  /// Inclusive upper bound (Gregorian).
+  final DateTime? lastDate;
+
+  /// Called after a successful pick.
+  final ValueChanged<DateTime>? onChanged;
+
+  @override
+  FormFieldState<DateTime> createState() => _JalaliDatePickerFieldState();
+}
+
+class _JalaliDatePickerFieldState extends FormFieldState<DateTime> {
+  JalaliDatePickerField get _field => widget as JalaliDatePickerField;
+
+  Future<void> _pick() async {
+    final now = Jalali.now();
+    final first = _field.firstDate;
+    final last = _field.lastDate;
+    final picked = await showPersianDatePicker(
+      context: context,
+      initialDate: value == null ? null : jalaliOf(value!),
+      firstDate: first == null ? Jalali(1300) : jalaliOf(first),
+      lastDate: last == null ? now.addYears(30) : jalaliOf(last),
+      currentDate: now,
+    );
+    if (picked != null) {
+      didChange(picked.toDateTime());
+      _field.onChanged?.call(picked.toDateTime());
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (_field.label != null) ...[
+          Text(_field.label!, style: Theme.of(context).textTheme.labelLarge),
+          const SizedBox(height: 4),
+        ],
+        InkWell(
+          borderRadius: BorderRadius.circular(8),
+          onTap: _pick,
+          child: InputDecorator(
+            decoration: InputDecoration(
+              hintText: l10n.selectDate,
+              errorText: errorText,
+              suffixIcon: const Icon(Icons.calendar_month_outlined),
+            ),
+            child: Text(value == null ? '' : formatJalaliDate(value!)),
+          ),
+        ),
+      ],
+    );
+  }
+}

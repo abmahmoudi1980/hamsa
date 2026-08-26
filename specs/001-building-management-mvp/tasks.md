@@ -39,21 +39,21 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T006 Implement GORM PostgreSQL connection + golang-migrate runner (runs pending migrations on start) in `backend/internal/platform/db/db.go`; wire into `backend/cmd/server/main.go`
-- [ ] T007 Implement HTTP foundation in `backend/internal/platform/httpx/`: Gin router factory, JSON error envelope (`code`/`message` in Persian/`details`), recovery middleware, request-id + slog structured logging middleware
-- [ ] T008 [P] Create migration `backend/migrations/0001_core.up.sql` (+ `.down.sql`): `users`, `otp_codes`, `audit_logs` (append-only, no UPDATE/DELETE grants), `notifications`, `files` tables per data-model.md
-- [ ] T009 [P] Implement `SmsSender` interface + console/log dev sender + Kavenegar HTTP adapter in `backend/internal/platform/sms/sms.go` (selection by config; 6-digit code contract)
-- [ ] T010 [P] Implement local-disk file storage service in `backend/internal/platform/storage/storage.go` (image/PDF, ≤ 5 MB, UUID paths) + `POST /files` multipart handler
-- [ ] T011 Implement auth core in `backend/internal/auth/`: user model/repository, OTP issue/verify service (hashed codes, 2-min expiry, max 3 attempts, resend throttle 60 s), JWT access (15 min) + rotating refresh tokens (30 days, hashed in DB, family revocation on reuse) per research.md R4/R8
-- [ ] T012 Implement auth middleware in `backend/internal/auth/middleware.go`: Bearer parsing, per-request scope resolution (manager → permitted buildings via `user_buildings`; resident → occupied units), object-level authorization helper returning 403 per contracts/api.md
-- [ ] T013 [P] Implement audit-log service in `backend/internal/audit/`: append(actor, action, object, before/after JSONB) + Gin handler decorator for audited routes (FR-038)
-- [ ] T014 [P] Implement in-app notification service in `backend/internal/notification/`: create/list/mark-read for `notifications`, `PushNotifier` interface (no-op default) per research.md R10
-- [ ] T015 Implement Go unit tests for OTP and JWT/refresh rotation in `backend/internal/auth/auth_test.go` (mock SmsSender; clock-injected)
-- [ ] T016 [P] Create Flutter app shell in `mobile/lib/core/`: `main.dart` with MaterialApp configured for single locale `fa` + RTL + Vazirmatn theme (Persian digits app-wide), `core/l10n/fa.arb` string file with all shared Persian strings, `core/theme/app_theme.dart`
-- [ ] T017 [P] Implement Dio client in `mobile/lib/core/network/`: base client + auth interceptor (Bearer), 401 → refresh-token interceptor with rotation, error envelope → Persian exception mapping per contracts/api.md conventions
-- [ ] T018 [P] Implement Jalali helpers in `mobile/lib/core/datetime/jalali.dart`: Jalali↔ISO-8601 conversion, Persian-digit formatting, and a single `JalaliDatePickerField` wrapper around `persian_datetime_picker` — the ONLY date input component in the app
-- [ ] T019 Implement go_router skeleton in `mobile/lib/core/router/router.dart`: role-based root routing (manager shell vs resident shell vs login), auth-state redirect; implement `mobile/lib/features/auth/` auth state controller (Riverpod) + secure token storage (flutter_secure_storage)
-- [ ] T020 [P] Create shared widgets in `mobile/lib/shared/`: Persian money display (Toman + thousands separators + Persian digits), status chips (invoice/request/period enums → Persian labels), empty-state, attachment picker, form validation helpers (Iranian mobile format)
+- [x] T006 Implement GORM PostgreSQL connection + golang-migrate runner (runs pending migrations on start) in `backend/internal/platform/db/db.go`; wire into `backend/cmd/server/main.go`
+- [x] T007 Implement HTTP foundation in `backend/internal/platform/httpx/`: Gin router factory, JSON error envelope (`code`/`message` in Persian/`details`), recovery middleware, request-id + slog structured logging middleware
+- [x] T008 [P] Create migration `backend/migrations/0001_core.up.sql` (+ `.down.sql`): `users`, `otp_codes`, `audit_logs` (append-only, no UPDATE/DELETE grants), `notifications`, `files` tables per data-model.md
+- [x] T009 [P] Implement `SmsSender` interface + console/log dev sender + Kavenegar HTTP adapter in `backend/internal/platform/sms/sms.go` (selection by config; 6-digit code contract)
+- [x] T010 [P] Implement local-disk file storage service in `backend/internal/platform/storage/storage.go` (image/PDF, ≤ 5 MB, UUID paths) + `POST /files` multipart handler
+- [x] T011 Implement auth core in `backend/internal/auth/`: user model/repository, OTP issue/verify service (hashed codes, 2-min expiry, max 3 attempts, resend throttle 60 s), JWT access (15 min) + rotating refresh tokens (30 days, hashed in DB, family revocation on reuse) per research.md R4/R8
+- [x] T012 Implement auth middleware in `backend/internal/auth/middleware.go`: Bearer parsing, per-request scope resolution (manager → permitted buildings via `user_buildings`; resident → occupied units), object-level authorization helper returning 403 per contracts/api.md
+- [x] T013 [P] Implement audit-log service in `backend/internal/audit/`: append(actor, action, object, before/after JSONB) + Gin handler decorator for audited routes (FR-038)
+- [x] T014 [P] Implement in-app notification service in `backend/internal/notification/`: create/list/mark-read for `notifications`, `PushNotifier` interface (no-op default) per research.md R10
+- [x] T015 Implement Go unit tests for OTP and JWT/refresh rotation in `backend/internal/auth/auth_test.go` (mock SmsSender; clock-injected)
+- [x] T016 [P] Create Flutter app shell in `mobile/lib/core/`: `main.dart` with MaterialApp configured for single locale `fa` + RTL + Vazirmatn theme (Persian digits app-wide), `core/l10n/fa.arb` string file with all shared Persian strings, `core/theme/app_theme.dart`
+- [x] T017 [P] Implement Dio client in `mobile/lib/core/network/`: base client + auth interceptor (Bearer), 401 → refresh-token interceptor with rotation, error envelope → Persian exception mapping per contracts/api.md conventions
+- [x] T018 [P] Implement Jalali helpers in `mobile/lib/core/datetime/jalali.dart`: Jalali↔ISO-8601 conversion, Persian-digit formatting, and a single `JalaliDatePickerField` wrapper around `persian_datetime_picker` — the ONLY date input component in the app
+- [x] T019 Implement go_router skeleton in `mobile/lib/core/router/router.dart`: role-based root routing (manager shell vs resident shell vs login), auth-state redirect; implement `mobile/lib/features/auth/` auth state controller (Riverpod) + secure token storage (flutter_secure_storage)
+- [x] T020 [P] Create shared widgets in `mobile/lib/shared/`: Persian money display (Toman + thousands separators + Persian digits), status chips (invoice/request/period enums → Persian labels), empty-state, attachment picker, form validation helpers (Iranian mobile format)
 
 **Checkpoint**: Foundation ready — `go test ./...` green, Flutter app boots to login in Persian RTL, migrations run against docker-compose PostgreSQL. User story implementation can now begin in parallel.
 
