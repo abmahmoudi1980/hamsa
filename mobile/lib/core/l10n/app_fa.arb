@@ -1,11 +1,11 @@
 {
   "@@locale": "fa",
-  "appTitle": "هامسا",
+  "appTitle": "همسا",
   "splashMessage": "در حال بارگذاری…",
   "roleManager": "مدیر",
   "roleResident": "ساکن",
 
-  "loginTitle": "ورود به هامسا",
+  "loginTitle": "ورود به همسا",
   "loginSubtitle": "برای ورود، شماره موبایل خود را وارد کنید.",
   "phoneLabel": "شماره موبایل",
   "requestOtp": "دریافت کد تأیید",

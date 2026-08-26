@@ -137,7 +137,7 @@ func (s *OTPService) Issue(ctx context.Context, phone string) (string, error) {
 		return "", fmt.Errorf("store code: %w", err)
 	}
 
-	if err := s.sender.Send(phone, fmt.Sprintf("کد ورود شما به هامسا: %s", code)); err != nil {
+	if err := s.sender.Send(phone, fmt.Sprintf("کد ورود شما به همسا: %s", code)); err != nil {
 		return "", fmt.Errorf("send code: %w", err)
 	}
 

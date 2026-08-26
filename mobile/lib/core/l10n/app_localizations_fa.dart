@@ -9,7 +9,7 @@ class AppLocalizationsFa extends AppLocalizations {
   AppLocalizationsFa([String locale = 'fa']) : super(locale);
 
   @override
-  String get appTitle => 'هامسا';
+  String get appTitle => 'همسا';
 
   @override
   String get splashMessage => 'در حال بارگذاری…';
@@ -21,7 +21,7 @@ class AppLocalizationsFa extends AppLocalizations {
   String get roleResident => 'ساکن';
 
   @override
-  String get loginTitle => 'ورود به هامسا';
+  String get loginTitle => 'ورود به همسا';
 
   @override
   String get loginSubtitle => 'برای ورود، شماره موبایل خود را وارد کنید.';

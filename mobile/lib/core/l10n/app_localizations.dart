@@ -97,7 +97,7 @@ abstract class AppLocalizations {
   /// No description provided for @appTitle.
   ///
   /// In fa, this message translates to:
-  /// **'هامسا'**
+  /// **'همسا'**
   String get appTitle;
 
   /// No description provided for @splashMessage.
@@ -121,7 +121,7 @@ abstract class AppLocalizations {
   /// No description provided for @loginTitle.
   ///
   /// In fa, this message translates to:
-  /// **'ورود به هامسا'**
+  /// **'ورود به همسا'**
   String get loginTitle;
 
   /// No description provided for @loginSubtitle.
