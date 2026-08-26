@@ -67,16 +67,16 @@
 
 ### Tests for User Story 1 (write first, must FAIL)
 
-- [ ] T021 [P] [US1] Go integration test for OTP flow + token refresh + rate limiting in `backend/internal/auth/auth_integration_test.go` (testcontainers PostgreSQL)
-- [ ] T022 [P] [US1] Go integration test for object-level authorization (resident↔resident 403, resident→manager route 403) in `backend/internal/auth/authz_test.go`
+- [x] T021 [P] [US1] Go integration test for OTP flow + token refresh + rate limiting in `backend/internal/auth/auth_integration_test.go` (testcontainers PostgreSQL)
+- [x] T022 [P] [US1] Go integration test for object-level authorization (resident↔resident 403, resident→manager route 403) in `backend/internal/auth/authz_test.go`
 
 ### Implementation for User Story 1
 
-- [ ] T023 [US1] Implement auth handlers in `backend/internal/auth/handlers.go`: `POST /auth/otp/request` (rate-limited, dev mode returns code), `POST /auth/otp/verify` (auto-register unknown phone; returns tokens + user context), `POST /auth/refresh`, `POST /auth/logout`, `GET /auth/me` per contracts/api.md
-- [ ] T024 [US1] Implement first-user bootstrap: the first registered user in a fresh deployment is granted manager role (documented in handler); add `user_buildings` grant on building creation later (US2)
-- [ ] T025 [US1] Wire audit middleware (T013) into auth-sensitive routes and add `user.login` audit action in `backend/internal/auth/handlers.go`
-- [ ] T026 [US1] Implement Flutter login screens in `mobile/lib/features/auth/`: phone-entry page, OTP-entry page (countdown, resend after 60 s), Persian error states — all strings from `core/l10n/fa.arb`
-- [ ] T027 [US1] Implement post-login role routing in `mobile/lib/core/router/router.dart`: manager → building list (placeholder), resident → resident shell (placeholder), persisting session across restarts
+- [x] T023 [US1] Implement auth handlers in `backend/internal/auth/handlers.go`: `POST /auth/otp/request` (rate-limited, dev mode returns code), `POST /auth/otp/verify` (auto-register unknown phone; returns tokens + user context), `POST /auth/refresh`, `POST /auth/logout`, `GET /auth/me` per contracts/api.md
+- [x] T024 [US1] Implement first-user bootstrap: the first registered user in a fresh deployment is granted manager role (documented in handler); add `user_buildings` grant on building creation later (US2)
+- [x] T025 [US1] Wire audit middleware (T013) into auth-sensitive routes and add `user.login` audit action in `backend/internal/auth/handlers.go`
+- [x] T026 [US1] Implement Flutter login screens in `mobile/lib/features/auth/`: phone-entry page, OTP-entry page (countdown, resend after 60 s), Persian error states — all strings from `core/l10n/fa.arb`
+- [x] T027 [US1] Implement post-login role routing in `mobile/lib/core/router/router.dart`: manager → building list (placeholder), resident → resident shell (placeholder), persisting session across restarts
 
 **Checkpoint**: User Story 1 fully functional — login works end-to-end for both roles with enforced isolation.
 

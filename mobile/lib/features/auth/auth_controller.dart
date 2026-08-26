@@ -13,7 +13,7 @@ class AuthState {
 
   const AuthState.unknown() : this(status: AuthStatus.unknown);
   const AuthState.authenticated(UserSession user)
-      : this(status: AuthStatus.authenticated, user: user);
+    : this(status: AuthStatus.authenticated, user: user);
   const AuthState.unauthenticated() : this(status: AuthStatus.unauthenticated);
 
   final AuthStatus status;
@@ -40,7 +40,9 @@ class AuthController extends Notifier<AuthState> {
     }
     try {
       state = AuthState.authenticated(
-        UserSession.fromJson(jsonDecode(session.userJson) as Map<String, dynamic>),
+        UserSession.fromJson(
+          jsonDecode(session.userJson) as Map<String, dynamic>,
+        ),
       );
     } on FormatException {
       await _clearAndSignOut();
@@ -54,11 +56,15 @@ class AuthController extends Notifier<AuthState> {
     required String accessToken,
     required String refreshToken,
   }) async {
-    await ref.read(tokenStorageProvider).save(StoredSession(
-          accessToken: accessToken,
-          refreshToken: refreshToken,
-          userJson: jsonEncode(user.toJson()),
-        ));
+    await ref
+        .read(tokenStorageProvider)
+        .save(
+          StoredSession(
+            accessToken: accessToken,
+            refreshToken: refreshToken,
+            userJson: jsonEncode(user.toJson()),
+          ),
+        );
     state = AuthState.authenticated(user);
   }
 
@@ -74,5 +80,6 @@ class AuthController extends Notifier<AuthState> {
   }
 }
 
-final authControllerProvider =
-    NotifierProvider<AuthController, AuthState>(AuthController.new);
+final authControllerProvider = NotifierProvider<AuthController, AuthState>(
+  AuthController.new,
+);

@@ -11,11 +11,13 @@ import (
 	"syscall"
 	"time"
 
+	"hamsa/internal/audit"
 	"hamsa/internal/auth"
 	"hamsa/internal/notification"
 	"hamsa/internal/platform/config"
 	"hamsa/internal/platform/db"
 	"hamsa/internal/platform/httpx"
+	"hamsa/internal/platform/sms"
 	"hamsa/internal/platform/storage"
 )
 
@@ -63,11 +65,24 @@ func main() {
 	// Platform + cross-cutting services.
 	fileStore := storage.New(cfg.Storage.Path, 0)
 	notifSvc := notification.NewService(gormDB, notification.NoopNotifier{})
+	auditSvc := audit.New(gormDB, log)
 
 	router := httpx.NewRouter(log, cfg.App.Env)
 	v1 := router.Group("/api/v1")
 
 	authMW := auth.Authenticate(tokens, users)
+	auth.Register(v1.Group("/auth"), &auth.Handler{
+		OTP: auth.NewOTPService(
+			&auth.GormOTPStore{DB: gormDB},
+			sms.New(cfg.SMS.Provider, cfg.SMS.Kavenegar.APIKey, cfg.SMS.Kavenegar.Sender, log),
+			auth.RealClock{},
+			cfg.App.IsDev(),
+		),
+		Tokens:  tokens,
+		Users:   users,
+		Scopes:  auth.NewScopeResolver(gormDB),
+		Auditor: auditSvc, // user.login audit entries (FR-038, T025)
+	})
 	storage.Register(v1.Group("/files", authMW), fileStore, gormDB)
 	notification.Register(v1.Group("/me/notifications", authMW), notifSvc)
 

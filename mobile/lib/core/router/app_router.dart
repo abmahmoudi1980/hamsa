@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../features/auth/auth_controller.dart';
 import '../../features/auth/models/user_session.dart';
 import '../../features/auth/screens/login_screen.dart';
+import '../../features/auth/screens/otp_screen.dart';
 import '../../features/dashboard/screens/manager_shell_screen.dart';
 import '../../features/home/screens/resident_shell_screen.dart';
 import 'splash_screen.dart';
@@ -18,6 +19,11 @@ final routerProvider = Provider<GoRouter>((ref) {
     routes: [
       GoRoute(path: '/', builder: (_, _) => const SplashScreen()),
       GoRoute(path: '/login', builder: (_, _) => const LoginScreen()),
+      GoRoute(
+        path: '/login/otp',
+        builder: (_, state) =>
+            OtpScreen(phone: state.uri.queryParameters['phone'] ?? ''),
+      ),
       GoRoute(path: '/manager', builder: (_, _) => const ManagerShellScreen()),
       GoRoute(path: '/home', builder: (_, _) => const ResidentShellScreen()),
     ],
@@ -38,7 +44,7 @@ String? _redirect(Ref ref, GoRouterState state) {
   }
 
   if (auth.status == AuthStatus.unauthenticated) {
-    return location == '/login' ? null : '/login';
+    return location.startsWith('/login') ? null : '/login';
   }
 
   // Authenticated: never show splash/login; land each role on its own shell

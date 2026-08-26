@@ -39,9 +39,20 @@ class AppLocalizationsFa extends AppLocalizations {
   String get verifyAndLogin => 'تأیید و ورود';
 
   @override
-  String resendIn(int seconds) {
+  String resendIn(String seconds) {
     return 'ارسال مجدد کد تا $seconds ثانیه دیگر';
   }
+
+  @override
+  String otpSentTo(String phone) {
+    return 'کد تأیید به شماره $phone پیامک شد.';
+  }
+
+  @override
+  String get resendOtp => 'ارسال مجدد کد';
+
+  @override
+  String get changePhone => 'تغییر شماره';
 
   @override
   String get invalidMobile => 'شماره موبایل معتبر نیست.';

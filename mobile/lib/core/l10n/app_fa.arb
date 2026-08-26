@@ -12,7 +12,11 @@
   "otpLabel": "کد تأیید پیامک‌شده",
   "verifyAndLogin": "تأیید و ورود",
   "resendIn": "ارسال مجدد کد تا {seconds} ثانیه دیگر",
-  "@resendIn": { "placeholders": { "seconds": { "type": "int" } } },
+  "@resendIn": { "placeholders": { "seconds": { "type": "String" } } },
+  "otpSentTo": "کد تأیید به شماره {phone} پیامک شد.",
+  "@otpSentTo": { "placeholders": { "phone": { "type": "String" } } },
+  "resendOtp": "ارسال مجدد کد",
+  "changePhone": "تغییر شماره",
 
   "invalidMobile": "شماره موبایل معتبر نیست.",
   "invalidOtp": "کد تأیید را وارد کنید.",

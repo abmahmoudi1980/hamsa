@@ -20,11 +20,11 @@ class UserSession {
   });
 
   factory UserSession.fromJson(Map<String, dynamic> json) => UserSession(
-        id: json['id']?.toString() ?? '',
-        name: json['name']?.toString() ?? '',
-        role: userRoleFromWire(json['role']?.toString() ?? ''),
-        primaryBuildingId: json['primary_building_id']?.toString(),
-      );
+    id: json['id']?.toString() ?? '',
+    name: json['name']?.toString() ?? '',
+    role: userRoleFromWire(json['role']?.toString() ?? ''),
+    primaryBuildingId: json['primary_building_id']?.toString(),
+  );
 
   final String id;
   final String name;
@@ -34,9 +34,9 @@ class UserSession {
   final String? primaryBuildingId;
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'name': name,
-        'role': userRoleToWire(role),
-        if (primaryBuildingId != null) 'primary_building_id': primaryBuildingId,
-      };
+    'id': id,
+    'name': name,
+    'role': userRoleToWire(role),
+    if (primaryBuildingId != null) 'primary_building_id': primaryBuildingId,
+  };
 }

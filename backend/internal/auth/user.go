@@ -61,3 +61,12 @@ func (r *Repository) FindByPhone(ctx context.Context, phone string) (*User, erro
 func (r *Repository) Create(ctx context.Context, u *User) error {
 	return r.db.WithContext(ctx).Create(u).Error
 }
+
+// CountActive returns how many non-deleted users exist. Zero means a fresh
+// deployment: the next registration becomes the manager (first-user
+// bootstrap).
+func (r *Repository) CountActive(ctx context.Context) (int64, error) {
+	var n int64
+	err := r.db.WithContext(ctx).Model(&User{}).Count(&n).Error
+	return n, err
+}

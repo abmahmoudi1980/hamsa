@@ -5,6 +5,7 @@ import (
 	"crypto/rand"
 	"crypto/sha256"
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"time"
 
@@ -211,6 +212,23 @@ func (s *TokenService) RotateRefreshToken(ctx context.Context, raw string) (*Rot
 		RefreshToken: newRaw,
 		ExpiresIn:    int64(exp.Sub(s.clock.Now()).Seconds()),
 	}, nil
+}
+
+// RevokeFamilyByToken revokes every token in the rotation family that raw
+// belongs to (`POST /auth/logout` — contracts/api.md). Unknown tokens are a
+// no-op so logout stays idempotent for the client.
+func (s *TokenService) RevokeFamilyByToken(ctx context.Context, raw string) error {
+	rec, err := s.refreshStore.FindByHash(ctx, hashToken(raw))
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil
+		}
+		return fmt.Errorf("find refresh token: %w", err)
+	}
+	if err := s.refreshStore.RevokeFamily(ctx, rec.FamilyID, s.clock.Now()); err != nil {
+		return fmt.Errorf("revoke family: %w", err)
+	}
+	return nil
 }
 
 func hashToken(token string) string {

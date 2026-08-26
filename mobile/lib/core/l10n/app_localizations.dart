@@ -158,7 +158,25 @@ abstract class AppLocalizations {
   ///
   /// In fa, this message translates to:
   /// **'ارسال مجدد کد تا {seconds} ثانیه دیگر'**
-  String resendIn(int seconds);
+  String resendIn(String seconds);
+
+  /// No description provided for @otpSentTo.
+  ///
+  /// In fa, this message translates to:
+  /// **'کد تأیید به شماره {phone} پیامک شد.'**
+  String otpSentTo(String phone);
+
+  /// No description provided for @resendOtp.
+  ///
+  /// In fa, this message translates to:
+  /// **'ارسال مجدد کد'**
+  String get resendOtp;
+
+  /// No description provided for @changePhone.
+  ///
+  /// In fa, this message translates to:
+  /// **'تغییر شماره'**
+  String get changePhone;
 
   /// No description provided for @invalidMobile.
   ///
