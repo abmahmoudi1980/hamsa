@@ -13,6 +13,7 @@ import (
 
 	"hamsa/internal/audit"
 	"hamsa/internal/auth"
+	"hamsa/internal/building"
 	"hamsa/internal/notification"
 	"hamsa/internal/platform/config"
 	"hamsa/internal/platform/db"
@@ -86,6 +87,10 @@ func main() {
 	storage.Register(v1.Group("/files", authMW), fileStore, gormDB)
 	notification.Register(v1.Group("/me/notifications", authMW), notifSvc)
 
+	// US2: buildings & units registry (manager scope enforced per request).
+	buildingRepo := building.NewRepository(gormDB)
+	building.Register(v1.Group("", authMW, auth.RequireRole(auth.RoleManager)),
+		building.NewService(buildingRepo), auditSvc)
 	srv := &http.Server{
 		Addr:              cfg.App.Addr,
 		Handler:           router,

@@ -5,7 +5,11 @@ import '../../features/auth/auth_controller.dart';
 import '../../features/auth/models/user_session.dart';
 import '../../features/auth/screens/login_screen.dart';
 import '../../features/auth/screens/otp_screen.dart';
-import '../../features/dashboard/screens/manager_shell_screen.dart';
+import '../../features/buildings/screens/building_form_screen.dart';
+import '../../features/buildings/screens/building_list_screen.dart';
+import '../../features/buildings/screens/unit_form_screen.dart';
+import '../../features/buildings/screens/unit_history_screen.dart';
+import '../../features/buildings/screens/unit_list_screen.dart';
 import '../../features/home/screens/resident_shell_screen.dart';
 import 'splash_screen.dart';
 
@@ -24,7 +28,45 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (_, state) =>
             OtpScreen(phone: state.uri.queryParameters['phone'] ?? ''),
       ),
-      GoRoute(path: '/manager', builder: (_, _) => const ManagerShellScreen()),
+      // Manager section (US2 buildings & units; dashboard arrives in US10).
+      GoRoute(
+        path: '/manager',
+        builder: (_, _) => const BuildingListScreen(),
+        routes: [
+          GoRoute(
+            path: 'buildings/new',
+            builder: (_, _) => const BuildingFormScreen(),
+          ),
+          GoRoute(
+            path: 'buildings/:buildingId/units',
+            builder: (_, state) =>
+                UnitListScreen(buildingId: state.pathParameters['buildingId']!),
+            routes: [
+              GoRoute(
+                path: 'new',
+                builder: (_, state) => UnitFormScreen(
+                  buildingId: state.pathParameters['buildingId']!,
+                ),
+              ),
+              GoRoute(
+                path: ':unitId',
+                builder: (_, state) => UnitFormScreen(
+                  buildingId: state.pathParameters['buildingId']!,
+                  unitId: state.pathParameters['unitId'],
+                ),
+                routes: [
+                  GoRoute(
+                    path: 'history',
+                    builder: (_, state) => UnitHistoryScreen(
+                      unitId: state.pathParameters['unitId']!,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ],
+      ),
       GoRoute(path: '/home', builder: (_, _) => const ResidentShellScreen()),
     ],
   );
@@ -51,6 +93,6 @@ String? _redirect(Ref ref, GoRouterState state) {
   // and keep roles inside their own section.
   final isManager = auth.user?.role == UserRole.manager;
   final home = isManager ? '/manager' : '/home';
-  final allowed = isManager ? {'/manager'} : {'/home'};
-  return location == home || allowed.contains(location) ? null : home;
+  final section = isManager ? '/manager' : '/home';
+  return location.startsWith(section) ? null : home;
 }

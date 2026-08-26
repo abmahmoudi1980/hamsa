@@ -90,16 +90,16 @@
 
 ### Tests for User Story 2 (write first, must FAIL)
 
-- [ ] T028 [P] [US2] Go integration test for building/unit CRUD incl. duplicate-number 409, search/filter, audit trail in `backend/internal/building/building_integration_test.go`
+- [x] T028 [P] [US2] Go integration test for building/unit CRUD incl. duplicate-number 409, search/filter, audit trail in `backend/internal/building/building_integration_test.go`
 
 ### Implementation for User Story 2
 
-- [ ] T029 [P] [US2] Create migration `backend/migrations/0002_buildings.up.sql`: `buildings`, `units` (unique index `(building_id, number)` where `deleted_at IS NULL`), `user_buildings` per data-model.md
-- [ ] T030 [P] [US2] Implement models + repositories for buildings and units in `backend/internal/building/` (GORM, soft delete)
-- [ ] T031 [US2] Implement building/unit service in `backend/internal/building/service.go`: validation (area > 0, statuses), duplicate-number check, manager-scope filter; auto-grant creator in `user_buildings`
-- [ ] T032 [US2] Implement handlers in `backend/internal/building/handlers.go`: buildings CRUD, unit list (`?q=&block=&floor=&status=` paginated), unit CRUD, `GET /units/{id}/history` (audit entries), all audited via T013 decorator, Persian error messages
-- [ ] T033 [P] [US2] Implement Flutter building screens in `mobile/lib/features/buildings/`: building list + create/edit form
-- [ ] T034 [P] [US2] Implement Flutter unit screens in `mobile/lib/features/buildings/`: searchable/filterable unit list, unit create/edit form (all fields incl. parking/storage numbers), unit change-history view
+- [x] T029 [P] [US2] Create migration `backend/migrations/0002_buildings.up.sql`: `buildings`, `units` (unique index `(building_id, number)` where `deleted_at IS NULL`), `user_buildings` per data-model.md
+- [x] T030 [P] [US2] Implement models + repositories for buildings and units in `backend/internal/building/` (GORM, soft delete)
+- [x] T031 [US2] Implement building/unit service in `backend/internal/building/service.go`: validation (area > 0, statuses), duplicate-number check, manager-scope filter; auto-grant creator in `user_buildings`
+- [x] T032 [US2] Implement handlers in `backend/internal/building/handlers.go`: buildings CRUD, unit list (`?q=&block=&floor=&status=` paginated), unit CRUD, `GET /units/{id}/history` (audit entries), all audited via T013 decorator, Persian error messages
+- [x] T033 [P] [US2] Implement Flutter building screens in `mobile/lib/features/buildings/`: building list + create/edit form
+- [x] T034 [P] [US2] Implement Flutter unit screens in `mobile/lib/features/buildings/`: searchable/filterable unit list, unit create/edit form (all fields incl. parking/storage numbers), unit change-history view
 
 **Checkpoint**: User Story 2 functional — full building/unit registry independently testable via UI and API.
 

@@ -158,4 +158,115 @@ class AppLocalizationsFa extends AppLocalizations {
   @override
   String get shellUnderConstruction =>
       'این بخش در مراحل بعدی پیاده‌سازی می‌شود.';
+
+  @override
+  String get buildingsTitle => 'ساختمان‌ها';
+
+  @override
+  String get buildingName => 'نام ساختمان';
+
+  @override
+  String get buildingAddress => 'نشانی';
+
+  @override
+  String get blockCount => 'تعداد بلوک';
+
+  @override
+  String get floorCount => 'تعداد طبقات';
+
+  @override
+  String get unitCountLabel => 'تعداد واحدها';
+
+  @override
+  String get builtYear => 'سال ساخت';
+
+  @override
+  String get managerPhoneLabel => 'شماره مدیر';
+
+  @override
+  String get emergencyPhoneLabel => 'شماره اضطراری';
+
+  @override
+  String get notesLabel => 'یادداشت';
+
+  @override
+  String get addBuilding => 'افزودن ساختمان';
+
+  @override
+  String get editBuilding => 'ویرایش ساختمان';
+
+  @override
+  String get archiveBuilding => 'آرشیو ساختمان';
+
+  @override
+  String get archiveConfirm => 'آیا از آرشیو این مورد مطمئن هستید؟';
+
+  @override
+  String get unitsTitle => 'واحدها';
+
+  @override
+  String get unitNumber => 'شماره واحد';
+
+  @override
+  String get unitBlock => 'بلوک';
+
+  @override
+  String get unitFloor => 'طبقه';
+
+  @override
+  String get areaM2 => 'متراژ (متر مربع)';
+
+  @override
+  String get parkingCount => 'تعداد پارکینگ';
+
+  @override
+  String get parkingNumbers => 'شماره پارکینگ‌ها';
+
+  @override
+  String get storageCount => 'تعداد انباری';
+
+  @override
+  String get storageNumbers => 'شماره انباری‌ها';
+
+  @override
+  String get unitStatus => 'وضعیت واحد';
+
+  @override
+  String get statusActive => 'فعال';
+
+  @override
+  String get statusVacant => 'خالی';
+
+  @override
+  String get statusOccupied => 'مسکونی';
+
+  @override
+  String get statusInactive => 'غیرفعال';
+
+  @override
+  String get addUnit => 'افزودن واحد';
+
+  @override
+  String get editUnit => 'ویرایش واحد';
+
+  @override
+  String get searchUnits => 'جست‌وجوی واحد…';
+
+  @override
+  String get allBlocks => 'همه بلوک‌ها';
+
+  @override
+  String get allStatuses => 'همه وضعیت‌ها';
+
+  @override
+  String get changeHistory => 'تاریخچه تغییرات';
+
+  @override
+  String get noChangeHistory => 'تغییری ثبت نشده است.';
+
+  @override
+  String get invalidFloor => 'طبقه را صحیح وارد کنید.';
+
+  @override
+  String get invalidNumber => 'عدد صحیح وارد کنید.';
 }

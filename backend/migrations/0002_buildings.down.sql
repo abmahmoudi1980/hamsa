@@ -1,0 +1,8 @@
+BEGIN;
+
+DROP TABLE IF EXISTS user_buildings;
+DROP TABLE IF EXISTS units;
+DROP TABLE IF EXISTS buildings;
+DROP TYPE IF EXISTS unit_status;
+
+COMMIT;

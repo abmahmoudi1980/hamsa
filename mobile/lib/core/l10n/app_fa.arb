@@ -4,7 +4,6 @@
   "splashMessage": "در حال بارگذاری…",
   "roleManager": "مدیر",
   "roleResident": "ساکن",
-
   "loginTitle": "ورود به همسا",
   "loginSubtitle": "برای ورود، شماره موبایل خود را وارد کنید.",
   "phoneLabel": "شماره موبایل",
@@ -12,15 +11,25 @@
   "otpLabel": "کد تأیید پیامک‌شده",
   "verifyAndLogin": "تأیید و ورود",
   "resendIn": "ارسال مجدد کد تا {seconds} ثانیه دیگر",
-  "@resendIn": { "placeholders": { "seconds": { "type": "String" } } },
+  "@resendIn": {
+    "placeholders": {
+      "seconds": {
+        "type": "String"
+      }
+    }
+  },
   "otpSentTo": "کد تأیید به شماره {phone} پیامک شد.",
-  "@otpSentTo": { "placeholders": { "phone": { "type": "String" } } },
+  "@otpSentTo": {
+    "placeholders": {
+      "phone": {
+        "type": "String"
+      }
+    }
+  },
   "resendOtp": "ارسال مجدد کد",
   "changePhone": "تغییر شماره",
-
   "invalidMobile": "شماره موبایل معتبر نیست.",
   "invalidOtp": "کد تأیید را وارد کنید.",
-
   "errorNetwork": "خطا در اتصال به سرور؛ اتصال اینترنت را بررسی کنید.",
   "errorTimeout": "زمان انتظار پاسخ سرور به پایان رسید؛ دوباره تلاش کنید.",
   "errorUnauthorized": "احراز هویت لازم است.",
@@ -33,10 +42,8 @@
   "errorValidation": "اطلاعات ارسالی معتبر نیست.",
   "errorServer": "خطای داخلی سرور؛ لطفاً دوباره تلاش کنید.",
   "errorUnknown": "خطایی رخ داد؛ دوباره تلاش کنید.",
-
   "emptyStateTitle": "هنوز موردی ثبت نشده است",
   "emptyStateSubtitle": "برای شروع، اولین مورد را اضافه کنید.",
-
   "retry": "تلاش دوباره",
   "cancel": "انصراف",
   "confirm": "تأیید",
@@ -44,19 +51,58 @@
   "edit": "ویرایش",
   "delete": "حذف",
   "logout": "خروج از حساب",
-
   "selectDate": "انتخاب تاریخ",
   "tomanSuffix": "تومان",
-
   "attachImage": "افزودن تصویر",
   "removeAttachment": "حذف تصویر",
-
   "notificationsTitle": "اعلان‌ها",
   "markAllRead": "علامت‌گذاری همه به‌عنوان خوانده‌شده",
   "unreadBadge": "{count} ناخواندا",
-  "@unreadBadge": { "placeholders": { "count": { "type": "int" } } },
-
+  "@unreadBadge": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "managerShellTitle": "پنل مدیریت",
   "residentShellTitle": "پنل ساکن",
-  "shellUnderConstruction": "این بخش در مراحل بعدی پیاده‌سازی می‌شود."
+  "shellUnderConstruction": "این بخش در مراحل بعدی پیاده‌سازی می‌شود.",
+  "buildingsTitle": "ساختمان‌ها",
+  "buildingName": "نام ساختمان",
+  "buildingAddress": "نشانی",
+  "blockCount": "تعداد بلوک",
+  "floorCount": "تعداد طبقات",
+  "unitCountLabel": "تعداد واحدها",
+  "builtYear": "سال ساخت",
+  "managerPhoneLabel": "شماره مدیر",
+  "emergencyPhoneLabel": "شماره اضطراری",
+  "notesLabel": "یادداشت",
+  "addBuilding": "افزودن ساختمان",
+  "editBuilding": "ویرایش ساختمان",
+  "archiveBuilding": "آرشیو ساختمان",
+  "archiveConfirm": "آیا از آرشیو این مورد مطمئن هستید؟",
+  "unitsTitle": "واحدها",
+  "unitNumber": "شماره واحد",
+  "unitBlock": "بلوک",
+  "unitFloor": "طبقه",
+  "areaM2": "متراژ (متر مربع)",
+  "parkingCount": "تعداد پارکینگ",
+  "parkingNumbers": "شماره پارکینگ‌ها",
+  "storageCount": "تعداد انباری",
+  "storageNumbers": "شماره انباری‌ها",
+  "unitStatus": "وضعیت واحد",
+  "statusActive": "فعال",
+  "statusVacant": "خالی",
+  "statusOccupied": "مسکونی",
+  "statusInactive": "غیرفعال",
+  "addUnit": "افزودن واحد",
+  "editUnit": "ویرایش واحد",
+  "searchUnits": "جست‌وجوی واحد…",
+  "allBlocks": "همه بلوک‌ها",
+  "allStatuses": "همه وضعیت‌ها",
+  "changeHistory": "تاریخچه تغییرات",
+  "noChangeHistory": "تغییری ثبت نشده است.",
+  "invalidFloor": "طبقه را صحیح وارد کنید.",
+  "invalidNumber": "عدد صحیح وارد کنید."
 }

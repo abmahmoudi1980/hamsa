@@ -375,6 +375,228 @@ abstract class AppLocalizations {
   /// In fa, this message translates to:
   /// **'این بخش در مراحل بعدی پیاده‌سازی می‌شود.'**
   String get shellUnderConstruction;
+
+  /// No description provided for @buildingsTitle.
+  ///
+  /// In fa, this message translates to:
+  /// **'ساختمان‌ها'**
+  String get buildingsTitle;
+
+  /// No description provided for @buildingName.
+  ///
+  /// In fa, this message translates to:
+  /// **'نام ساختمان'**
+  String get buildingName;
+
+  /// No description provided for @buildingAddress.
+  ///
+  /// In fa, this message translates to:
+  /// **'نشانی'**
+  String get buildingAddress;
+
+  /// No description provided for @blockCount.
+  ///
+  /// In fa, this message translates to:
+  /// **'تعداد بلوک'**
+  String get blockCount;
+
+  /// No description provided for @floorCount.
+  ///
+  /// In fa, this message translates to:
+  /// **'تعداد طبقات'**
+  String get floorCount;
+
+  /// No description provided for @unitCountLabel.
+  ///
+  /// In fa, this message translates to:
+  /// **'تعداد واحدها'**
+  String get unitCountLabel;
+
+  /// No description provided for @builtYear.
+  ///
+  /// In fa, this message translates to:
+  /// **'سال ساخت'**
+  String get builtYear;
+
+  /// No description provided for @managerPhoneLabel.
+  ///
+  /// In fa, this message translates to:
+  /// **'شماره مدیر'**
+  String get managerPhoneLabel;
+
+  /// No description provided for @emergencyPhoneLabel.
+  ///
+  /// In fa, this message translates to:
+  /// **'شماره اضطراری'**
+  String get emergencyPhoneLabel;
+
+  /// No description provided for @notesLabel.
+  ///
+  /// In fa, this message translates to:
+  /// **'یادداشت'**
+  String get notesLabel;
+
+  /// No description provided for @addBuilding.
+  ///
+  /// In fa, this message translates to:
+  /// **'افزودن ساختمان'**
+  String get addBuilding;
+
+  /// No description provided for @editBuilding.
+  ///
+  /// In fa, this message translates to:
+  /// **'ویرایش ساختمان'**
+  String get editBuilding;
+
+  /// No description provided for @archiveBuilding.
+  ///
+  /// In fa, this message translates to:
+  /// **'آرشیو ساختمان'**
+  String get archiveBuilding;
+
+  /// No description provided for @archiveConfirm.
+  ///
+  /// In fa, this message translates to:
+  /// **'آیا از آرشیو این مورد مطمئن هستید؟'**
+  String get archiveConfirm;
+
+  /// No description provided for @unitsTitle.
+  ///
+  /// In fa, this message translates to:
+  /// **'واحدها'**
+  String get unitsTitle;
+
+  /// No description provided for @unitNumber.
+  ///
+  /// In fa, this message translates to:
+  /// **'شماره واحد'**
+  String get unitNumber;
+
+  /// No description provided for @unitBlock.
+  ///
+  /// In fa, this message translates to:
+  /// **'بلوک'**
+  String get unitBlock;
+
+  /// No description provided for @unitFloor.
+  ///
+  /// In fa, this message translates to:
+  /// **'طبقه'**
+  String get unitFloor;
+
+  /// No description provided for @areaM2.
+  ///
+  /// In fa, this message translates to:
+  /// **'متراژ (متر مربع)'**
+  String get areaM2;
+
+  /// No description provided for @parkingCount.
+  ///
+  /// In fa, this message translates to:
+  /// **'تعداد پارکینگ'**
+  String get parkingCount;
+
+  /// No description provided for @parkingNumbers.
+  ///
+  /// In fa, this message translates to:
+  /// **'شماره پارکینگ‌ها'**
+  String get parkingNumbers;
+
+  /// No description provided for @storageCount.
+  ///
+  /// In fa, this message translates to:
+  /// **'تعداد انباری'**
+  String get storageCount;
+
+  /// No description provided for @storageNumbers.
+  ///
+  /// In fa, this message translates to:
+  /// **'شماره انباری‌ها'**
+  String get storageNumbers;
+
+  /// No description provided for @unitStatus.
+  ///
+  /// In fa, this message translates to:
+  /// **'وضعیت واحد'**
+  String get unitStatus;
+
+  /// No description provided for @statusActive.
+  ///
+  /// In fa, this message translates to:
+  /// **'فعال'**
+  String get statusActive;
+
+  /// No description provided for @statusVacant.
+  ///
+  /// In fa, this message translates to:
+  /// **'خالی'**
+  String get statusVacant;
+
+  /// No description provided for @statusOccupied.
+  ///
+  /// In fa, this message translates to:
+  /// **'مسکونی'**
+  String get statusOccupied;
+
+  /// No description provided for @statusInactive.
+  ///
+  /// In fa, this message translates to:
+  /// **'غیرفعال'**
+  String get statusInactive;
+
+  /// No description provided for @addUnit.
+  ///
+  /// In fa, this message translates to:
+  /// **'افزودن واحد'**
+  String get addUnit;
+
+  /// No description provided for @editUnit.
+  ///
+  /// In fa, this message translates to:
+  /// **'ویرایش واحد'**
+  String get editUnit;
+
+  /// No description provided for @searchUnits.
+  ///
+  /// In fa, this message translates to:
+  /// **'جست‌وجوی واحد…'**
+  String get searchUnits;
+
+  /// No description provided for @allBlocks.
+  ///
+  /// In fa, this message translates to:
+  /// **'همه بلوک‌ها'**
+  String get allBlocks;
+
+  /// No description provided for @allStatuses.
+  ///
+  /// In fa, this message translates to:
+  /// **'همه وضعیت‌ها'**
+  String get allStatuses;
+
+  /// No description provided for @changeHistory.
+  ///
+  /// In fa, this message translates to:
+  /// **'تاریخچه تغییرات'**
+  String get changeHistory;
+
+  /// No description provided for @noChangeHistory.
+  ///
+  /// In fa, this message translates to:
+  /// **'تغییری ثبت نشده است.'**
+  String get noChangeHistory;
+
+  /// No description provided for @invalidFloor.
+  ///
+  /// In fa, this message translates to:
+  /// **'طبقه را صحیح وارد کنید.'**
+  String get invalidFloor;
+
+  /// No description provided for @invalidNumber.
+  ///
+  /// In fa, this message translates to:
+  /// **'عدد صحیح وارد کنید.'**
+  String get invalidNumber;
 }
 
 class _AppLocalizationsDelegate
