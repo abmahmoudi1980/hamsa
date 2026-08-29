@@ -5,7 +5,9 @@ import 'status_labels.dart';
 /// Which domain an enum value belongs to — selects the label/color maps.
 enum StatusKind { invoice, period, maintenance, payment, expense }
 
-/// Pill showing a wire-enum status with its Persian label and accent color.
+/// Tonal pill with a status dot showing a wire-enum status and its Persian
+/// label. Color semantics come from the per-domain maps; unknown values fall
+/// back to the neutral surface.
 class StatusChip extends StatelessWidget {
   const StatusChip({super.key, required this.kind, required this.value});
 
@@ -32,19 +34,34 @@ class StatusChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = _color;
+    final scheme = Theme.of(context).colorScheme;
+    final color = _color ?? scheme.onSurfaceVariant;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: (color ?? Theme.of(context).colorScheme.primary).withValues(alpha: 0.12),
+        color: color.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(999),
       ),
-      child: Text(
-        _label,
-        style: Theme.of(context).textTheme.labelMedium?.copyWith(
-              color: color ?? Theme.of(context).colorScheme.primary,
-              fontWeight: FontWeight.w600,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 6,
+            height: 6,
+            decoration: BoxDecoration(
+              color: color,
+              shape: BoxShape.circle,
             ),
+          ),
+          const SizedBox(width: 6),
+          Text(
+            _label,
+            style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                  color: color,
+                  fontWeight: FontWeight.w700,
+                ),
+          ),
+        ],
       ),
     );
   }

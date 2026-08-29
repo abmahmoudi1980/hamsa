@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/l10n/app_localizations.dart';
+import '../../../core/theme/app_theme.dart';
+import '../../../shared/widgets/empty_state.dart';
 import '../buildings_controller.dart';
 import '../models/building.dart';
 
@@ -14,6 +16,7 @@ class UnitHistoryScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final repo = ref.watch(buildingsRepositoryProvider);
+    final scheme = Theme.of(context).colorScheme;
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.changeHistory)),
@@ -25,14 +28,25 @@ class UnitHistoryScreen extends ConsumerWidget {
           }
           final items = snap.data ?? const [];
           if (items.isEmpty) {
-            return Center(child: Text(l10n.noChangeHistory));
+            return EmptyState(title: l10n.noChangeHistory);
           }
           return ListView.separated(
+            padding: AppTheme.pagePadding,
             itemCount: items.length,
-            separatorBuilder: (_, _) => const Divider(height: 1),
-            itemBuilder: (context, i) => ListTile(
-              leading: const Icon(Icons.history),
-              title: Text(items[i].action),
+            separatorBuilder: (_, _) => const SizedBox(height: 10),
+            itemBuilder: (context, i) => Card(
+              child: ListTile(
+                leading: Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: scheme.primary.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
+                  ),
+                  child: const Icon(Icons.history, size: 22),
+                ),
+                title: Text(items[i].action),
+              ),
             ),
           );
         },

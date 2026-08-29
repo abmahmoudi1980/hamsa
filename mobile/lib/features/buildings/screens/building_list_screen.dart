@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/l10n/app_localizations.dart';
 import '../../../core/network/api_exception.dart';
+import '../../../core/theme/app_theme.dart';
+import '../../../shared/widgets/empty_state.dart';
 import '../../auth/auth_controller.dart';
 import '../buildings_controller.dart';
 
@@ -16,6 +18,7 @@ class BuildingListScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final async = ref.watch(buildingsControllerProvider);
+    final scheme = Theme.of(context).colorScheme;
 
     return Scaffold(
       appBar: AppBar(
@@ -35,89 +38,78 @@ class BuildingListScreen extends ConsumerWidget {
       ),
       body: async.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                e is ApiException
-                    ? (e.serverMessage ?? l10n.apiErrorMessage(e))
-                    : l10n.errorUnknown,
-              ),
-              const SizedBox(height: 8),
-              TextButton(
-                onPressed: () => ref.invalidate(buildingsControllerProvider),
-                child: Text(l10n.retry),
-              ),
-            ],
-          ),
+        error: (e, _) => EmptyState(
+          icon: Icons.error_outline,
+          title: e is ApiException
+              ? (e.serverMessage ?? l10n.apiErrorMessage(e))
+              : l10n.errorUnknown,
+          actionLabel: l10n.retry,
+          onAction: () => ref.invalidate(buildingsControllerProvider),
         ),
         data: (buildings) => buildings.isEmpty
-            ? EmptyState(onAdd: () => context.push('/manager/buildings/new'))
+            ? EmptyState(
+                title: l10n.emptyStateTitle,
+                subtitle: l10n.emptyStateSubtitle,
+                actionLabel: l10n.addBuilding,
+                onAction: () => context.push('/manager/buildings/new'),
+              )
             : RefreshIndicator(
                 onRefresh: () async =>
                     ref.invalidate(buildingsControllerProvider),
                 child: ListView.separated(
+                  padding: AppTheme.pagePadding,
                   itemCount: buildings.length,
-                  separatorBuilder: (_, _) => const Divider(height: 1),
+                  separatorBuilder: (_, _) => const SizedBox(height: 10),
                   itemBuilder: (context, i) {
                     final b = buildings[i];
-                    return ListTile(
-                      title: Text(b.name),
-                      subtitle: Text(
-                        '${b.unitCount} ${l10n.unitsTitle}'
-                        '${b.address == null || b.address!.isEmpty ? '' : ' • ${b.address}'}',
-                      ),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          // US4 (T050): billing periods entry point.
-                          IconButton(
-                            icon: const Icon(Icons.receipt_long),
-                            tooltip: l10n.billingTitle,
-                            onPressed: () =>
-                                context.push('/manager/periods/${b.id}'),
+                    return Card(
+                      child: ListTile(
+                        leading: Container(
+                          width: 44,
+                          height: 44,
+                          decoration: BoxDecoration(
+                            color: scheme.primary.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(
+                              AppTheme.radiusSmall,
+                            ),
                           ),
-                          const Icon(Icons.chevron_left),
-                          // US6 (T066): expenses & financial report entry.
-                          IconButton(
-                            icon: const Icon(Icons.receipt),
-                            tooltip: l10n.expensesTitle,
-                            onPressed: () =>
-                                context.push('/manager/expenses/${b.id}'),
+                          child: const Icon(
+                            Icons.apartment_outlined,
+                            size: 22,
                           ),
-                        ],
+                        ),
+                        title: Text(b.name),
+                        subtitle: Text(
+                          '${b.unitCount} ${l10n.unitsTitle}'
+                          '${b.address == null || b.address!.isEmpty ? '' : ' • ${b.address}'}',
+                        ),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            // US4 (T050): billing periods entry point.
+                            IconButton(
+                              icon: const Icon(Icons.receipt_long),
+                              tooltip: l10n.billingTitle,
+                              onPressed: () =>
+                                  context.push('/manager/periods/${b.id}'),
+                            ),
+                            const Icon(Icons.chevron_left),
+                            // US6 (T066): expenses & financial report entry.
+                            IconButton(
+                              icon: const Icon(Icons.receipt),
+                              tooltip: l10n.expensesTitle,
+                              onPressed: () =>
+                                  context.push('/manager/expenses/${b.id}'),
+                            ),
+                          ],
+                        ),
+                        onTap: () =>
+                            context.push('/manager/buildings/${b.id}/units'),
                       ),
-                      onTap: () =>
-                          context.push('/manager/buildings/${b.id}/units'),
                     );
                   },
                 ),
               ),
-      ),
-    );
-  }
-}
-
-class EmptyState extends StatelessWidget {
-  const EmptyState({required this.onAdd, super.key});
-
-  final VoidCallback onAdd;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            l10n.emptyStateTitle,
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
-          const SizedBox(height: 8),
-          FilledButton(onPressed: onAdd, child: Text(l10n.addBuilding)),
-        ],
       ),
     );
   }

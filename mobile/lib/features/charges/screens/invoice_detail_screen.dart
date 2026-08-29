@@ -4,8 +4,11 @@ import 'package:go_router/go_router.dart';
 import '../../../core/datetime/jalali.dart';
 import '../../../core/l10n/app_localizations.dart';
 import '../../../core/network/api_exception.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../../shared/formatters/money_text.dart';
 import '../../../shared/widgets/calc_method.dart';
+import '../../../shared/widgets/empty_state.dart';
+import '../../../shared/widgets/menu_card.dart';
 import '../../../shared/widgets/status_chip.dart';
 import '../../auth/auth_controller.dart';
 import '../../auth/models/user_session.dart';
@@ -177,7 +180,8 @@ class _InvoiceDetailScreenState extends ConsumerState<InvoiceDetailScreen> {
     if (_error != null || _invoice == null) {
       return Scaffold(
         appBar: AppBar(),
-        body: Center(child: Text(_error ?? l10n.errorUnknown)),
+        body: EmptyState(
+            icon: Icons.error_outline, title: _error ?? l10n.errorUnknown),
       );
     }
     final inv = _invoice!;
@@ -213,89 +217,108 @@ class _InvoiceDetailScreenState extends ConsumerState<InvoiceDetailScreen> {
         ],
       ),
       body: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: AppTheme.pagePadding,
         children: [
-          Row(
-            children: [
-              if (inv.unitNumber.isNotEmpty)
-                Expanded(
-                  child: Text(
-                    '${l10n.unitNumber} ${inv.unitNumber}',
-                    style: Theme.of(context).textTheme.titleMedium,
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(AppTheme.spaceL),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Row(
+                    children: [
+                      if (inv.unitNumber.isNotEmpty)
+                        Expanded(
+                          child: Text(
+                            '${l10n.unitNumber} ${inv.unitNumber}',
+                            style: Theme.of(context).textTheme.titleMedium,
+                          ),
+                        ),
+                      StatusChip(kind: StatusKind.invoice, value: inv.status),
+                    ],
                   ),
-                ),
-              StatusChip(kind: StatusKind.invoice, value: inv.status),
-            ],
-          ),
-          const SizedBox(height: 16),
-          _amountRow(context, l10n.baseAmount, inv.baseAmount),
-          if (inv.priorDebt > 0)
-            _amountRow(context, l10n.priorDebt, inv.priorDebt),
-          if (inv.lateFeeAmount > 0)
-            _amountRow(context, l10n.lateFeeAmount, inv.lateFeeAmount),
-          if (inv.creditAmount > 0)
-            _amountRow(context, l10n.creditAmount, inv.creditAmount),
-          const Divider(),
-          _amountRow(context, l10n.finalAmount, inv.finalAmount,
-              emphasized: true),
-          if (inv.paidAmount > 0)
-            _amountRow(context, l10n.paidAmount, inv.paidAmount),
-          if (inv.dueDate != null)
-            ListTile(
-              contentPadding: EdgeInsets.zero,
-              dense: true,
-              title: Text(l10n.dueDateLabel),
-              trailing: Text(formatJalaliLongDate(
-                  DateTime.tryParse(inv.dueDate!) ?? DateTime(2000))),
+                  const SizedBox(height: AppTheme.spaceM),
+                  _amountRow(context, l10n.baseAmount, inv.baseAmount),
+                  if (inv.priorDebt > 0)
+                    _amountRow(context, l10n.priorDebt, inv.priorDebt),
+                  if (inv.lateFeeAmount > 0)
+                    _amountRow(context, l10n.lateFeeAmount, inv.lateFeeAmount),
+                  if (inv.creditAmount > 0)
+                    _amountRow(context, l10n.creditAmount, inv.creditAmount),
+                  const Divider(),
+                  _amountRow(context, l10n.finalAmount, inv.finalAmount,
+                      emphasized: true),
+                  if (inv.paidAmount > 0)
+                    _amountRow(context, l10n.paidAmount, inv.paidAmount),
+                  if (inv.dueDate != null)
+                    _metaRow(
+                      context,
+                      l10n.dueDateLabel,
+                      formatJalaliLongDate(
+                          DateTime.tryParse(inv.dueDate!) ?? DateTime(2000)),
+                    ),
+                  if (inv.issueDate != null)
+                    _metaRow(
+                      context,
+                      l10n.issueDateLabel,
+                      formatJalaliLongDate(
+                          DateTime.tryParse(inv.issueDate!) ?? DateTime(2000)),
+                    ),
+                  // US5 (T061): resident online payment entry.
+                  if (!_isManager && _payable(inv)) ...[
+                    const SizedBox(height: AppTheme.spaceL),
+                    FilledButton.icon(
+                      icon: const Icon(Icons.credit_card),
+                      label: Text(l10n.payNow),
+                      onPressed: () async {
+                        await context.push('/invoice/${inv.id}/pay');
+                        await _load();
+                      },
+                    ),
+                  ],
+                ],
+              ),
             ),
-          // US5 (T061): resident online payment entry.
-          if (!_isManager && _payable(inv)) ...[
-            const SizedBox(height: 16),
-            FilledButton.icon(
-              icon: const Icon(Icons.credit_card),
-              label: Text(l10n.payNow),
-              onPressed: () async {
-                await context.push('/invoice/${inv.id}/pay');
-                await _load();
-              },
+          ),
+          if (inv.items.isNotEmpty) ...[
+            const SizedBox(height: AppTheme.spaceXl),
+            SectionHeader(title: l10n.costItemsTitle),
+            Card(
+              child: Column(
+                children: inv.items
+                    .map((item) => ListTile(
+                          leading: Icon(_kindIcon(item.kind)),
+                          title: Text(item.title),
+                          subtitle: item.method != null
+                              ? Text(calcMethodLabel(l10n, item.method!))
+                              : item.kind == 'adjustment'
+                                  ? Text(l10n.itemKindAdjustment)
+                                  : null,
+                          trailing: MoneyText(amount: item.amount),
+                        ))
+                    .toList(),
+              ),
             ),
           ],
-          if (inv.issueDate != null)
-            ListTile(
-              contentPadding: EdgeInsets.zero,
-              dense: true,
-              title: Text(l10n.issueDateLabel),
-              trailing: Text(formatJalaliLongDate(
-                  DateTime.tryParse(inv.issueDate!) ?? DateTime(2000))),
-            ),
-          const Divider(height: 32),
-          Text(l10n.costItemsTitle, style: Theme.of(context).textTheme.titleMedium),
-          ...inv.items.map((item) => ListTile(
-                contentPadding: EdgeInsets.zero,
-                leading: Icon(_kindIcon(item.kind)),
-                title: Text(item.title),
-                subtitle: item.method != null
-                    ? Text(calcMethodLabel(l10n, item.method!))
-                    : item.kind == 'adjustment'
-                        ? Text(l10n.itemKindAdjustment)
-                        : null,
-                trailing: MoneyText(amount: item.amount),
-              )),
           if (inv.adjustments.isNotEmpty) ...[
-            const Divider(height: 32),
-            Text(l10n.addAdjustment,
-                style: Theme.of(context).textTheme.titleMedium),
-            ...inv.adjustments.map((a) => ListTile(
-                  contentPadding: EdgeInsets.zero,
-                  leading: Icon(a.kind == 'credit'
-                      ? Icons.arrow_downward
-                      : Icons.arrow_upward),
-                  title: Text(a.kind == 'credit'
-                      ? l10n.adjustmentCredit
-                      : l10n.adjustmentDebit),
-                  subtitle: Text(a.reason),
-                  trailing: MoneyText(amount: a.amount),
-                )),
+            const SizedBox(height: AppTheme.spaceXl),
+            SectionHeader(title: l10n.addAdjustment),
+            Card(
+              child: Column(
+                children: inv.adjustments
+                    .map((a) => ListTile(
+                          leading: Icon(a.kind == 'credit'
+                              ? Icons.arrow_downward
+                              : Icons.arrow_upward),
+                          title: Text(a.kind == 'credit'
+                              ? l10n.adjustmentCredit
+                              : l10n.adjustmentDebit),
+                          subtitle: Text(a.reason),
+                          trailing: MoneyText(amount: a.amount),
+                        ))
+                    .toList(),
+              ),
+            ),
           ],
         ],
       ),
@@ -316,20 +339,33 @@ class _InvoiceDetailScreenState extends ConsumerState<InvoiceDetailScreen> {
 
   Widget _amountRow(BuildContext context, String label, int amount,
       {bool emphasized = false}) {
+    final theme = Theme.of(context);
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
+      padding: const EdgeInsets.symmetric(vertical: AppTheme.spaceXs),
       child: Row(
         children: [
-          Expanded(child: Text(label)),
+          Expanded(child: Text(label, style: theme.textTheme.bodyMedium)),
           MoneyText(
             amount: amount,
             style: emphasized
-                ? Theme.of(context)
-                    .textTheme
-                    .titleLarge
-                    ?.copyWith(fontWeight: FontWeight.bold)
+                ? theme.textTheme.titleLarge
+                    ?.copyWith(color: theme.colorScheme.primary)
                 : null,
           ),
+        ],
+      ),
+    );
+  }
+
+  /// Label/value caption row for invoice metadata (issue/due dates).
+  Widget _metaRow(BuildContext context, String label, String value) {
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: AppTheme.spaceXs),
+      child: Row(
+        children: [
+          Expanded(child: Text(label, style: theme.textTheme.bodyMedium)),
+          Text(value, style: theme.textTheme.bodyMedium),
         ],
       ),
     );

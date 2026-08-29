@@ -5,8 +5,11 @@ import 'package:go_router/go_router.dart';
 import '../../../core/datetime/jalali.dart';
 import '../../../core/l10n/app_localizations.dart';
 import '../../../core/network/api_exception.dart';
+import '../../../core/theme/app_theme.dart';
+import '../../../shared/widgets/empty_state.dart';
 import '../../../shared/formatters/money_text.dart';
 import '../../../shared/widgets/calc_method.dart';
+import '../../../shared/widgets/menu_card.dart';
 import '../../../shared/widgets/status_chip.dart';
 import '../billing_controller.dart';
 import '../models/billing.dart';
@@ -64,10 +67,11 @@ class PeriodDetailScreen extends ConsumerWidget {
       appBar: AppBar(title: Text(l10n.previewTitle)),
       body: previewAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(
-          child: Text(e is ApiException
+        error: (e, _) => EmptyState(
+          icon: Icons.error_outline,
+          title: e is ApiException
               ? (e.serverMessage ?? l10n.errorServer)
-              : l10n.errorUnknown),
+              : l10n.errorUnknown,
         ),
         data: (ps) {
           final period = ps.preview.period;
@@ -77,7 +81,7 @@ class PeriodDetailScreen extends ConsumerWidget {
           final canReopen = period.status == 'calculated';
           final canClose = period.status == 'issued';
           return ListView(
-            padding: const EdgeInsets.all(16),
+            padding: AppTheme.pagePadding,
             children: [
               // --- period header -------------------------------------------
               Card(
@@ -91,10 +95,10 @@ class PeriodDetailScreen extends ConsumerWidget {
                   trailing: StatusChip(kind: StatusKind.period, value: period.status),
                 ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: AppTheme.spaceM),
               Wrap(
-                spacing: 8,
-                runSpacing: 8,
+                spacing: AppTheme.spaceS,
+                runSpacing: AppTheme.spaceS,
                 children: [
                   if (canCalculate)
                     FilledButton.icon(
@@ -167,79 +171,82 @@ class PeriodDetailScreen extends ConsumerWidget {
                     ),
                 ],
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: AppTheme.spaceL),
 
               // --- cost items (editable only in draft) ----------------------
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(l10n.costItemsTitle,
-                      style: Theme.of(context).textTheme.titleMedium),
-                  if (canEdit)
-                    TextButton.icon(
-                      onPressed: () => context.push(
-                        '/manager/periods/$buildingId/$periodId/cost-items/new',
-                      ),
-                      icon: const Icon(Icons.add),
-                      label: Text(l10n.addCostItem),
-                    ),
-                ],
+              SectionHeader(
+                title: l10n.costItemsTitle,
+                action: canEdit
+                    ? TextButton.icon(
+                        onPressed: () => context.push(
+                          '/manager/periods/$buildingId/$periodId/cost-items/new',
+                        ),
+                        icon: const Icon(Icons.add),
+                        label: Text(l10n.addCostItem),
+                      )
+                    : null,
               ),
-              ...ps.preview.items.map((item) => ListTile(
-                    contentPadding: EdgeInsets.zero,
+              ...ps.preview.items.map(
+                (item) => Card(
+                  child: ListTile(
                     title: Text(item.title),
                     subtitle: Text(calcMethodLabel(l10n, item.method)),
-                    trailing: MoneyText(amount: item.totalUsed),
+                    trailing: MoneyText(
+                      amount: item.totalUsed,
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
                     onTap: canEdit
                         ? () => context.push(
                             '/manager/periods/$buildingId/$periodId/cost-items/${item.id}',
                             extra: item.costItem)
                         : null,
-                  )),
-              const Divider(height: 32),
+                  ),
+                ),
+              ),
+              const SizedBox(height: AppTheme.spaceL),
 
               // --- reviewable breakdown (BR-08) ------------------------------
               if (!ps.preview.reconciled)
                 Card(
                   color: Theme.of(context).colorScheme.errorContainer,
                   child: Padding(
-                    padding: const EdgeInsets.all(12),
+                    padding: const EdgeInsets.all(AppTheme.spaceM),
                     child: Text(l10n.reconciliationBad),
                   ),
                 ),
               ...ps.preview.items.map(
                 (item) => _PreviewItemCard(item: item),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: AppTheme.spaceL),
 
               // --- resulting invoices ----------------------------------------
-              Text(l10n.invoicesTitle,
-                  style: Theme.of(context).textTheme.titleMedium),
+              SectionHeader(title: l10n.invoicesTitle),
               ...ps.preview.invoices.map(
-                (inv) => ListTile(
-                  contentPadding: EdgeInsets.zero,
-                  title: Text(inv.unitNumber.isEmpty
-                      ? inv.unitId
-                      : '${l10n.unitNumber} ${inv.unitNumber}'),
-                  subtitle: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      // Issued invoices carry BLD-YYYY-NNNN; drafts keep a
-                      // DRAFT- placeholder worth hiding (no number yet).
-                      if (!inv.invoiceNumber.startsWith('DRAFT-'))
-                        Text(inv.invoiceNumber),
-                      if (inv.status != 'unpaid') ...[
+                (inv) => Card(
+                  child: ListTile(
+                    title: Text(inv.unitNumber.isEmpty
+                        ? inv.unitId
+                        : '${l10n.unitNumber} ${inv.unitNumber}'),
+                    subtitle: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Issued invoices carry BLD-YYYY-NNNN; drafts keep a
+                        // DRAFT- placeholder worth hiding (no number yet).
                         if (!inv.invoiceNumber.startsWith('DRAFT-'))
-                          const SizedBox(width: 8),
-                        StatusChip(kind: StatusKind.invoice, value: inv.status),
+                          Text(inv.invoiceNumber),
+                        if (inv.status != 'unpaid') ...[
+                          if (!inv.invoiceNumber.startsWith('DRAFT-'))
+                            const SizedBox(width: AppTheme.spaceS),
+                          StatusChip(kind: StatusKind.invoice, value: inv.status),
+                        ],
                       ],
-                    ],
+                    ),
+                    trailing: MoneyText(
+                      amount: inv.finalAmount,
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                    onTap: () => context.push('/invoice/${inv.id}'),
                   ),
-                  trailing: MoneyText(
-                    amount: inv.finalAmount,
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                  onTap: () => context.push('/invoice/${inv.id}'),
                 ),
               ),
             ],
@@ -259,9 +266,10 @@ class _PreviewItemCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final scheme = Theme.of(context).colorScheme;
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.all(AppTheme.spaceM),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -271,9 +279,9 @@ class _PreviewItemCard extends StatelessWidget {
                 Icon(
                   item.reconciled ? Icons.check_circle : Icons.error,
                   size: 18,
-                  color: item.reconciled ? Colors.green : Colors.red,
+                  color: item.reconciled ? scheme.primary : scheme.error,
                 ),
-                const SizedBox(width: 4),
+                const SizedBox(width: AppTheme.spaceXs),
                 Text(
                   item.reconciled
                       ? l10n.reconciliationOk
@@ -297,7 +305,7 @@ class _PreviewItemCard extends StatelessWidget {
                       '${l10n.exactShare}: ${toPersianDigits(s.exactShare)}',
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
-                    const SizedBox(width: 12),
+                    const SizedBox(width: AppTheme.spaceM),
                     SizedBox(
                       width: 130,
                       child: Align(

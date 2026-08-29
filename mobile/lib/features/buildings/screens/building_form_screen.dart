@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/l10n/app_localizations.dart';
 import '../../../core/network/api_exception.dart';
+import '../../../core/theme/app_theme.dart';
 import '../buildings_controller.dart';
 import '../models/building.dart';
 
@@ -111,94 +112,104 @@ class _BuildingFormScreenState extends ConsumerState<BuildingFormScreen> {
       body: Form(
         key: _formKey,
         child: ListView(
-          padding: const EdgeInsets.all(16),
-          children:
-              [
-                    TextFormField(
-                      controller: _name,
-                      decoration: InputDecoration(labelText: l10n.buildingName),
-                      validator: (v) => v == null || v.trim().isEmpty
-                          ? l10n.requiredField
-                          : null,
-                    ),
-                    TextFormField(
-                      controller: _address,
-                      decoration: InputDecoration(
-                        labelText: l10n.buildingAddress,
-                      ),
-                    ),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _NumField(
-                            controller: _blocks,
-                            label: l10n.blockCount,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: _NumField(
-                            controller: _floors,
-                            label: l10n.floorCount,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: _NumField(
-                            controller: _units,
-                            label: l10n.unitCountLabel,
-                          ),
-                        ),
-                      ],
-                    ),
-                    TextFormField(
-                      controller: _builtYear,
-                      keyboardType: TextInputType.number,
-                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                      decoration: InputDecoration(labelText: l10n.builtYear),
-                    ),
-                    TextFormField(
-                      controller: _managerPhone,
-                      keyboardType: TextInputType.phone,
-                      decoration: InputDecoration(
-                        labelText: l10n.managerPhoneLabel,
-                      ),
-                    ),
-                    TextFormField(
-                      controller: _emergencyPhone,
-                      keyboardType: TextInputType.phone,
-                      decoration: InputDecoration(
-                        labelText: l10n.emergencyPhoneLabel,
-                      ),
-                    ),
-                    TextFormField(
-                      controller: _notes,
-                      maxLines: 3,
-                      decoration: InputDecoration(labelText: l10n.notesLabel),
-                    ),
-                    if (_apiError != null) ...[
-                      const SizedBox(height: 12),
-                      Text(
-                        _apiError!,
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.error,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
-                    const SizedBox(height: 24),
-                    FilledButton(
-                      onPressed: _saving ? null : _save,
-                      child: Text(l10n.save),
-                    ),
-                  ]
-                  .map(
-                    (w) => Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: w,
-                    ),
-                  )
-                  .toList(),
+          padding: AppTheme.pagePadding,
+          children: [
+            TextFormField(
+              controller: _name,
+              decoration: InputDecoration(labelText: l10n.buildingName),
+              validator: (v) => v == null || v.trim().isEmpty
+                  ? l10n.requiredField
+                  : null,
+            ),
+            const SizedBox(height: AppTheme.spaceM),
+            TextFormField(
+              controller: _address,
+              decoration: InputDecoration(
+                labelText: l10n.buildingAddress,
+              ),
+            ),
+            const SizedBox(height: AppTheme.spaceM),
+            Row(
+              children: [
+                Expanded(
+                  child: _NumField(
+                    controller: _blocks,
+                    label: l10n.blockCount,
+                  ),
+                ),
+                const SizedBox(width: AppTheme.spaceS),
+                Expanded(
+                  child: _NumField(
+                    controller: _floors,
+                    label: l10n.floorCount,
+                  ),
+                ),
+                const SizedBox(width: AppTheme.spaceS),
+                Expanded(
+                  child: _NumField(
+                    controller: _units,
+                    label: l10n.unitCountLabel,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: AppTheme.spaceM),
+            TextFormField(
+              controller: _builtYear,
+              keyboardType: TextInputType.number,
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              decoration: InputDecoration(labelText: l10n.builtYear),
+            ),
+            const SizedBox(height: AppTheme.spaceM),
+            TextFormField(
+              controller: _managerPhone,
+              keyboardType: TextInputType.phone,
+              decoration: InputDecoration(
+                labelText: l10n.managerPhoneLabel,
+              ),
+            ),
+            const SizedBox(height: AppTheme.spaceM),
+            TextFormField(
+              controller: _emergencyPhone,
+              keyboardType: TextInputType.phone,
+              decoration: InputDecoration(
+                labelText: l10n.emergencyPhoneLabel,
+              ),
+            ),
+            const SizedBox(height: AppTheme.spaceM),
+            TextFormField(
+              controller: _notes,
+              maxLines: 3,
+              decoration: InputDecoration(labelText: l10n.notesLabel),
+            ),
+            if (_apiError != null) ...[
+              const SizedBox(height: AppTheme.spaceM),
+              Text(
+                _apiError!,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.error,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ],
+        ),
+      ),
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(
+            AppTheme.spaceXl,
+            AppTheme.spaceS,
+            AppTheme.spaceXl,
+            0,
+          ),
+          child: SizedBox(
+            width: double.infinity,
+            child: FilledButton(
+              onPressed: _saving ? null : _save,
+              child: Text(l10n.save),
+            ),
+          ),
         ),
       ),
     );

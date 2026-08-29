@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:persian_datetime_picker/persian_datetime_picker.dart';
 
+import '../../../core/theme/app_theme.dart';
 import '../../../core/datetime/jalali.dart';
 import '../../../core/l10n/app_localizations.dart';
 import '../../../shared/formatters/money_text.dart';
@@ -92,10 +93,13 @@ class _PaymentLedgerScreenState extends ConsumerState<PaymentLedgerScreen> {
       body: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppTheme.spaceXl,
+              vertical: AppTheme.spaceS,
+            ),
             child: Wrap(
-              spacing: 8,
-              runSpacing: 8,
+              spacing: AppTheme.spaceS,
+              runSpacing: AppTheme.spaceS,
               alignment: WrapAlignment.end,
               children: [
                 DropdownButton<String>(
@@ -156,31 +160,37 @@ class _PaymentLedgerScreenState extends ConsumerState<PaymentLedgerScreen> {
       return const Center(child: CircularProgressIndicator());
     }
     if (_error != null) {
-      return Center(child: Text(_error!));
+      return EmptyState(icon: Icons.error_outline, title: _error!);
     }
     final items = _results ?? const <Payment>[];
     if (items.isEmpty) {
       return EmptyState(title: l10n.noPayments);
     }
     return ListView.separated(
+      padding: AppTheme.pagePadding,
       itemCount: items.length,
-      separatorBuilder: (_, _) => const Divider(height: 1),
+      separatorBuilder: (_, _) => const SizedBox(height: 10),
       itemBuilder: (context, i) {
         final p = items[i];
-        return ListTile(
-          leading: const Icon(Icons.payments_outlined),
-          title: Row(
-            children: [
-              MoneyText(amount: p.amount),
-              const Spacer(),
-              StatusChip(kind: StatusKind.payment, value: p.status),
-            ],
-          ),
-          subtitle: Text(
-            '${p.unitNumber == null ? '' : '${l10n.unitLabel} ${toPersianDigits(p.unitNumber!)} — '}'
-            '${paymentMethodLabels[p.method] ?? p.method}'
-            ' — ${formatJalaliDate(DateTime.parse(p.paidAt))}'
-            '${p.trackingNumber == null ? '' : ' — ${toPersianDigits(p.trackingNumber!)}'}',
+        return Card(
+          child: ListTile(
+            leading: const Icon(Icons.payments_outlined),
+            title: Row(
+              children: [
+                MoneyText(
+                  amount: p.amount,
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                const Spacer(),
+                StatusChip(kind: StatusKind.payment, value: p.status),
+              ],
+            ),
+            subtitle: Text(
+              '${p.unitNumber == null ? '' : '${l10n.unitLabel} ${toPersianDigits(p.unitNumber!)} — '}'
+              '${paymentMethodLabels[p.method] ?? p.method}'
+              ' — ${formatJalaliDate(DateTime.parse(p.paidAt))}'
+              '${p.trackingNumber == null ? '' : ' — ${toPersianDigits(p.trackingNumber!)}'}',
+            ),
           ),
         );
       },

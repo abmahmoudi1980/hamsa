@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/datetime/jalali.dart';
 import '../../../core/l10n/app_localizations.dart';
 import '../../../core/network/api_exception.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../../shared/widgets/empty_state.dart';
 import '../../../shared/widgets/status_chip.dart';
 import '../billing_controller.dart';
@@ -21,6 +22,7 @@ class PeriodListScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final async = ref.watch(periodsControllerProvider(buildingId));
+    final scheme = Theme.of(context).colorScheme;
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.billingTitle)),
@@ -31,27 +33,49 @@ class PeriodListScreen extends ConsumerWidget {
       ),
       body: async.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text(_msg(l10n, e))),
+        error: (e, _) => EmptyState(
+          icon: Icons.error_outline,
+          title: _msg(l10n, e),
+        ),
         data: (periods) => periods.isEmpty
-            ? EmptyState(title: l10n.billingTitle, subtitle: l10n.emptyStateSubtitle)
+            ? EmptyState(
+                title: l10n.billingTitle,
+                subtitle: l10n.emptyStateSubtitle,
+                actionLabel: l10n.addPeriod,
+                onAction: () => context.push('/manager/periods/$buildingId/new'),
+              )
             : RefreshIndicator(
                 onRefresh: () async =>
                     ref.invalidate(periodsControllerProvider(buildingId)),
                 child: ListView.separated(
+                  padding: AppTheme.pagePadding,
                   itemCount: periods.length,
-                  separatorBuilder: (_, _) => const Divider(height: 1),
+                  separatorBuilder: (_, _) => const SizedBox(height: 10),
                   itemBuilder: (context, i) {
                     final p = periods[i];
-                    return ListTile(
-                      title: Text(p.title),
-                      subtitle: Text(
-                        '${formatJalaliDate(_parseIso(p.startDate))}'
-                        ' — ${formatJalaliDate(_parseIso(p.endDate))}',
+                    return Card(
+                      child: ListTile(
+                        leading: Container(
+                          width: 44,
+                          height: 44,
+                          decoration: BoxDecoration(
+                            color: scheme.primary.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(
+                              AppTheme.radiusSmall,
+                            ),
+                          ),
+                          child: const Icon(Icons.event_note_outlined, size: 22),
+                        ),
+                        title: Text(p.title),
+                        subtitle: Text(
+                          '${formatJalaliDate(_parseIso(p.startDate))}'
+                          ' — ${formatJalaliDate(_parseIso(p.endDate))}',
+                        ),
+                        trailing:
+                            StatusChip(kind: StatusKind.period, value: p.status),
+                        onTap: () => context
+                            .push('/manager/periods/$buildingId/${p.id}'),
                       ),
-                      trailing:
-                          StatusChip(kind: StatusKind.period, value: p.status),
-                      onTap: () => context
-                          .push('/manager/periods/$buildingId/${p.id}'),
                     );
                   },
                 ),

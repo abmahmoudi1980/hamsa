@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/datetime/jalali.dart';
 import '../../../core/l10n/app_localizations.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../../shared/formatters/money_text.dart';
 import '../../../shared/widgets/empty_state.dart';
 import '../../../shared/widgets/status_chip.dart';
@@ -22,31 +23,35 @@ class PaymentHistoryScreen extends ConsumerWidget {
       appBar: AppBar(title: Text(l10n.paymentHistoryTitle)),
       body: payments.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text(l10n.errorServer)),
+        error: (e, _) =>
+            EmptyState(icon: Icons.error_outline, title: l10n.errorServer),
         data: (items) {
           if (items.isEmpty) return EmptyState(title: l10n.noPayments);
           return RefreshIndicator(
             onRefresh: () =>
                 ref.read(myPaymentsControllerProvider.notifier).refresh(),
             child: ListView.separated(
+              padding: AppTheme.pagePadding,
               itemCount: items.length,
-              separatorBuilder: (_, _) => const Divider(height: 1),
+              separatorBuilder: (_, _) => const SizedBox(height: 10),
               itemBuilder: (context, i) {
                 final p = items[i];
-                return ListTile(
-                  leading: const Icon(Icons.payments_outlined),
-                  title: Row(
-                    children: [
-                      MoneyText(amount: p.amount),
-                      const Spacer(),
-                      StatusChip(kind: StatusKind.payment, value: p.status),
-                    ],
-                  ),
-                  subtitle: Text(
-                    '${paymentMethodLabels[p.method] ?? p.method}'
-                    ' — ${formatJalaliDate(DateTime.parse(p.paidAt))}'
-                    '${p.invoiceNumber == null ? '' : ' — ${p.invoiceNumber!}'}'
-                    '${p.trackingNumber == null ? '' : ' — ${toPersianDigits(p.trackingNumber!)}'}',
+                return Card(
+                  child: ListTile(
+                    leading: const Icon(Icons.payments_outlined),
+                    title: Row(
+                      children: [
+                        MoneyText(amount: p.amount),
+                        const Spacer(),
+                        StatusChip(kind: StatusKind.payment, value: p.status),
+                      ],
+                    ),
+                    subtitle: Text(
+                      '${paymentMethodLabels[p.method] ?? p.method}'
+                      ' — ${formatJalaliDate(DateTime.parse(p.paidAt))}'
+                      '${p.invoiceNumber == null ? '' : ' — ${p.invoiceNumber!}'}'
+                      '${p.trackingNumber == null ? '' : ' — ${toPersianDigits(p.trackingNumber!)}'}',
+                    ),
                   ),
                 );
               },

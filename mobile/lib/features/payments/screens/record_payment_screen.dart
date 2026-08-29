@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/datetime/jalali.dart';
 import '../../../core/l10n/app_localizations.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../shared/validation/validators.dart';
 import '../payment_controller.dart';
@@ -71,7 +72,7 @@ class _RecordPaymentScreenState extends ConsumerState<RecordPaymentScreen> {
       body: Form(
         key: _formKey,
         child: ListView(
-          padding: const EdgeInsets.all(16),
+          padding: AppTheme.pagePadding,
           children: [
             TextFormField(
               controller: _amountCtrl,
@@ -79,31 +80,38 @@ class _RecordPaymentScreenState extends ConsumerState<RecordPaymentScreen> {
               decoration: InputDecoration(labelText: l10n.paymentAmountLabel),
               validator: (v) => Validators.positiveAmount(l10n, v),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: AppTheme.spaceM),
             JalaliDatePickerField(
               initialValue: _paidAt,
               label: l10n.paymentDateLabel,
               validator: (_) => _paidAt == null ? l10n.requiredField : null,
               onChanged: (d) => setState(() => _paidAt = d),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: AppTheme.spaceM),
             TextFormField(
               controller: _trackingCtrl,
               decoration:
                   InputDecoration(labelText: l10n.trackingNumberLabel),
             ),
-            const SizedBox(height: 24),
-            FilledButton(
-              onPressed: _saving ? null : _submit,
-              child: _saving
-                  ? const SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : Text(l10n.confirm),
-            ),
           ],
+        ),
+      ),
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppTheme.spaceXl,
+            vertical: AppTheme.spaceM,
+          ),
+          child: FilledButton(
+            onPressed: _saving ? null : _submit,
+            child: _saving
+                ? const SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : Text(l10n.confirm),
+          ),
         ),
       ),
     );

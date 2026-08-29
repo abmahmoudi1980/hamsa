@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/datetime/jalali.dart';
 import '../../../core/l10n/app_localizations.dart';
 import '../../../core/network/api_exception.dart';
+import '../../../core/theme/app_theme.dart';
 import '../billing_controller.dart';
 import '../models/billing.dart';
 
@@ -103,7 +104,7 @@ class _PeriodFormScreenState extends ConsumerState<PeriodFormScreen> {
       body: Form(
         key: _formKey,
         child: ListView(
-          padding: const EdgeInsets.all(16),
+          padding: AppTheme.pagePadding,
           children: [
             TextFormField(
               controller: _title,
@@ -112,7 +113,7 @@ class _PeriodFormScreenState extends ConsumerState<PeriodFormScreen> {
               validator: (v) =>
                   (v == null || v.trim().isEmpty) ? l10n.requiredField : null,
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: AppTheme.spaceM),
             JalaliDatePickerField(
               label: l10n.periodStart,
               initialValue: _start,
@@ -125,7 +126,7 @@ class _PeriodFormScreenState extends ConsumerState<PeriodFormScreen> {
               },
               validator: (_) => null,
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: AppTheme.spaceM),
             JalaliDatePickerField(
               label: l10n.periodEnd,
               initialValue: _end,
@@ -135,14 +136,14 @@ class _PeriodFormScreenState extends ConsumerState<PeriodFormScreen> {
                 if (_due != null && _due!.isBefore(d)) _due = d;
               }),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: AppTheme.spaceM),
             JalaliDatePickerField(
               label: l10n.periodDue,
               initialValue: _due,
               firstDate: _end,
               onChanged: (d) => setState(() => _due = d),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: AppTheme.spaceM),
             DropdownButtonFormField<String>(
               initialValue: _lateFeeType,
               decoration: InputDecoration(labelText: l10n.lateFeeType),
@@ -153,7 +154,7 @@ class _PeriodFormScreenState extends ConsumerState<PeriodFormScreen> {
               onChanged: (v) => setState(() => _lateFeeType = v ?? 'none'),
             ),
             if (_lateFeeType != 'none') ...[
-              const SizedBox(height: 12),
+              const SizedBox(height: AppTheme.spaceM),
               TextFormField(
                 controller: _lateFeeValue,
                 decoration:
@@ -167,17 +168,32 @@ class _PeriodFormScreenState extends ConsumerState<PeriodFormScreen> {
               ),
             ],
             if (_apiError != null) ...[
-              const SizedBox(height: 12),
-              Text(_apiError!,
-                  style: TextStyle(
-                      color: Theme.of(context).colorScheme.error)),
+              const SizedBox(height: AppTheme.spaceM),
+              Text(
+                _apiError!,
+                style: TextStyle(
+                    color: Theme.of(context).colorScheme.error),
+                textAlign: TextAlign.center,
+              ),
             ],
-            const SizedBox(height: 24),
-            FilledButton(
+          ],
+        ),
+      ),
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(
+            AppTheme.spaceXl,
+            AppTheme.spaceS,
+            AppTheme.spaceXl,
+            0,
+          ),
+          child: SizedBox(
+            width: double.infinity,
+            child: FilledButton(
               onPressed: _saving ? null : _save,
               child: Text(l10n.save),
             ),
-          ],
+          ),
         ),
       ),
     );

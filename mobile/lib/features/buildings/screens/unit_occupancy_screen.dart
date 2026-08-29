@@ -6,6 +6,9 @@ import 'package:go_router/go_router.dart';
 import '../../../core/datetime/jalali.dart';
 import '../../../core/l10n/app_localizations.dart';
 import '../../../core/network/api_exception.dart';
+import '../../../core/theme/app_theme.dart';
+import '../../../shared/widgets/empty_state.dart';
+import '../../../shared/widgets/menu_card.dart';
 import '../models/people.dart';
 import '../people_controller.dart';
 
@@ -43,7 +46,7 @@ class UnitOccupancyScreen extends ConsumerWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(l10n.archiveConfirm),
-            const SizedBox(height: 12),
+            const SizedBox(height: AppTheme.spaceM),
             JalaliDatePickerField(
               label: l10n.occupancyStart,
               onChanged: (d) => picked = d,
@@ -81,6 +84,7 @@ class UnitOccupancyScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final async = ref.watch(occupancyControllerProvider(unitId));
+    final scheme = Theme.of(context).colorScheme;
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.occupancyTitle)),
@@ -96,75 +100,85 @@ class UnitOccupancyScreen extends ConsumerWidget {
       ),
       body: async.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text(l10n.errorUnknown)),
+        error: (e, _) =>
+            EmptyState(icon: Icons.error_outline, title: l10n.errorUnknown),
         data: (s) => ListView(
-          padding: const EdgeInsets.all(16),
+          padding: AppTheme.pagePadding,
           children: [
-            Text(
-              l10n.occupancyTitle,
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
+            SectionHeader(title: l10n.occupancyTitle),
             if (s.occupancies.isEmpty)
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                child: Text(l10n.emptyStateTitle),
+              EmptyState(
+                title: l10n.emptyStateTitle,
+                actionLabel: l10n.addOccupancy,
+                onAction: () async {
+                  await context.push(
+                    '/manager/buildings/$buildingId/units/$unitId/occupancy/new',
+                  );
+                  ref.invalidate(occupancyControllerProvider(unitId));
+                },
               )
             else
               ...s.occupancies.map(
-                (o) => ListTile(
-                  contentPadding: EdgeInsets.zero,
-                  title: Text(o.person?.fullName ?? o.personId),
-                  subtitle: Text(
-                    '${_relationshipLabel(l10n, o.relationship)}'
-                    ' • ${formatJalaliDate(DateTime.parse(o.startDate))}'
-                    '${o.endDate == null ? '' : ' — ${formatJalaliDate(DateTime.parse(o.endDate!))}'}',
+                (o) => Card(
+                  child: ListTile(
+                    title: Text(o.person?.fullName ?? o.personId),
+                    subtitle: Text(
+                      '${_relationshipLabel(l10n, o.relationship)}'
+                      ' • ${formatJalaliDate(DateTime.parse(o.startDate))}'
+                      '${o.endDate == null ? '' : ' — ${formatJalaliDate(DateTime.parse(o.endDate!))}'}',
+                    ),
+                    trailing: o.isActive
+                        ? Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Chip(label: Text(l10n.occupancyActive)),
+                              IconButton(
+                                icon: const Icon(Icons.event_busy),
+                                tooltip: l10n.endOccupancy,
+                                onPressed: () =>
+                                    _confirmEnd(context, ref, l10n, o),
+                              ),
+                            ],
+                          )
+                        : Chip(label: Text(l10n.occupancyEnded)),
                   ),
-                  trailing: o.isActive
-                      ? Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Chip(label: Text(l10n.occupancyActive)),
-                            IconButton(
-                              icon: const Icon(Icons.event_busy),
-                              tooltip: l10n.endOccupancy,
-                              onPressed: () =>
-                                  _confirmEnd(context, ref, l10n, o),
-                            ),
-                          ],
-                        )
-                      : Chip(label: Text(l10n.occupancyEnded)),
                 ),
               ),
-            const Divider(height: 32),
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    l10n.occupantCountTitle,
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                ),
-                TextButton.icon(
-                  icon: const Icon(Icons.add),
-                  label: Text(l10n.recordOccupantCount),
-                  onPressed: () => _recordCount(context, ref, l10n),
-                ),
-              ],
+            const SizedBox(height: AppTheme.spaceXl),
+            SectionHeader(
+              title: l10n.occupantCountTitle,
+              action: TextButton.icon(
+                icon: const Icon(Icons.add),
+                label: Text(l10n.recordOccupantCount),
+                onPressed: () => _recordCount(context, ref, l10n),
+              ),
             ),
             if (s.counts.isEmpty)
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                child: Text(l10n.emptyStateTitle),
+              EmptyState(
+                title: l10n.emptyStateTitle,
+                actionLabel: l10n.recordOccupantCount,
+                onAction: () => _recordCount(context, ref, l10n),
               )
             else
               ...s.counts.map(
-                (c) => ListTile(
-                  contentPadding: EdgeInsets.zero,
-                  leading: const Icon(Icons.groups_outlined),
-                  title: Text(toPersianDigits('${c.count}')),
-                  subtitle: Text(
-                    '${l10n.effectiveFrom}: '
-                    '${formatJalaliDate(DateTime.parse(c.effectiveFrom))}',
+                (c) => Card(
+                  child: ListTile(
+                    leading: Container(
+                      width: 44,
+                      height: 44,
+                      decoration: BoxDecoration(
+                        color: scheme.primary.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(
+                          AppTheme.radiusSmall,
+                        ),
+                      ),
+                      child: const Icon(Icons.groups_outlined, size: 22),
+                    ),
+                    title: Text(toPersianDigits('${c.count}')),
+                    subtitle: Text(
+                      '${l10n.effectiveFrom}: '
+                      '${formatJalaliDate(DateTime.parse(c.effectiveFrom))}',
+                    ),
                   ),
                 ),
               ),
@@ -194,7 +208,7 @@ class UnitOccupancyScreen extends ConsumerWidget {
               inputFormatters: [FilteringTextInputFormatter.digitsOnly],
               decoration: InputDecoration(labelText: l10n.occupantCountTitle),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: AppTheme.spaceM),
             JalaliDatePickerField(
               label: l10n.effectiveFrom,
               onChanged: (d) => picked = d,

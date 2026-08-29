@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/l10n/app_localizations.dart';
 import '../../../core/network/api_exception.dart';
+import '../../../core/theme/app_theme.dart';
 import '../buildings_controller.dart';
 import '../models/building.dart';
 
@@ -105,188 +106,203 @@ class _UnitFormScreenState extends ConsumerState<UnitFormScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          _loadingExisting || widget.existing != null
-              ? l10n.editUnit
-              : l10n.addUnit,
-        ),
-        actions: [
-          if (_loadingExisting || widget.existing != null)
+    return FutureBuilder<Unit?>(
+      future: _loadFuture,
+      builder: (context, snap) {
+        final loading =
+            _loadingExisting && snap.connectionState != ConnectionState.done;
+        final existing = snap.data ??
+            Unit(id: '', buildingId: '', number: '', areaM2: 0);
+        // Initialize the controllers exactly once, whether the unit came
+        // from the constructor, the network (edit-by-id), or fresh-create.
+        if (snap.connectionState == ConnectionState.done && _c.isEmpty) {
+          _populate(existing);
+        }
+        final appBar = AppBar(
+          title: Text(
+            _loadingExisting || widget.existing != null
+                ? l10n.editUnit
+                : l10n.addUnit,
+          ),
+          actions: [
+            if (_loadingExisting || widget.existing != null)
+              IconButton(
+                icon: const Icon(Icons.history),
+                tooltip: l10n.changeHistory,
+                onPressed: () => context.push(
+                  '/manager/buildings/${widget.buildingId}'
+                  '/units/${widget.unitId ?? widget.existing!.id}/history',
+                ),
+              ),
             IconButton(
-              icon: const Icon(Icons.history),
-              tooltip: l10n.changeHistory,
+              icon: const Icon(Icons.groups_outlined),
+              tooltip: l10n.occupancyTitle,
               onPressed: () => context.push(
                 '/manager/buildings/${widget.buildingId}'
-                '/units/${widget.unitId ?? widget.existing!.id}/history',
+                '/units/${widget.unitId ?? widget.existing!.id}/occupancy',
               ),
             ),
-          IconButton(
-            icon: const Icon(Icons.groups_outlined),
-            tooltip: l10n.occupancyTitle,
-            onPressed: () => context.push(
-              '/manager/buildings/${widget.buildingId}'
-              '/units/${widget.unitId ?? widget.existing!.id}/occupancy',
-            ),
-          ),
-        ],
-      ),
-      body: FutureBuilder<Unit?>(
-        future: _loadFuture,
-        builder: (context, snap) {
-          if (_loadingExisting && snap.connectionState != ConnectionState.done) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          final existing =
-              snap.data ?? Unit(id: '', buildingId: '', number: '', areaM2: 0);
-          // Initialize the controllers exactly once, whether the unit came
-          // from the constructor, the network (edit-by-id), or fresh-create.
-          if (snap.connectionState == ConnectionState.done && _c.isEmpty) {
-            _populate(existing);
-          }
-          return _form(context, l10n, existing);
-        },
-      ),
+          ],
+        );
+        return Scaffold(
+          appBar: appBar,
+          body: loading
+              ? const Center(child: CircularProgressIndicator())
+              : _form(context, l10n),
+          bottomNavigationBar: loading
+              ? null
+              : SafeArea(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(
+                      AppTheme.spaceXl,
+                      AppTheme.spaceS,
+                      AppTheme.spaceXl,
+                      0,
+                    ),
+                    child: SizedBox(
+                      width: double.infinity,
+                      child: FilledButton(
+                        onPressed: _saving ? null : () => _save(existing),
+                        child: Text(l10n.save),
+                      ),
+                    ),
+                  ),
+                ),
+        );
+      },
     );
   }
 
-  Widget _form(BuildContext context, AppLocalizations l10n, Unit existing) {
+  Widget _form(BuildContext context, AppLocalizations l10n) {
     return Form(
       key: _formKey,
       child: ListView(
-        padding: const EdgeInsets.all(16),
-        children:
-            [
-                  TextFormField(
-                    controller: _ctrl('number'),
-                    decoration: InputDecoration(labelText: l10n.unitNumber),
-                    validator: (v) => v == null || v.trim().isEmpty
-                        ? l10n.requiredField
-                        : null,
-                  ),
-                  TextFormField(
-                    controller: _ctrl('block'),
-                    decoration: InputDecoration(labelText: l10n.unitBlock),
-                  ),
-                  TextFormField(
-                    controller: _ctrl('floor'),
-                    keyboardType: TextInputType.number,
-                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                    decoration: InputDecoration(labelText: l10n.unitFloor),
-                  ),
-                  TextFormField(
-                    controller: _ctrl('area'),
-                    keyboardType: TextInputType.number,
-                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                    decoration: InputDecoration(labelText: l10n.areaM2),
-                    validator: (v) {
-                      final n = int.tryParse(v ?? '');
-                      if (n == null || n <= 0) return l10n.invalidAmount;
-                      return null;
-                    },
-                  ),
-                  DropdownButtonFormField<String>(
-                    initialValue: _status,
-                    decoration: InputDecoration(labelText: l10n.unitStatus),
-                    items: [
-                      DropdownMenuItem(
-                        value: 'active',
-                        child: Text(l10n.statusActive),
-                      ),
-                      DropdownMenuItem(
-                        value: 'vacant',
-                        child: Text(l10n.statusVacant),
-                      ),
-                      DropdownMenuItem(
-                        value: 'occupied',
-                        child: Text(l10n.statusOccupied),
-                      ),
-                      DropdownMenuItem(
-                        value: 'inactive',
-                        child: Text(l10n.statusInactive),
-                      ),
-                    ],
-                    onChanged: (v) => setState(() => _status = v ?? 'active'),
-                  ),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: TextFormField(
-                          controller: _ctrl('parkingCount'),
-                          keyboardType: TextInputType.number,
-                          inputFormatters: [
-                            FilteringTextInputFormatter.digitsOnly,
-                          ],
-                          decoration: InputDecoration(
-                            labelText: l10n.parkingCount,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: TextFormField(
-                          controller: _ctrl('parkingNumbers'),
-                          decoration: InputDecoration(
-                            labelText: l10n.parkingNumbers,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: TextFormField(
-                          controller: _ctrl('storageCount'),
-                          keyboardType: TextInputType.number,
-                          inputFormatters: [
-                            FilteringTextInputFormatter.digitsOnly,
-                          ],
-                          decoration: InputDecoration(
-                            labelText: l10n.storageCount,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: TextFormField(
-                          controller: _ctrl('storageNumbers'),
-                          decoration: InputDecoration(
-                            labelText: l10n.storageNumbers,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  TextFormField(
-                    controller: _ctrl('notes'),
-                    maxLines: 3,
-                    decoration: InputDecoration(labelText: l10n.notesLabel),
-                  ),
-                  if (_apiError != null) ...[
-                    const SizedBox(height: 12),
-                    Text(
-                      _apiError!,
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.error,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
+        padding: AppTheme.pagePadding,
+        children: [
+          TextFormField(
+            controller: _ctrl('number'),
+            decoration: InputDecoration(labelText: l10n.unitNumber),
+            validator: (v) => v == null || v.trim().isEmpty
+                ? l10n.requiredField
+                : null,
+          ),
+          const SizedBox(height: AppTheme.spaceM),
+          TextFormField(
+            controller: _ctrl('block'),
+            decoration: InputDecoration(labelText: l10n.unitBlock),
+          ),
+          const SizedBox(height: AppTheme.spaceM),
+          TextFormField(
+            controller: _ctrl('floor'),
+            keyboardType: TextInputType.number,
+            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+            decoration: InputDecoration(labelText: l10n.unitFloor),
+          ),
+          const SizedBox(height: AppTheme.spaceM),
+          TextFormField(
+            controller: _ctrl('area'),
+            keyboardType: TextInputType.number,
+            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+            decoration: InputDecoration(labelText: l10n.areaM2),
+            validator: (v) {
+              final n = int.tryParse(v ?? '');
+              if (n == null || n <= 0) return l10n.invalidAmount;
+              return null;
+            },
+          ),
+          const SizedBox(height: AppTheme.spaceM),
+          DropdownButtonFormField<String>(
+            initialValue: _status,
+            decoration: InputDecoration(labelText: l10n.unitStatus),
+            items: [
+              DropdownMenuItem(
+                value: 'active',
+                child: Text(l10n.statusActive),
+              ),
+              DropdownMenuItem(
+                value: 'vacant',
+                child: Text(l10n.statusVacant),
+              ),
+              DropdownMenuItem(
+                value: 'occupied',
+                child: Text(l10n.statusOccupied),
+              ),
+              DropdownMenuItem(
+                value: 'inactive',
+                child: Text(l10n.statusInactive),
+              ),
+            ],
+            onChanged: (v) => setState(() => _status = v ?? 'active'),
+          ),
+          const SizedBox(height: AppTheme.spaceM),
+          Row(
+            children: [
+              Expanded(
+                child: TextFormField(
+                  controller: _ctrl('parkingCount'),
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.digitsOnly,
                   ],
-                  const SizedBox(height: 24),
-                  FilledButton(
-                    onPressed: _saving ? null : () => _save(existing),
-                    child: Text(l10n.save),
+                  decoration: InputDecoration(
+                    labelText: l10n.parkingCount,
                   ),
-                ]
-                .map(
-                  (w) => Padding(
-                    padding: const EdgeInsets.only(bottom: 12),
-                    child: w,
+                ),
+              ),
+              const SizedBox(width: AppTheme.spaceS),
+              Expanded(
+                child: TextFormField(
+                  controller: _ctrl('parkingNumbers'),
+                  decoration: InputDecoration(
+                    labelText: l10n.parkingNumbers,
                   ),
-                )
-                .toList(),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppTheme.spaceM),
+          Row(
+            children: [
+              Expanded(
+                child: TextFormField(
+                  controller: _ctrl('storageCount'),
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.digitsOnly,
+                  ],
+                  decoration: InputDecoration(
+                    labelText: l10n.storageCount,
+                  ),
+                ),
+              ),
+              const SizedBox(width: AppTheme.spaceS),
+              Expanded(
+                child: TextFormField(
+                  controller: _ctrl('storageNumbers'),
+                  decoration: InputDecoration(
+                    labelText: l10n.storageNumbers,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppTheme.spaceM),
+          TextFormField(
+            controller: _ctrl('notes'),
+            maxLines: 3,
+            decoration: InputDecoration(labelText: l10n.notesLabel),
+          ),
+          if (_apiError != null) ...[
+            const SizedBox(height: AppTheme.spaceM),
+            Text(
+              _apiError!,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.error,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ],
       ),
     );
   }

@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/l10n/app_localizations.dart';
 import '../../../core/network/api_exception.dart';
+import '../../../core/theme/app_theme.dart';
 import '../models/people.dart';
 import '../people_controller.dart';
 
@@ -129,7 +130,7 @@ class _PersonFormScreenState extends ConsumerState<PersonFormScreen> {
       body: Form(
         key: _formKey,
         child: ListView(
-          padding: const EdgeInsets.all(16),
+          padding: AppTheme.pagePadding,
           children: [
             TextFormField(
               controller: _name,
@@ -137,53 +138,61 @@ class _PersonFormScreenState extends ConsumerState<PersonFormScreen> {
               validator: (v) =>
                   v == null || v.trim().isEmpty ? l10n.requiredField : null,
             ),
-            Padding(
-              padding: const EdgeInsets.only(top: 12),
-              child: TextFormField(
-                controller: _phone,
-                keyboardType: TextInputType.phone,
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                maxLength: 11,
-                decoration: InputDecoration(
-                  labelText: l10n.personPhone,
-                  counterText: '',
-                ),
+            const SizedBox(height: AppTheme.spaceM),
+            TextFormField(
+              controller: _phone,
+              keyboardType: TextInputType.phone,
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              maxLength: 11,
+              decoration: InputDecoration(
+                labelText: l10n.personPhone,
+                counterText: '',
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.only(top: 12),
-              child: TextFormField(
-                controller: _nationalId,
-                keyboardType: TextInputType.number,
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                maxLength: 10,
-                decoration: InputDecoration(
-                  labelText: l10n.personNationalId,
-                  counterText: '',
-                ),
-                validator: (v) {
-                  final t = v?.trim() ?? '';
-                  if (t.isNotEmpty && t.length != 10) {
-                    return l10n.invalidNationalId;
-                  }
-                  return null;
-                },
+            const SizedBox(height: AppTheme.spaceM),
+            TextFormField(
+              controller: _nationalId,
+              keyboardType: TextInputType.number,
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              maxLength: 10,
+              decoration: InputDecoration(
+                labelText: l10n.personNationalId,
+                counterText: '',
               ),
+              validator: (v) {
+                final t = v?.trim() ?? '';
+                if (t.isNotEmpty && t.length != 10) {
+                  return l10n.invalidNationalId;
+                }
+                return null;
+              },
             ),
             if (_apiError != null) ...[
-              const SizedBox(height: 12),
+              const SizedBox(height: AppTheme.spaceM),
               Text(
                 _apiError!,
                 style: TextStyle(color: Theme.of(context).colorScheme.error),
                 textAlign: TextAlign.center,
               ),
             ],
-            const SizedBox(height: 24),
-            FilledButton(
+          ],
+        ),
+      ),
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(
+            AppTheme.spaceXl,
+            AppTheme.spaceS,
+            AppTheme.spaceXl,
+            0,
+          ),
+          child: SizedBox(
+            width: double.infinity,
+            child: FilledButton(
               onPressed: _saving ? null : _save,
               child: Text(l10n.save),
             ),
-          ],
+          ),
         ),
       ),
     );

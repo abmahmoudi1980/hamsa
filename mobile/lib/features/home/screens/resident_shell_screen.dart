@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:hamsa/core/l10n/app_localizations.dart';
+import '../../../core/l10n/app_localizations.dart';
+import '../../../core/theme/app_theme.dart';
+import '../../../shared/widgets/menu_card.dart';
 
 import '../../auth/auth_controller.dart';
 
@@ -13,6 +15,7 @@ class ResidentShellScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.residentShellTitle),
@@ -25,25 +28,25 @@ class ResidentShellScreen extends ConsumerWidget {
         ],
       ),
       body: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: AppTheme.pagePadding,
         children: [
+          Text(l10n.residentShellTitle, style: theme.textTheme.titleLarge),
+          const SizedBox(height: AppTheme.spaceXs),
+          Text(l10n.shellUnderConstruction, style: theme.textTheme.bodySmall),
+          const SizedBox(height: AppTheme.spaceL),
           // US4 (T053) + US5 (T061): charges and payment history entries;
           // the remaining US9 menu items arrive with T084.
-          Card(
-            child: ListTile(
-              leading: const Icon(Icons.receipt_long),
-              title: Text(l10n.myCharges),
-              onTap: () => context.push('/home/charges'),
-            ),
+          MenuCard(
+            icon: Icons.receipt_long,
+            title: l10n.myCharges,
+            onTap: () => context.push('/home/charges'),
           ),
-          Card(
-            child: ListTile(
-              leading: const Icon(Icons.payments_outlined),
-              title: Text(l10n.paymentHistoryTitle),
-              onTap: () => context.push('/home/payments'),
-            ),
+          const SizedBox(height: AppTheme.spaceM),
+          MenuCard(
+            icon: Icons.payments_outlined,
+            title: l10n.paymentHistoryTitle,
+            onTap: () => context.push('/home/payments'),
           ),
-          Center(child: Text(l10n.shellUnderConstruction)),
         ],
       ),
     );

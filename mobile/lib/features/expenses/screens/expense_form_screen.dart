@@ -5,6 +5,7 @@ import 'package:image_picker/image_picker.dart';
 
 import '../../../core/datetime/jalali.dart';
 import '../../../core/l10n/app_localizations.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../shared/widgets/status_labels.dart';
 import '../../../shared/validation/validators.dart';
@@ -190,7 +191,7 @@ class _ExpenseFormScreenState extends ConsumerState<ExpenseFormScreen> {
       body: Form(
         key: _formKey,
         child: ListView(
-          padding: const EdgeInsets.all(16),
+          padding: AppTheme.pagePadding,
           children: [
             TextFormField(
               controller: _titleCtrl,
@@ -198,7 +199,7 @@ class _ExpenseFormScreenState extends ConsumerState<ExpenseFormScreen> {
               validator: (v) =>
                   (v == null || v.trim().isEmpty) ? l10n.requiredField : null,
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: AppTheme.spaceM),
             DropdownButtonFormField<String>(
               initialValue: _category,
               decoration:
@@ -209,14 +210,14 @@ class _ExpenseFormScreenState extends ConsumerState<ExpenseFormScreen> {
                   .toList(),
               onChanged: (v) => setState(() => _category = v ?? 'other'),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: AppTheme.spaceM),
             TextFormField(
               controller: _amountCtrl,
               keyboardType: TextInputType.number,
               decoration: InputDecoration(labelText: l10n.expenseAmountLabel),
               validator: (v) => Validators.positiveAmount(l10n, v),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: AppTheme.spaceM),
             JalaliDatePickerField(
               initialValue: _expenseDate,
               label: l10n.expenseDateLabel,
@@ -224,7 +225,7 @@ class _ExpenseFormScreenState extends ConsumerState<ExpenseFormScreen> {
                   _expenseDate == null ? l10n.requiredField : null,
               onChanged: (d) => setState(() => _expenseDate = d),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: AppTheme.spaceM),
             DropdownButtonFormField<String>(
               initialValue: _approval,
               decoration:
@@ -235,31 +236,38 @@ class _ExpenseFormScreenState extends ConsumerState<ExpenseFormScreen> {
                   .toList(),
               onChanged: (v) => setState(() => _approval = v ?? 'pending'),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: AppTheme.spaceM),
             TextFormField(
               controller: _descriptionCtrl,
               maxLines: 3,
               decoration:
                   InputDecoration(labelText: l10n.expenseDescriptionLabel),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: AppTheme.spaceM),
             // Receipt attach (create mode): uploads through POST /files on save.
             if (widget.expenseId == null)
               AttachmentPicker(
                 onChanged: (f) => setState(() => _receipt = f),
               ),
-            const SizedBox(height: 24),
-            FilledButton(
-              onPressed: _saving ? null : _submit,
-              child: _saving
-                  ? const SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : Text(l10n.confirm),
-            ),
           ],
+        ),
+      ),
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppTheme.spaceXl,
+            vertical: AppTheme.spaceM,
+          ),
+          child: FilledButton(
+            onPressed: _saving ? null : _submit,
+            child: _saving
+                ? const SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : Text(l10n.confirm),
+          ),
         ),
       ),
     );

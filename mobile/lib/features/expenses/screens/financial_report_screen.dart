@@ -4,6 +4,7 @@ import 'package:persian_datetime_picker/persian_datetime_picker.dart';
 
 import '../../../core/datetime/jalali.dart';
 import '../../../core/l10n/app_localizations.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../../shared/formatters/money_text.dart';
 import '../expense_controller.dart';
 import '../models/expense.dart';
@@ -85,6 +86,8 @@ class _FinancialReportScreenState extends ConsumerState<FinancialReportScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final r = _report;
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
     return Scaffold(
       appBar: AppBar(title: Text(l10n.financialReport)),
       body: _loading
@@ -92,7 +95,7 @@ class _FinancialReportScreenState extends ConsumerState<FinancialReportScreen> {
           : _error != null
               ? Center(child: Text(_error!))
               : ListView(
-                  padding: const EdgeInsets.all(16),
+                  padding: AppTheme.pagePadding,
                   children: [
                     // Jalali month selector — reuse of the date picker is the
                     // only calendar entry point in the app (T018 constraint).
@@ -102,44 +105,67 @@ class _FinancialReportScreenState extends ConsumerState<FinancialReportScreen> {
                         title: Text(l10n.reportMonthLabel),
                         subtitle: Text(
                           _monthRef == null ? '' : _monthLabel(_monthRef!),
-                          style: Theme.of(context).textTheme.titleMedium,
+                          style: theme.textTheme.titleMedium,
                         ),
                         trailing: const Icon(Icons.chevron_left),
                         onTap: _pickMonth,
                       ),
                     ),
-                    const SizedBox(height: 16),
                     if (r != null) ...[
-                      _SummaryCard(
+                      const SizedBox(height: AppTheme.spaceL),
+                      // Hero total: net balance of the selected month.
+                      Card(
+                        child: Padding(
+                          padding: AppTheme.pagePadding,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                l10n.reportNet,
+                                style: theme.textTheme.titleSmall,
+                              ),
+                              const SizedBox(height: AppTheme.spaceXs),
+                              MoneyText(
+                                amount: r.net,
+                                style: theme.textTheme.displaySmall?.copyWith(
+                                  color: r.net >= 0
+                                      ? scheme.primary
+                                      : scheme.error,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: AppTheme.spaceXl),
+                      _ReportRow(
                         title: l10n.reportMonthlyIncome,
                         amount: r.monthlyIncome,
-                        color: Colors.green,
+                        color: scheme.primary,
                       ),
-                      _SummaryCard(
+                      const SizedBox(height: 10),
+                      _ReportRow(
                         title: l10n.reportMonthlyExpense,
                         amount: r.monthlyExpense,
-                        color: Colors.red,
+                        color: scheme.error,
                       ),
-                      _SummaryCard(
-                        title: l10n.reportNet,
-                        amount: r.net,
-                        color: r.net >= 0 ? Colors.green : Colors.red,
-                      ),
-                      const Divider(height: 24),
-                      _SummaryCard(
+                      const SizedBox(height: AppTheme.spaceXxl),
+                      _ReportRow(
                         title: l10n.reportTotalDebt,
                         amount: r.totalDebt,
-                        color: Colors.deepOrange,
+                        color: scheme.error,
                       ),
-                      _SummaryCard(
+                      const SizedBox(height: 10),
+                      _ReportRow(
                         title: l10n.reportTotalPayments,
                         amount: r.totalPayments,
-                        color: Colors.blue,
+                        color: scheme.primary,
                       ),
-                      _SummaryCard(
+                      const SizedBox(height: 10),
+                      _ReportRow(
                         title: l10n.reportTotalExpenses,
                         amount: r.totalExpenses,
-                        color: Colors.brown,
+                        color: scheme.error,
                       ),
                     ],
                   ],
@@ -148,8 +174,9 @@ class _FinancialReportScreenState extends ConsumerState<FinancialReportScreen> {
   }
 }
 
-class _SummaryCard extends StatelessWidget {
-  const _SummaryCard({
+/// One report line: label start-aligned with the amount trailing.
+class _ReportRow extends StatelessWidget {
+  const _ReportRow({
     required this.title,
     required this.amount,
     required this.color,
@@ -161,22 +188,15 @@ class _SummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        child: Row(
-          children: [
-            Expanded(child: Text(title)),
-            MoneyText(
-              amount: amount,
-              style: Theme.of(context)
-                  .textTheme
-                  .titleMedium
-                  ?.copyWith(color: color, fontWeight: FontWeight.bold),
-            ),
-          ],
+    final theme = Theme.of(context);
+    return Row(
+      children: [
+        Expanded(child: Text(title, style: theme.textTheme.bodyLarge)),
+        MoneyText(
+          amount: amount,
+          style: theme.textTheme.titleMedium?.copyWith(color: color),
         ),
-      ),
+      ],
     );
   }
 }

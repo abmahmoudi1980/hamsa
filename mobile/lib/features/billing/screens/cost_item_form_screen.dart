@@ -5,11 +5,13 @@ import 'package:go_router/go_router.dart';
 import '../../../core/datetime/jalali.dart';
 import '../../../core/l10n/app_localizations.dart';
 import '../../../core/network/api_exception.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../buildings/buildings_controller.dart';
 import '../../buildings/models/building.dart';
 import '../billing_controller.dart';
 import '../models/billing.dart';
 import '../../../shared/widgets/calc_method.dart';
+import '../../../shared/widgets/menu_card.dart';
 import 'period_list_screen.dart' show costItemPayload;
 
 /// Cost-item editor (US4/T051): title, amount (Persian digits), one of the
@@ -118,7 +120,7 @@ class _CostItemFormScreenState extends ConsumerState<CostItemFormScreen> {
       body: Form(
         key: _formKey,
         child: ListView(
-          padding: const EdgeInsets.all(16),
+          padding: AppTheme.pagePadding,
           children: [
             TextFormField(
               controller: _title,
@@ -126,7 +128,7 @@ class _CostItemFormScreenState extends ConsumerState<CostItemFormScreen> {
               validator: (v) =>
                   (v == null || v.trim().isEmpty) ? l10n.requiredField : null,
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: AppTheme.spaceM),
             if (showAmount)
               TextFormField(
                 controller: _amount,
@@ -140,7 +142,7 @@ class _CostItemFormScreenState extends ConsumerState<CostItemFormScreen> {
                 },
               ),
             if (showFixed) ...[
-              const SizedBox(height: 12),
+              const SizedBox(height: AppTheme.spaceM),
               TextFormField(
                 controller: _fixedPerUnit,
                 decoration: InputDecoration(labelText: l10n.fixedPerUnit),
@@ -152,7 +154,7 @@ class _CostItemFormScreenState extends ConsumerState<CostItemFormScreen> {
                 },
               ),
             ],
-            const SizedBox(height: 12),
+            const SizedBox(height: AppTheme.spaceM),
             DropdownButtonFormField<String>(
               initialValue: _method,
               decoration: InputDecoration(labelText: l10n.calcMethod),
@@ -165,7 +167,7 @@ class _CostItemFormScreenState extends ConsumerState<CostItemFormScreen> {
               onChanged: (v) => setState(() => _method = v ?? 'equal'),
             ),
             if (_method != 'specific_units') ...[
-              const SizedBox(height: 8),
+              const SizedBox(height: AppTheme.spaceS),
               SwitchListTile(
                 title: Text(l10n.includeVacant),
                 value: _includeVacant,
@@ -174,12 +176,11 @@ class _CostItemFormScreenState extends ConsumerState<CostItemFormScreen> {
               ),
             ],
             if (showUnits) ...[
-              const SizedBox(height: 8),
-              Text(l10n.selectUnits,
-                  style: Theme.of(context).textTheme.labelLarge),
+              const SizedBox(height: AppTheme.spaceS),
+              SectionHeader(title: l10n.selectUnits),
               unitsAsync.when(
                 loading: () => const Padding(
-                  padding: EdgeInsets.all(16),
+                  padding: EdgeInsets.all(AppTheme.spaceL),
                   child: Center(child: CircularProgressIndicator()),
                 ),
                 error: (e, _) => Text(l10n.errorServer),
@@ -200,14 +201,10 @@ class _CostItemFormScreenState extends ConsumerState<CostItemFormScreen> {
               ),
             ],
             if (showWeights) ...[
-              const SizedBox(height: 8),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(l10n.comboWeights,
-                      style: Theme.of(context).textTheme.labelLarge),
-                  Text('${toPersianDigits('$_weightSum')} / ۱۰۰'),
-                ],
+              const SizedBox(height: AppTheme.spaceS),
+              SectionHeader(
+                title: l10n.comboWeights,
+                action: Text('${toPersianDigits('$_weightSum')} / ۱۰۰'),
               ),
               ..._weights.asMap().entries.map((entry) {
                 final i = entry.key;
@@ -230,7 +227,7 @@ class _CostItemFormScreenState extends ConsumerState<CostItemFormScreen> {
                                 weight: _weights[i].weight)),
                       ),
                     ),
-                    const SizedBox(width: 8),
+                    const SizedBox(width: AppTheme.spaceS),
                     SizedBox(
                       width: 88,
                       child: TextFormField(
@@ -263,17 +260,32 @@ class _CostItemFormScreenState extends ConsumerState<CostItemFormScreen> {
               ),
             ],
             if (_apiError != null) ...[
-              const SizedBox(height: 12),
-              Text(_apiError!,
-                  style:
-                      TextStyle(color: Theme.of(context).colorScheme.error)),
+              const SizedBox(height: AppTheme.spaceM),
+              Text(
+                _apiError!,
+                style:
+                    TextStyle(color: Theme.of(context).colorScheme.error),
+                textAlign: TextAlign.center,
+              ),
             ],
-            const SizedBox(height: 24),
-            FilledButton(
+          ],
+        ),
+      ),
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(
+            AppTheme.spaceXl,
+            AppTheme.spaceS,
+            AppTheme.spaceXl,
+            0,
+          ),
+          child: SizedBox(
+            width: double.infinity,
+            child: FilledButton(
               onPressed: _saving ? null : _save,
               child: Text(l10n.save),
             ),
-          ],
+          ),
         ),
       ),
     );

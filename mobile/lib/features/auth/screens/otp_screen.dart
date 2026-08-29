@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:hamsa/core/datetime/jalali.dart';
 import 'package:hamsa/core/l10n/app_localizations.dart';
 import 'package:hamsa/core/network/api_exception.dart';
+import 'package:hamsa/core/theme/app_theme.dart';
 
 import '../auth_controller.dart';
 import '../auth_repository.dart';
@@ -108,26 +109,53 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
     final remaining = _canResend ? null : _resendWindow - _elapsed;
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.verifyAndLogin)),
       body: SafeArea(
         child: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(24),
+          child: SingleChildScrollView(
+            padding: AppTheme.pagePadding,
             child: Form(
               key: _formKey,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  // Brand mark: same treatment as the login screen.
+                  Center(
+                    child: Container(
+                      width: 72,
+                      height: 72,
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.primary,
+                        borderRadius: BorderRadius.circular(
+                          AppTheme.radiusLarge,
+                        ),
+                      ),
+                      child: const Icon(
+                        Icons.apartment,
+                        size: 36,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: AppTheme.spaceXl),
+                  Text(
+                    l10n.verifyAndLogin,
+                    textAlign: TextAlign.center,
+                    style: theme.textTheme.displaySmall,
+                  ),
+                  const SizedBox(height: AppTheme.spaceS),
                   Text(
                     l10n.otpSentTo(toPersianDigits(widget.phone)),
                     textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.bodyMedium,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: AppTheme.spaceXxl),
                   TextFormField(
                     controller: _codeController,
                     decoration: InputDecoration(labelText: l10n.otpLabel),
@@ -135,12 +163,13 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
                     textAlign: TextAlign.center,
                     autofocus: true,
                     maxLength: 6,
+                    style: theme.textTheme.headlineSmall,
                     validator: (v) => (v == null || v.trim().isEmpty)
                         ? l10n.invalidOtp
                         : null,
                     onFieldSubmitted: (_) => _verify(),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: AppTheme.spaceL),
                   FilledButton(
                     onPressed: _submitting ? null : _verify,
                     child: _submitting

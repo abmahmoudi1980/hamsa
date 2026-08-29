@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/l10n/app_localizations.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../../shared/formatters/money_text.dart';
 import '../../../shared/widgets/empty_state.dart';
 import '../../../shared/widgets/status_chip.dart';
@@ -22,34 +23,40 @@ class ChargesListScreen extends ConsumerWidget {
       appBar: AppBar(title: Text(l10n.myCharges)),
       body: async.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text(l10n.errorServer)),
+        error: (e, _) =>
+            EmptyState(icon: Icons.error_outline, title: l10n.errorServer),
         data: (invoices) => invoices.isEmpty
             ? EmptyState(title: l10n.myCharges, subtitle: l10n.emptyStateSubtitle)
             : RefreshIndicator(
                 onRefresh: () async =>
                     ref.invalidate(myInvoicesControllerProvider),
                 child: ListView.separated(
+                  padding: AppTheme.pagePadding,
                   itemCount: invoices.length,
-                  separatorBuilder: (_, _) => const Divider(height: 1),
+                  separatorBuilder: (_, _) => const SizedBox(height: 10),
                   itemBuilder: (context, i) {
                     final inv = invoices[i];
-                    return ListTile(
-                      title: Text(inv.periodTitle.isEmpty
-                          ? inv.invoiceNumber
-                          : inv.periodTitle),
-                      subtitle: inv.unitNumber.isEmpty
-                          ? null
-                          : Text('${l10n.unitNumber} ${inv.unitNumber}'),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          StatusChip(
-                              kind: StatusKind.invoice, value: inv.status),
-                          const SizedBox(width: 8),
-                          MoneyText(amount: inv.finalAmount, showCurrencySuffix: false),
-                        ],
+                    return Card(
+                      child: ListTile(
+                        title: Text(inv.periodTitle.isEmpty
+                            ? inv.invoiceNumber
+                            : inv.periodTitle),
+                        subtitle: inv.unitNumber.isEmpty
+                            ? null
+                            : Text('${l10n.unitNumber} ${inv.unitNumber}'),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            StatusChip(
+                                kind: StatusKind.invoice, value: inv.status),
+                            const SizedBox(width: AppTheme.spaceS),
+                            MoneyText(
+                                amount: inv.finalAmount,
+                                showCurrencySuffix: false),
+                          ],
+                        ),
+                        onTap: () => context.push('/invoice/${inv.id}'),
                       ),
-                      onTap: () => context.push('/invoice/${inv.id}'),
                     );
                   },
                 ),

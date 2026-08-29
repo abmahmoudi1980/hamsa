@@ -6,8 +6,10 @@ import '../../../core/datetime/jalali.dart';
 import '../../../core/l10n/app_localizations.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../core/platform/app_url_launcher.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../../shared/formatters/money_text.dart';
 import '../../../shared/widgets/empty_state.dart';
+import '../../../shared/widgets/menu_card.dart';
 import '../../../shared/widgets/status_chip.dart';
 import '../../billing/billing_controller.dart';
 import '../../billing/models/billing.dart';
@@ -129,35 +131,47 @@ class _PayInvoiceScreenState extends ConsumerState<PayInvoiceScreen>
       body: _loading && _invoice == null
           ? const Center(child: CircularProgressIndicator())
           : _error != null && _invoice == null
-              ? Center(child: Text(_error!))
+              ? EmptyState(icon: Icons.error_outline, title: _error!)
               : RefreshIndicator(
                   onRefresh: _load,
                   child: ListView(
-                    padding: const EdgeInsets.all(16),
+                    padding: AppTheme.pagePadding,
                     children: [
                       if (_invoice != null) ...[
                         Card(
                           child: Padding(
-                            padding: const EdgeInsets.all(16),
+                            padding: const EdgeInsets.all(AppTheme.spaceL),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
                                 Row(
                                   children: [
-                                    Text(_invoice!.invoiceNumber),
+                                    Text(_invoice!.invoiceNumber,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .titleMedium),
                                     const Spacer(),
                                     StatusChip(
                                         kind: StatusKind.invoice,
                                         value: _invoice!.status),
                                   ],
                                 ),
-                                const SizedBox(height: 12),
-                                Text(l10n.outstandingLabel),
-                                MoneyText(amount: _outstanding,
+                                const SizedBox(height: AppTheme.spaceM),
+                                Text(l10n.outstandingLabel,
                                     style: Theme.of(context)
                                         .textTheme
-                                        .headlineSmall),
-                                const SizedBox(height: 12),
+                                        .bodySmall),
+                                MoneyText(
+                                  amount: _outstanding,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleLarge
+                                      ?.copyWith(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .primary),
+                                ),
+                                const SizedBox(height: AppTheme.spaceM),
                                 if (_outstanding > 0 &&
                                     _invoice!.status != 'cancelled')
                                   FilledButton(
@@ -174,10 +188,8 @@ class _PayInvoiceScreenState extends ConsumerState<PayInvoiceScreen>
                             ),
                           ),
                         ),
-                        const SizedBox(height: 16),
-                        Text(l10n.paymentHistoryTitle,
-                            style: Theme.of(context).textTheme.titleMedium),
-                        const SizedBox(height: 8),
+                        const SizedBox(height: AppTheme.spaceL),
+                        SectionHeader(title: l10n.paymentHistoryTitle),
                         _InvoicePayments(invoiceId: widget.invoiceId),
                       ],
                     ],

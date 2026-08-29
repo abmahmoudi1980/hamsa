@@ -5,6 +5,9 @@ analyzer:
     # Code-generated files — never edit or lint
     - "**/*.g.dart"
     - "**/*.freezed.dart"
+    - build/**
+    - android/**
+    - web/**
 
 linter:
   rules:

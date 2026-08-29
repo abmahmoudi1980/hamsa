@@ -5,8 +5,10 @@ import 'package:go_router/go_router.dart';
 import '../../../core/datetime/jalali.dart';
 import '../../../core/l10n/app_localizations.dart';
 import '../../../core/network/api_exception.dart';
+import '../../../core/theme/app_theme.dart';
 import '../models/people.dart';
 import '../people_controller.dart';
+import '../../../shared/widgets/empty_state.dart';
 
 /// Add person↔unit occupancy (US3/T041): person picker, relationship
 /// selector, and the Jalali start date (T018). Server closes the previous
@@ -61,34 +63,17 @@ class _OccupancyFormScreenState extends ConsumerState<OccupancyFormScreen> {
   /// No persons registered for this building yet — the person dropdown would
   /// render empty (looking disabled), so guide the manager to the person form
   /// first and refresh on return.
-  Widget _emptyPeople(BuildContext context, AppLocalizations l10n) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(Icons.person_off_outlined, size: 48),
-            const SizedBox(height: 16),
-            Text(
-              l10n.occupancyNeedsPerson,
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyLarge,
-            ),
-            const SizedBox(height: 24),
-            FilledButton.icon(
-              icon: const Icon(Icons.person_add_alt),
-              label: Text(l10n.addPerson),
-              onPressed: () async {
-                await context.push(
-                  '/manager/buildings/${widget.buildingId}/people/new',
-                );
-                ref.invalidate(peopleControllerProvider(widget.buildingId));
-              },
-            ),
-          ],
-        ),
-      ),
+  Widget _emptyPeople(AppLocalizations l10n) {
+    return EmptyState(
+      icon: Icons.person_off_outlined,
+      title: l10n.occupancyNeedsPerson,
+      actionLabel: l10n.addPerson,
+      onAction: () async {
+        await context.push(
+          '/manager/buildings/${widget.buildingId}/people/new',
+        );
+        ref.invalidate(peopleControllerProvider(widget.buildingId));
+      },
     );
   }
 
@@ -103,33 +88,36 @@ class _OccupancyFormScreenState extends ConsumerState<OccupancyFormScreen> {
           _ => l10n.relOwner,
         };
 
+    final canSubmit = peopleAsync.value?.isNotEmpty ?? false;
+
     return Scaffold(
       appBar: AppBar(title: Text(l10n.addOccupancy)),
       body: peopleAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => Center(child: Text(l10n.errorUnknown)),
         data: (people) => people.isEmpty
-            ? _emptyPeople(context, l10n)
-            : ListView(
-                padding: const EdgeInsets.all(16),
-                children: [
-                  DropdownButtonFormField<Person>(
-                    initialValue: _person,
-                    decoration: InputDecoration(labelText: l10n.selectPerson),
-                    items: people
-                        .map(
-                          (p) => DropdownMenuItem(
-                            value: p,
-                            child: Text(p.fullName),
-                          ),
-                        )
-                        .toList(),
-                    onChanged: (p) => setState(() => _person = p),
-                    validator: (p) => p == null ? l10n.requiredField : null,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 12),
-                    child: DropdownButtonFormField<String>(
+            ? _emptyPeople(l10n)
+            : Form(
+                child: ListView(
+                  padding: AppTheme.pagePadding,
+                  children: [
+                    DropdownButtonFormField<Person>(
+                      initialValue: _person,
+                      decoration:
+                          InputDecoration(labelText: l10n.selectPerson),
+                      items: people
+                          .map(
+                            (p) => DropdownMenuItem(
+                              value: p,
+                              child: Text(p.fullName),
+                            ),
+                          )
+                          .toList(),
+                      onChanged: (p) => setState(() => _person = p),
+                      validator: (p) => p == null ? l10n.requiredField : null,
+                    ),
+                    const SizedBox(height: AppTheme.spaceM),
+                    DropdownButtonFormField<String>(
                       initialValue: _relationship,
                       decoration: InputDecoration(
                         labelText: l10n.relationshipLabel,
@@ -145,33 +133,45 @@ class _OccupancyFormScreenState extends ConsumerState<OccupancyFormScreen> {
                       onChanged: (r) =>
                           setState(() => _relationship = r ?? 'tenant'),
                     ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 12),
-                    child: JalaliDatePickerField(
+                    const SizedBox(height: AppTheme.spaceM),
+                    JalaliDatePickerField(
                       label: l10n.occupancyStart,
                       onChanged: (d) => setState(() => _startDate = d),
                       validator: (d) => d == null ? l10n.requiredField : null,
                     ),
-                  ),
-                  if (_apiError != null) ...[
-                    const SizedBox(height: 12),
-                    Text(
-                      _apiError!,
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.error,
+                    if (_apiError != null) ...[
+                      const SizedBox(height: AppTheme.spaceM),
+                      Text(
+                        _apiError!,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.error,
+                        ),
+                        textAlign: TextAlign.center,
                       ),
-                      textAlign: TextAlign.center,
-                    ),
+                    ],
                   ],
-                  const SizedBox(height: 24),
-                  FilledButton(
+                ),
+              ),
+      ),
+      bottomNavigationBar: canSubmit
+          ? SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(
+                  AppTheme.spaceXl,
+                  AppTheme.spaceS,
+                  AppTheme.spaceXl,
+                  0,
+                ),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: FilledButton(
                     onPressed: _saving ? null : () => _save(l10n),
                     child: Text(l10n.save),
                   ),
-                ],
+                ),
               ),
-      ),
+            )
+          : null,
     );
   }
 }
