@@ -269,4 +269,67 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get invalidNumber => 'عدد صحیح وارد کنید.';
+
+  @override
+  String get peopleTitle => 'افراد و ساکنان';
+
+  @override
+  String get addPerson => 'افزودن شخص';
+
+  @override
+  String get editPerson => 'ویرایش شخص';
+
+  @override
+  String get personName => 'نام و نام خانوادگی';
+
+  @override
+  String get personPhone => 'شماره موبایل';
+
+  @override
+  String get personNationalId => 'کد ملی';
+
+  @override
+  String get invalidNationalId => 'کد ملی باید ۱۰ رقم باشد.';
+
+  @override
+  String get relationshipLabel => 'نسبت ساکن';
+
+  @override
+  String get relOwner => 'مالک';
+
+  @override
+  String get relTenant => 'مستأجر';
+
+  @override
+  String get relNonResidentOwner => 'مالک غیرمقیم';
+
+  @override
+  String get selectPerson => 'انتخاب شخص';
+
+  @override
+  String get addOccupancy => 'ثبت سکونت';
+
+  @override
+  String get occupancyTitle => 'ساکنان و سابقه سکونت';
+
+  @override
+  String get occupancyStart => 'تاریخ شروع سکونت';
+
+  @override
+  String get occupancyActive => 'فعال';
+
+  @override
+  String get occupancyEnded => 'پایان‌یافته';
+
+  @override
+  String get endOccupancy => 'پایان سکونت';
+
+  @override
+  String get occupantCountTitle => 'تعداد ساکن';
+
+  @override
+  String get recordOccupantCount => 'ثبت تعداد جدید';
+
+  @override
+  String get effectiveFrom => 'تاریخ اثر';
 }

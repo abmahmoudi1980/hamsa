@@ -7,9 +7,13 @@ import '../../features/auth/screens/login_screen.dart';
 import '../../features/auth/screens/otp_screen.dart';
 import '../../features/buildings/screens/building_form_screen.dart';
 import '../../features/buildings/screens/building_list_screen.dart';
+import '../../features/buildings/screens/occupancy_form_screen.dart';
+import '../../features/buildings/screens/person_form_screen.dart';
+import '../../features/buildings/screens/person_list_screen.dart';
 import '../../features/buildings/screens/unit_form_screen.dart';
 import '../../features/buildings/screens/unit_history_screen.dart';
 import '../../features/buildings/screens/unit_list_screen.dart';
+import '../../features/buildings/screens/unit_occupancy_screen.dart';
 import '../../features/home/screens/resident_shell_screen.dart';
 import 'splash_screen.dart';
 
@@ -28,7 +32,8 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (_, state) =>
             OtpScreen(phone: state.uri.queryParameters['phone'] ?? ''),
       ),
-      // Manager section (US2 buildings & units; dashboard arrives in US10).
+      // Manager section (US2 buildings & units; US3 people & occupancy;
+      // dashboard arrives in US10).
       GoRoute(
         path: '/manager',
         builder: (_, _) => const BuildingListScreen(),
@@ -36,6 +41,27 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: 'buildings/new',
             builder: (_, _) => const BuildingFormScreen(),
+          ),
+          GoRoute(
+            path: 'buildings/:buildingId/people',
+            builder: (_, state) => PersonListScreen(
+              buildingId: state.pathParameters['buildingId']!,
+            ),
+            routes: [
+              GoRoute(
+                path: 'new',
+                builder: (_, state) => PersonFormScreen(
+                  buildingId: state.pathParameters['buildingId']!,
+                ),
+              ),
+              GoRoute(
+                path: ':personId',
+                builder: (_, state) => PersonFormScreen(
+                  buildingId: state.pathParameters['buildingId']!,
+                  personId: state.pathParameters['personId'],
+                ),
+              ),
+            ],
           ),
           GoRoute(
             path: 'buildings/:buildingId/units',
@@ -60,6 +86,22 @@ final routerProvider = Provider<GoRouter>((ref) {
                     builder: (_, state) => UnitHistoryScreen(
                       unitId: state.pathParameters['unitId']!,
                     ),
+                  ),
+                  GoRoute(
+                    path: 'occupancy',
+                    builder: (_, state) => UnitOccupancyScreen(
+                      buildingId: state.pathParameters['buildingId']!,
+                      unitId: state.pathParameters['unitId']!,
+                    ),
+                    routes: [
+                      GoRoute(
+                        path: 'new',
+                        builder: (_, state) => OccupancyFormScreen(
+                          buildingId: state.pathParameters['buildingId']!,
+                          unitId: state.pathParameters['unitId']!,
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),

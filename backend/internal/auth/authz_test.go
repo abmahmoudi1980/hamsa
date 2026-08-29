@@ -2,6 +2,7 @@ package auth
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"testing"
 
@@ -16,32 +17,13 @@ import (
 // or any manager route; 403 regardless of resource existence
 // (contracts/api.md).
 //
-// The unit/invoice tables ship with the US2–US4 migrations; this suite seeds
-// the minimal persons/occupancies fixture that ScopeResolver queries so the
-// object-level helper is exercised against real SQL now, before those
-// migrations land.
+// The unit tables ship with the US2/US3 migrations (persons/occupancies in
+// migration 0003), which newAuthEnv applies; the fixture below only seeds
+// rows for the ScopeResolver.
 
 func newAuthzEnv(t *testing.T) (*authEnv, string, string) {
 	t.Helper()
 	e := newAuthEnv(t)
-
-	stmts := []string{
-		`CREATE TABLE persons (
-			id UUID PRIMARY KEY,
-			phone VARCHAR(11),
-			deleted_at TIMESTAMPTZ)`,
-		`CREATE TABLE occupancies (
-			id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-			person_id UUID NOT NULL REFERENCES persons(id),
-			unit_id UUID NOT NULL,
-			end_date DATE)`,
-	}
-	for _, s := range stmts {
-		if err := e.exec(s); err != nil {
-			t.Fatalf("fixture: %v", err)
-		}
-	}
-
 	return e, "", ""
 }
 
@@ -101,12 +83,28 @@ func TestIntegration_ObjectLevelResidentIsolation(t *testing.T) {
 
 	personA, personB := uuid.New(), uuid.New()
 	unitA, unitB := uuid.New(), uuid.New()
+	fixtureBuilding := uuid.New()
+	if err := e.exec(
+		`INSERT INTO buildings (id, name) VALUES ($1, $2)`,
+		fixtureBuilding, "ساختمان تست مجوز",
+	); err != nil {
+		t.Fatalf("seed building: %v", err)
+	}
+	for _, unit := range []uuid.UUID{unitA, unitB} {
+		if err := e.exec(
+			`INSERT INTO units (id, building_id, number, area_m2) VALUES ($1, $2, $3, 100)`,
+			unit, fixtureBuilding, fmt.Sprintf("%d", unit.ID()%1000),
+		); err != nil {
+			t.Fatalf("seed unit: %v", err)
+		}
+	}
 
 	for _, row := range []struct {
 		id    uuid.UUID
 		phone string
 	}{{personA, "09160000001"}, {personB, "09160000002"}} {
-		if err := e.exec(`INSERT INTO persons (id, phone) VALUES ($1, $2)`, row.id, row.phone); err != nil {
+		if err := e.exec(`INSERT INTO persons (id, building_id, full_name, phone) VALUES ($1, $2, $3, $4)`,
+			row.id, fixtureBuilding, "ساکن تست "+row.phone, row.phone); err != nil {
 			t.Fatalf("seed person: %v", err)
 		}
 	}
@@ -116,7 +114,8 @@ func TestIntegration_ObjectLevelResidentIsolation(t *testing.T) {
 		{personA, unitA}, {personB, unitB},
 	} {
 		if err := e.exec(
-			`INSERT INTO occupancies (person_id, unit_id, end_date) VALUES ($1, $2, NULL)`,
+			`INSERT INTO occupancies (person_id, unit_id, relationship, start_date, end_date)
+			 VALUES ($1, $2, 'tenant', CURRENT_DATE, NULL)`,
 			occ.person, occ.unit,
 		); err != nil {
 			t.Fatalf("seed occupancy: %v", err)

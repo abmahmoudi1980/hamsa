@@ -4,6 +4,7 @@ import '../../core/network/api_exception.dart';
 import '../auth/auth_repository.dart';
 import 'buildings_repository.dart';
 import 'models/building.dart';
+
 final buildingsRepositoryProvider = Provider<BuildingsRepository>(
   (ref) => BuildingsRepository(ref.watch(apiClientProvider).dio),
 );
@@ -76,12 +77,7 @@ class UnitsController extends FamilyAsyncNotifier<UnitsState, String> {
   Future<UnitsState> _load(String buildingId, UnitsFilter f) async {
     final (units, total) = await ref
         .watch(buildingsRepositoryProvider)
-        .listUnits(
-          buildingId,
-          q: f.q,
-          block: f.block,
-          status: f.status,
-        );
+        .listUnits(buildingId, q: f.q, block: f.block, status: f.status);
     return UnitsState(units: units, total: total, filter: f);
   }
 
@@ -102,7 +98,9 @@ class UnitsController extends FamilyAsyncNotifier<UnitsState, String> {
           .read(buildingsRepositoryProvider)
           .createUnit(buildingId, payload);
     } else {
-      await ref.read(buildingsRepositoryProvider).updateUnit(existing.id, payload);
+      await ref
+          .read(buildingsRepositoryProvider)
+          .updateUnit(existing.id, payload);
     }
     ref.invalidateSelf();
   }

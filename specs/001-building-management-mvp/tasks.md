@@ -113,16 +113,16 @@
 
 ### Tests for User Story 3 (write first, must FAIL)
 
-- [ ] T035 [P] [US3] Go integration test for occupancy lifecycle (new active tenant closes previous, history preserved, occupant-count as-of reads) in `backend/internal/building/occupancy_integration_test.go`
+- [x] T035 [P] [US3] Go integration test for occupancy lifecycle (new active tenant closes previous, history preserved, occupant-count as-of reads) in `backend/internal/building/occupancy_integration_test.go`
 
 ### Implementation for User Story 3
 
-- [ ] T036 [P] [US3] Create migration `backend/migrations/0003_people.up.sql`: `persons`, `occupancies` (end-dating only), `occupant_count_history` per data-model.md
-- [ ] T037 [P] [US3] Implement models + repositories in `backend/internal/building/` for persons, occupancies, occupant-count history
-- [ ] T038 [US3] Implement occupancy service in `backend/internal/building/occupancy_service.go`: one active tenant per unit rule, national-id checksum validation, occupant-count as-of query (max effective_from ≤ reference date), resident-change audit (`resident.changed`)
-- [ ] T039 [US3] Implement handlers in `backend/internal/building/occupancy_handlers.go`: persons CRUD, occupancy add/end-date, occupant-count GET/POST per contracts/api.md
-- [ ] T040 [P] [US3] Implement Flutter person management in `mobile/lib/features/buildings/`: person list/create/edit per building
-- [ ] T041 [P] [US3] Implement Flutter occupancy + occupant-count UI in `mobile/lib/features/buildings/`: unit occupancy tab (add person with relationship + Jalali start date via T018 picker, end occupancy), occupant-count editor with history list
+- [x] T036 [P] [US3] Create migration `backend/migrations/0003_people.up.sql`: `persons`, `occupancies` (end-dating only), `occupant_count_history` per data-model.md
+- [x] T037 [P] [US3] Implement models + repositories in `backend/internal/building/` for persons, occupancies, occupant-count history
+- [x] T038 [US3] Implement occupancy service in `backend/internal/building/occupancy_service.go`: one active tenant per unit rule, national-id checksum validation, occupant-count as-of query (max effective_from ≤ reference date), resident-change audit (`resident.changed`)
+- [x] T039 [US3] Implement handlers in `backend/internal/building/occupancy_handlers.go`: persons CRUD, occupancy add/end-date, occupant-count GET/POST per contracts/api.md
+- [x] T040 [P] [US3] Implement Flutter person management in `mobile/lib/features/buildings/`: person list/create/edit per building
+- [x] T041 [P] [US3] Implement Flutter occupancy + occupant-count UI in `mobile/lib/features/buildings/`: unit occupancy tab (add person with relationship + Jalali start date via T018 picker, end occupancy), occupant-count editor with history list
 
 **Checkpoint**: User Story 3 functional — people/occupancy data complete and historical; charge-engine inputs available.
 

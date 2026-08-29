@@ -597,6 +597,132 @@ abstract class AppLocalizations {
   /// In fa, this message translates to:
   /// **'عدد صحیح وارد کنید.'**
   String get invalidNumber;
+
+  /// No description provided for @peopleTitle.
+  ///
+  /// In fa, this message translates to:
+  /// **'افراد و ساکنان'**
+  String get peopleTitle;
+
+  /// No description provided for @addPerson.
+  ///
+  /// In fa, this message translates to:
+  /// **'افزودن شخص'**
+  String get addPerson;
+
+  /// No description provided for @editPerson.
+  ///
+  /// In fa, this message translates to:
+  /// **'ویرایش شخص'**
+  String get editPerson;
+
+  /// No description provided for @personName.
+  ///
+  /// In fa, this message translates to:
+  /// **'نام و نام خانوادگی'**
+  String get personName;
+
+  /// No description provided for @personPhone.
+  ///
+  /// In fa, this message translates to:
+  /// **'شماره موبایل'**
+  String get personPhone;
+
+  /// No description provided for @personNationalId.
+  ///
+  /// In fa, this message translates to:
+  /// **'کد ملی'**
+  String get personNationalId;
+
+  /// No description provided for @invalidNationalId.
+  ///
+  /// In fa, this message translates to:
+  /// **'کد ملی باید ۱۰ رقم باشد.'**
+  String get invalidNationalId;
+
+  /// No description provided for @relationshipLabel.
+  ///
+  /// In fa, this message translates to:
+  /// **'نسبت ساکن'**
+  String get relationshipLabel;
+
+  /// No description provided for @relOwner.
+  ///
+  /// In fa, this message translates to:
+  /// **'مالک'**
+  String get relOwner;
+
+  /// No description provided for @relTenant.
+  ///
+  /// In fa, this message translates to:
+  /// **'مستأجر'**
+  String get relTenant;
+
+  /// No description provided for @relNonResidentOwner.
+  ///
+  /// In fa, this message translates to:
+  /// **'مالک غیرمقیم'**
+  String get relNonResidentOwner;
+
+  /// No description provided for @selectPerson.
+  ///
+  /// In fa, this message translates to:
+  /// **'انتخاب شخص'**
+  String get selectPerson;
+
+  /// No description provided for @addOccupancy.
+  ///
+  /// In fa, this message translates to:
+  /// **'ثبت سکونت'**
+  String get addOccupancy;
+
+  /// No description provided for @occupancyTitle.
+  ///
+  /// In fa, this message translates to:
+  /// **'ساکنان و سابقه سکونت'**
+  String get occupancyTitle;
+
+  /// No description provided for @occupancyStart.
+  ///
+  /// In fa, this message translates to:
+  /// **'تاریخ شروع سکونت'**
+  String get occupancyStart;
+
+  /// No description provided for @occupancyActive.
+  ///
+  /// In fa, this message translates to:
+  /// **'فعال'**
+  String get occupancyActive;
+
+  /// No description provided for @occupancyEnded.
+  ///
+  /// In fa, this message translates to:
+  /// **'پایان‌یافته'**
+  String get occupancyEnded;
+
+  /// No description provided for @endOccupancy.
+  ///
+  /// In fa, this message translates to:
+  /// **'پایان سکونت'**
+  String get endOccupancy;
+
+  /// No description provided for @occupantCountTitle.
+  ///
+  /// In fa, this message translates to:
+  /// **'تعداد ساکن'**
+  String get occupantCountTitle;
+
+  /// No description provided for @recordOccupantCount.
+  ///
+  /// In fa, this message translates to:
+  /// **'ثبت تعداد جدید'**
+  String get recordOccupantCount;
+
+  /// No description provided for @effectiveFrom.
+  ///
+  /// In fa, this message translates to:
+  /// **'تاریخ اثر'**
+  String get effectiveFrom;
 }
 
 class _AppLocalizationsDelegate

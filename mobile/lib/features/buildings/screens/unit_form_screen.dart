@@ -39,6 +39,8 @@ class _UnitFormScreenState extends ConsumerState<UnitFormScreen> {
   // Populated after the (optional) load of the existing unit.
   final Map<String, TextEditingController> _c = {};
 
+  late final Future<Unit?> _loadFuture = _load();
+
   Future<Unit?> _load() {
     if (widget.existing != null) return Future.value(widget.existing);
     if (widget.unitId == null) return Future.value(null);
@@ -105,9 +107,11 @@ class _UnitFormScreenState extends ConsumerState<UnitFormScreen> {
     final l10n = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: Text(_loadingExisting || widget.existing != null
-            ? l10n.editUnit
-            : l10n.addUnit),
+        title: Text(
+          _loadingExisting || widget.existing != null
+              ? l10n.editUnit
+              : l10n.addUnit,
+        ),
         actions: [
           if (_loadingExisting || widget.existing != null)
             IconButton(
@@ -118,23 +122,27 @@ class _UnitFormScreenState extends ConsumerState<UnitFormScreen> {
                 '/units/${widget.unitId ?? widget.existing!.id}/history',
               ),
             ),
+          IconButton(
+            icon: const Icon(Icons.groups_outlined),
+            tooltip: l10n.occupancyTitle,
+            onPressed: () => context.push(
+              '/manager/buildings/${widget.buildingId}'
+              '/units/${widget.unitId ?? widget.existing!.id}/occupancy',
+            ),
+          ),
         ],
       ),
       body: FutureBuilder<Unit?>(
-        future: _load(),
+        future: _loadFuture,
         builder: (context, snap) {
-          if (_loadingExisting &&
-              snap.connectionState != ConnectionState.done) {
+          if (_loadingExisting && snap.connectionState != ConnectionState.done) {
             return const Center(child: CircularProgressIndicator());
           }
           final existing =
               snap.data ?? Unit(id: '', buildingId: '', number: '', areaM2: 0);
-          if (!_loadingExisting && _c.isEmpty && widget.existing == null) {
-            // Fresh-create mode: initialize empty controllers once.
-            _populate(existing);
-          } else if (snap.connectionState == ConnectionState.done &&
-              _c.isEmpty &&
-              widget.existing != null) {
+          // Initialize the controllers exactly once, whether the unit came
+          // from the constructor, the network (edit-by-id), or fresh-create.
+          if (snap.connectionState == ConnectionState.done && _c.isEmpty) {
             _populate(existing);
           }
           return _form(context, l10n, existing);
@@ -148,104 +156,137 @@ class _UnitFormScreenState extends ConsumerState<UnitFormScreen> {
       key: _formKey,
       child: ListView(
         padding: const EdgeInsets.all(16),
-        children: [
-          TextFormField(
-            controller: _ctrl('number'),
-            decoration: InputDecoration(labelText: l10n.unitNumber),
-            validator: (v) =>
-                v == null || v.trim().isEmpty ? l10n.requiredField : null,
-          ),
-          TextFormField(
-            controller: _ctrl('block'),
-            decoration: InputDecoration(labelText: l10n.unitBlock),
-          ),
-          TextFormField(
-            controller: _ctrl('floor'),
-            keyboardType: TextInputType.number,
-            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-            decoration: InputDecoration(labelText: l10n.unitFloor),
-          ),
-          TextFormField(
-            controller: _ctrl('area'),
-            keyboardType: TextInputType.number,
-            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-            decoration: InputDecoration(labelText: l10n.areaM2),
-            validator: (v) {
-              final n = int.tryParse(v ?? '');
-              if (n == null || n <= 0) return l10n.invalidAmount;
-              return null;
-            },
-          ),
-          DropdownButtonFormField<String>(
-            initialValue: _status,
-            decoration: InputDecoration(labelText: l10n.unitStatus),
-            items: [
-              DropdownMenuItem(value: 'active', child: Text(l10n.statusActive)),
-              DropdownMenuItem(value: 'vacant', child: Text(l10n.statusVacant)),
-              DropdownMenuItem(
-                  value: 'occupied', child: Text(l10n.statusOccupied)),
-              DropdownMenuItem(
-                  value: 'inactive', child: Text(l10n.statusInactive)),
-            ],
-            onChanged: (v) => setState(() => _status = v ?? 'active'),
-          ),
-          Row(children: [
-            Expanded(
-              child: TextFormField(
-                controller: _ctrl('parkingCount'),
-                keyboardType: TextInputType.number,
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                decoration: InputDecoration(labelText: l10n.parkingCount),
-              ),
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: TextFormField(
-                controller: _ctrl('parkingNumbers'),
-                decoration: InputDecoration(labelText: l10n.parkingNumbers),
-              ),
-            ),
-          ]),
-          Row(children: [
-            Expanded(
-              child: TextFormField(
-                controller: _ctrl('storageCount'),
-                keyboardType: TextInputType.number,
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                decoration: InputDecoration(labelText: l10n.storageCount),
-              ),
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: TextFormField(
-                controller: _ctrl('storageNumbers'),
-                decoration:
-                    InputDecoration(labelText: l10n.storageNumbers),
-              ),
-            ),
-          ]),
-          TextFormField(
-            controller: _ctrl('notes'),
-            maxLines: 3,
-            decoration: InputDecoration(labelText: l10n.notesLabel),
-          ),
-          if (_apiError != null) ...[
-            const SizedBox(height: 12),
-            Text(
-              _apiError!,
-              style: TextStyle(color: Theme.of(context).colorScheme.error),
-              textAlign: TextAlign.center,
-            ),
-          ],
-          const SizedBox(height: 24),
-          FilledButton(
-            onPressed: _saving ? null : () => _save(existing),
-            child: Text(l10n.save),
-          ),
-        ].map((w) => Padding(
-              padding: const EdgeInsets.only(bottom: 12),
-              child: w,
-            )).toList(),
+        children:
+            [
+                  TextFormField(
+                    controller: _ctrl('number'),
+                    decoration: InputDecoration(labelText: l10n.unitNumber),
+                    validator: (v) => v == null || v.trim().isEmpty
+                        ? l10n.requiredField
+                        : null,
+                  ),
+                  TextFormField(
+                    controller: _ctrl('block'),
+                    decoration: InputDecoration(labelText: l10n.unitBlock),
+                  ),
+                  TextFormField(
+                    controller: _ctrl('floor'),
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    decoration: InputDecoration(labelText: l10n.unitFloor),
+                  ),
+                  TextFormField(
+                    controller: _ctrl('area'),
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    decoration: InputDecoration(labelText: l10n.areaM2),
+                    validator: (v) {
+                      final n = int.tryParse(v ?? '');
+                      if (n == null || n <= 0) return l10n.invalidAmount;
+                      return null;
+                    },
+                  ),
+                  DropdownButtonFormField<String>(
+                    initialValue: _status,
+                    decoration: InputDecoration(labelText: l10n.unitStatus),
+                    items: [
+                      DropdownMenuItem(
+                        value: 'active',
+                        child: Text(l10n.statusActive),
+                      ),
+                      DropdownMenuItem(
+                        value: 'vacant',
+                        child: Text(l10n.statusVacant),
+                      ),
+                      DropdownMenuItem(
+                        value: 'occupied',
+                        child: Text(l10n.statusOccupied),
+                      ),
+                      DropdownMenuItem(
+                        value: 'inactive',
+                        child: Text(l10n.statusInactive),
+                      ),
+                    ],
+                    onChanged: (v) => setState(() => _status = v ?? 'active'),
+                  ),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextFormField(
+                          controller: _ctrl('parkingCount'),
+                          keyboardType: TextInputType.number,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly,
+                          ],
+                          decoration: InputDecoration(
+                            labelText: l10n.parkingCount,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: TextFormField(
+                          controller: _ctrl('parkingNumbers'),
+                          decoration: InputDecoration(
+                            labelText: l10n.parkingNumbers,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextFormField(
+                          controller: _ctrl('storageCount'),
+                          keyboardType: TextInputType.number,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly,
+                          ],
+                          decoration: InputDecoration(
+                            labelText: l10n.storageCount,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: TextFormField(
+                          controller: _ctrl('storageNumbers'),
+                          decoration: InputDecoration(
+                            labelText: l10n.storageNumbers,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  TextFormField(
+                    controller: _ctrl('notes'),
+                    maxLines: 3,
+                    decoration: InputDecoration(labelText: l10n.notesLabel),
+                  ),
+                  if (_apiError != null) ...[
+                    const SizedBox(height: 12),
+                    Text(
+                      _apiError!,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.error,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                  const SizedBox(height: 24),
+                  FilledButton(
+                    onPressed: _saving ? null : () => _save(existing),
+                    child: Text(l10n.save),
+                  ),
+                ]
+                .map(
+                  (w) => Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: w,
+                  ),
+                )
+                .toList(),
       ),
     );
   }

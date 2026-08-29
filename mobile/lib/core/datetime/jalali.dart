@@ -23,14 +23,27 @@ const List<String> _jalaliMonthNames = [
   'اسفند',
 ];
 
-const List<String> _persianDigits = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
+const List<String> _persianDigits = [
+  '۰',
+  '۱',
+  '۲',
+  '۳',
+  '۴',
+  '۵',
+  '۶',
+  '۷',
+  '۸',
+  '۹',
+];
 
 /// Converts Latin digits in [input] to Persian digits.
 String toPersianDigits(String input) {
   final buffer = StringBuffer();
   for (final rune in input.runes) {
     final code = rune - 0x30; // ASCII '0'
-    buffer.write(code >= 0 && code <= 9 ? _persianDigits[code] : String.fromCharCode(rune));
+    buffer.write(
+      code >= 0 && code <= 9 ? _persianDigits[code] : String.fromCharCode(rune),
+    );
   }
   return buffer.toString();
 }
@@ -65,6 +78,13 @@ String formatJalaliDate(DateTime dt) {
   return toPersianDigits('${j.year}/${_two(j.month)}/${_two(j.day)}');
 }
 
+/// Gregorian [DateTime] → ISO-8601 "YYYY-MM-DD" for the wire (the inverse of
+/// what [JalaliDatePickerField] emits; API dates stay Gregorian, R6).
+String isoDate(DateTime d) =>
+    '${d.year.toString().padLeft(4, '0')}-'
+    '${d.month.toString().padLeft(2, '0')}-'
+    '${d.day.toString().padLeft(2, '0')}';
+
 /// `۱ شهریور ۱۴۰۴`
 String formatJalaliLongDate(DateTime dt) {
   final j = jalaliOf(dt);
@@ -97,7 +117,8 @@ class JalaliDatePickerField extends FormField<DateTime> {
   }) : super(builder: _noBuilder);
 
   // The state class below owns rendering; FormField only requires a builder.
-  static Widget _noBuilder(FormFieldState<DateTime> state) => const SizedBox.shrink();
+  static Widget _noBuilder(FormFieldState<DateTime> state) =>
+      const SizedBox.shrink();
 
   /// Field caption shown above the box.
   final String? label;
@@ -124,7 +145,9 @@ class _JalaliDatePickerFieldState extends FormFieldState<DateTime> {
     final last = _field.lastDate;
     final picked = await showPersianDatePicker(
       context: context,
-      initialDate: value == null ? null : jalaliOf(value!),
+      // Empty field → open on Jalali today; never let the plugin fall back
+      // to a Gregorian initialDate (mixed-calendar display bug).
+      initialDate: value == null ? now : jalaliOf(value!),
       firstDate: first == null ? Jalali(1300) : jalaliOf(first),
       lastDate: last == null ? now.addYears(30) : jalaliOf(last),
       currentDate: now,

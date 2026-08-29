@@ -27,7 +27,10 @@ class _UnitListScreenState extends ConsumerState<UnitListScreen> {
   }
 
   UnitsFilter _filter(WidgetRef ref) =>
-      ref.read(unitsControllerProvider(widget.buildingId)).valueOrNull?.filter ??
+      ref
+          .read(unitsControllerProvider(widget.buildingId))
+          .valueOrNull
+          ?.filter ??
       const UnitsFilter();
 
   void _apply(WidgetRef ref, UnitsFilter f) {
@@ -44,8 +47,9 @@ class _UnitListScreenState extends ConsumerState<UnitListScreen> {
       appBar: AppBar(title: Text(l10n.unitsTitle)),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () async {
-          await context
-              .push('/manager/buildings/${widget.buildingId}/units/new');
+          await context.push(
+            '/manager/buildings/${widget.buildingId}/units/new',
+          );
           if (mounted) {
             ref.invalidate(unitsControllerProvider(widget.buildingId));
           }
@@ -57,38 +61,50 @@ class _UnitListScreenState extends ConsumerState<UnitListScreen> {
         children: [
           Padding(
             padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
-            child: Row(children: [
-              Expanded(
-                child: TextField(
-                  controller: _search,
-                  decoration: InputDecoration(
-                    hintText: l10n.searchUnits,
-                    prefixIcon: const Icon(Icons.search),
-                    isDense: true,
-                    border: const OutlineInputBorder(),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _search,
+                    decoration: InputDecoration(
+                      hintText: l10n.searchUnits,
+                      prefixIcon: const Icon(Icons.search),
+                      isDense: true,
+                      border: const OutlineInputBorder(),
+                    ),
+                    onSubmitted: (_) =>
+                        _apply(ref, _filter(ref).copyWith(q: _search.text)),
                   ),
-                  onSubmitted: (_) => _apply(
+                ),
+                const SizedBox(width: 8),
+                DropdownButton<String>(
+                  value: status.isEmpty ? null : status,
+                  hint: Text(l10n.allStatuses),
+                  items: [
+                    DropdownMenuItem(
+                      value: 'active',
+                      child: Text(l10n.statusActive),
+                    ),
+                    DropdownMenuItem(
+                      value: 'vacant',
+                      child: Text(l10n.statusVacant),
+                    ),
+                    DropdownMenuItem(
+                      value: 'occupied',
+                      child: Text(l10n.statusOccupied),
+                    ),
+                    DropdownMenuItem(
+                      value: 'inactive',
+                      child: Text(l10n.statusInactive),
+                    ),
+                  ],
+                  onChanged: (v) => _apply(
                     ref,
-                    _filter(ref).copyWith(q: _search.text),
+                    UnitsFilter(status: v ?? '', q: _search.text),
                   ),
                 ),
-              ),
-              const SizedBox(width: 8),
-              DropdownButton<String>(
-                value: status.isEmpty ? null : status,
-                hint: Text(l10n.allStatuses),
-                items: [
-                  DropdownMenuItem(value: 'active', child: Text(l10n.statusActive)),
-                  DropdownMenuItem(value: 'vacant', child: Text(l10n.statusVacant)),
-                  DropdownMenuItem(value: 'occupied', child: Text(l10n.statusOccupied)),
-                  DropdownMenuItem(value: 'inactive', child: Text(l10n.statusInactive)),
-                ],
-                onChanged: (v) => _apply(
-                  ref,
-                  UnitsFilter(status: v ?? '', q: _search.text),
-                ),
-              ),
-            ]),
+              ],
+            ),
           ),
           Expanded(
             child: async.when(
@@ -108,8 +124,9 @@ class _UnitListScreenState extends ConsumerState<UnitListScreen> {
                             '${(u.block == null || u.block!.isEmpty) ? '' : ' • ${u.block}'}',
                           ),
                           subtitle: Text('${u.areaM2} ${l10n.areaM2}'),
-                          trailing:
-                              Chip(label: Text(_statusLabel(l10n, u.status))),
+                          trailing: Chip(
+                            label: Text(_statusLabel(l10n, u.status)),
+                          ),
                           onTap: () async {
                             await context.push(
                               '/manager/buildings/${widget.buildingId}/units/${u.id}',
@@ -130,8 +147,8 @@ class _UnitListScreenState extends ConsumerState<UnitListScreen> {
 }
 
 String _statusLabel(AppLocalizations l10n, String s) => switch (s) {
-      'vacant' => l10n.statusVacant,
-      'occupied' => l10n.statusOccupied,
-      'inactive' => l10n.statusInactive,
-      _ => l10n.statusActive,
-    };
+  'vacant' => l10n.statusVacant,
+  'occupied' => l10n.statusOccupied,
+  'inactive' => l10n.statusInactive,
+  _ => l10n.statusActive,
+};

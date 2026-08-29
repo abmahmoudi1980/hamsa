@@ -24,8 +24,7 @@ class BuildingListScreen extends ConsumerWidget {
           IconButton(
             icon: const Icon(Icons.logout),
             tooltip: l10n.logout,
-            onPressed: () =>
-                ref.read(authControllerProvider.notifier).logout(),
+            onPressed: () => ref.read(authControllerProvider.notifier).logout(),
           ),
         ],
       ),
@@ -93,7 +92,10 @@ class EmptyState extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(l10n.emptyStateTitle, style: Theme.of(context).textTheme.titleMedium),
+          Text(
+            l10n.emptyStateTitle,
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
           const SizedBox(height: 8),
           FilledButton(onPressed: onAdd, child: Text(l10n.addBuilding)),
         ],

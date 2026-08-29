@@ -118,8 +118,10 @@ class Unit {
 
 /// One audit entry of a unit's change history (`GET /units/{id}/history`).
 class UnitHistoryEntry {
-  factory UnitHistoryEntry.fromJson(Map<String, dynamic> j) =>
-      UnitHistoryEntry(id: j['id'] as int, action: (j['action'] ?? '') as String);
+  factory UnitHistoryEntry.fromJson(Map<String, dynamic> j) => UnitHistoryEntry(
+    id: j['id'] as int,
+    action: (j['action'] ?? '') as String,
+  );
 
   UnitHistoryEntry({required this.id, required this.action});
 

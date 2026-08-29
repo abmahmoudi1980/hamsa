@@ -48,6 +48,7 @@ func Register(r *gin.RouterGroup, svc *Service, aud *audit.Service) {
 		units.DELETE("/:id", aud.Middleware("unit.delete", "unit"), deleteUnit(svc))
 		units.GET("/:id/history", unitHistory(svc))
 	}
+	RegisterOccupancy(r, svc, aud)
 }
 
 // requireManager resolves the authenticated user and rejects non-managers.
