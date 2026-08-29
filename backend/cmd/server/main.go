@@ -11,11 +11,15 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/google/uuid"
+
 	"hamsa/internal/audit"
 	"hamsa/internal/auth"
 	"hamsa/internal/billing"
 	"hamsa/internal/building"
 	"hamsa/internal/notification"
+	"hamsa/internal/payment"
+	"hamsa/internal/payment/gateway"
 	"hamsa/internal/platform/config"
 	"hamsa/internal/platform/db"
 	"hamsa/internal/platform/httpx"
@@ -97,10 +101,32 @@ func main() {
 	// routes enforce the role per handler; /me/invoices serves residents and
 	// scopes to their own units via the resolver.
 	billingRepo := billing.NewRepository(gormDB)
+
+	// US5: payments & balances — the balance service feeds both the
+	// calculation snapshots (prior debt / credit) and the live unit_balances
+	// rows recomputed on every ledger event.
+	payRepo := payment.NewRepository(gormDB)
+	balanceSvc := payment.NewBalanceService(payRepo)
+	var payGW gateway.PaymentGateway
+	if cfg.Payment.Provider == "zarinpal" {
+		payGW = gateway.NewZarinpal(cfg.Payment.Zarinpal.MerchantID, cfg.Payment.Zarinpal.Sandbox)
+	} else {
+		payGW = gateway.NewMock() // dev default
+	}
+	paymentSvc := payment.NewPaymentService(payRepo, payGW, balanceSvc, notifSvc, log,
+		cfg.App.BaseURL+"/api/v1/payments/callback")
+
+	periodSvc := billing.NewPeriodService(billingRepo, notifSvc, auditSvc)
+	periodSvc.SetBalanceRecomputer(balanceSvc) // US5: keep unit_balances current on issue/cancel/adjust
 	billing.Register(v1.Group("", authMW),
-		billing.NewCalcService(billingRepo, billing.ZeroBalanceProvider{}), // Phase 7 (T057) swaps in the balance service
-		billing.NewPeriodService(billingRepo, notifSvc, auditSvc),
+		billing.NewCalcService(billingRepo, balanceSnapshot{balanceSvc}),
+		periodSvc,
 		auditSvc,
+		auth.NewScopeResolver(gormDB))
+
+	// US5 routes: the gateway callback is public (the gateway cannot present
+	// a bearer token); everything else is authenticated.
+	payment.Register(v1.Group("", authMW), v1.Group(""), paymentSvc, balanceSvc, auditSvc,
 		auth.NewScopeResolver(gormDB))
 	srv := &http.Server{
 		Addr:              cfg.App.Addr,
@@ -127,6 +153,18 @@ func main() {
 		log.Error("graceful shutdown failed", "error", err)
 	}
 	log.Info("hamsa api stopped")
+}
+
+// balanceSnapshot adapts the payment balance service to billing's
+// BalanceProvider: the unit's outstanding (balance) and available credit
+// become the new period's prior_debt / credit_amount snapshots.
+type balanceSnapshot struct {
+	svc *payment.BalanceService
+}
+
+func (b balanceSnapshot) Snapshot(ctx context.Context, unitID uuid.UUID) (billing.Money, billing.Money, error) {
+	pd, cr, err := b.svc.Snapshot(ctx, unitID)
+	return billing.Money(pd), billing.Money(cr), err
 }
 
 // newLogger returns a structured logger: human-readable text in dev,

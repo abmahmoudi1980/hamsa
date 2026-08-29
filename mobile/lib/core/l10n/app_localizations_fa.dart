@@ -526,4 +526,71 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get myCharges => 'شارژهای من';
+
+  @override
+  String get paymentsTitle => 'پرداخت‌ها';
+
+  @override
+  String get recordPayment => 'ثبت پرداخت';
+
+  @override
+  String get paymentAmountLabel => 'مبلغ پرداخت (تومان)';
+
+  @override
+  String get paymentDateLabel => 'تاریخ پرداخت';
+
+  @override
+  String get trackingNumberLabel => 'شماره پیگیری / رسید (اختیاری)';
+
+  @override
+  String get paymentRecordedOk => 'پرداخت با موفقیت ثبت شد';
+
+  @override
+  String get ledgerTitle => 'دفتر پرداخت‌ها';
+
+  @override
+  String get filterMethodLabel => 'روش پرداخت';
+
+  @override
+  String get filterAll => 'همه';
+
+  @override
+  String get filterFromDate => 'از تاریخ';
+
+  @override
+  String get filterToDate => 'تا تاریخ';
+
+  @override
+  String get payTitle => 'پرداخت آنلاین';
+
+  @override
+  String get outstandingLabel => 'مبلغ باقی‌مانده';
+
+  @override
+  String get payLaunchConfirm =>
+      'به درگاه پرداخت منتقل می‌شوید. پس از بازگشت، وضعیت پرداخت بررسی می‌شود.';
+
+  @override
+  String get paySuccess => 'پرداخت با موفقیت انجام شد';
+
+  @override
+  String get payFailed => 'پرداخت ناموفق بود یا تأیید نشد';
+
+  @override
+  String get launchFailed => 'باز کردن درگاه پرداخت ممکن نشد';
+
+  @override
+  String get receiptTitle => 'رسید پرداخت';
+
+  @override
+  String get paymentHistoryTitle => 'تاریخچه پرداخت‌ها';
+
+  @override
+  String get unitLabel => 'واحد';
+
+  @override
+  String get payNow => 'پرداخت آنلاین';
+
+  @override
+  String get noPayments => 'هنوز پرداختی ثبت نشده است';
 }

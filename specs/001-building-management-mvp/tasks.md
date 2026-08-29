@@ -164,17 +164,17 @@
 
 ### Tests for User Story 5 (write first, must FAIL)
 
-- [ ] T054 [P] [US5] Go integration tests in `backend/internal/payment/payment_integration_test.go`: partial payment status transitions, overpayment→credit, balance formula reconciliation, gateway verify uses DB amount (mock gateway success/failure/amount-mismatch)
+- [x] T054 [P] [US5] Go integration tests in `backend/internal/payment/payment_integration_test.go`: partial payment status transitions, overpayment→credit, balance formula reconciliation, gateway verify uses DB amount (mock gateway success/failure/amount-mismatch)
 
 ### Implementation for User Story 5
 
-- [ ] T055 [P] [US5] Create migration `backend/migrations/0005_payments.up.sql`: `payments`, `unit_balances` (one row per unit, BR-01) per data-model.md
-- [ ] T056 [P] [US5] Implement models + repositories in `backend/internal/payment/`
-- [ ] T057 [US5] Implement balance service in `backend/internal/payment/balance_service.go`: transactional recompute on payment/adjustment/invoice events; components + `balance` per spec §9; never hard-delete payments (reversal via status)
-- [ ] T058 [US5] Implement `PaymentGateway` interface + Zarinpal adapter (v4 API, Toman→Rial ×10 inside adapter, amount from DB at verify) + mock gateway (dev) in `backend/internal/payment/gateway/` per research.md R5
-- [ ] T059 [US5] Implement payment services + handlers in `backend/internal/payment/`: manual recording (manager, audited), `POST /invoices/{id}/pay` start, `GET /payments/callback` verify (marks verified/failed, updates invoice status + balance, emits `payment_recorded` notification), manager ledger + `GET /me/payments`, `GET /units/{id}/balance`
-- [ ] T060 [P] [US5] Implement Flutter manager payment screens in `mobile/lib/features/payments/`: record manual payment (Jalali paid_at via T018), payment ledger with filters
-- [ ] T061 [P] [US5] Implement Flutter resident payment flow in `mobile/lib/features/payments/`: outstanding amount + pay button → gateway redirect/webview → result → receipt view; payment history list
+- [x] T055 [P] [US5] Create migration `backend/migrations/0005_payments.up.sql`: `payments`, `unit_balances` (one row per unit, BR-01) per data-model.md
+- [x] T056 [P] [US5] Implement models + repositories in `backend/internal/payment/`
+- [x] T057 [US5] Implement balance service in `backend/internal/payment/balance_service.go`: transactional recompute on payment/adjustment/invoice events; components + `balance` per spec §9; never hard-delete payments (reversal via status)
+- [x] T058 [US5] Implement `PaymentGateway` interface + Zarinpal adapter (v4 API, Toman→Rial ×10 inside adapter, amount from DB at verify) + mock gateway (dev) in `backend/internal/payment/gateway/` per research.md R5
+- [x] T059 [US5] Implement payment services + handlers in `backend/internal/payment/`: manual recording (manager, audited), `POST /invoices/{id}/pay` start, `GET /payments/callback` verify (marks verified/failed, updates invoice status + balance, emits `payment_recorded` notification), manager ledger + `GET /me/payments`, `GET /units/{id}/balance`
+- [x] T060 [P] [US5] Implement Flutter manager payment screens in `mobile/lib/features/payments/`: record manual payment (Jalali paid_at via T018), payment ledger with filters
+- [x] T061 [P] [US5] Implement Flutter resident payment flow in `mobile/lib/features/payments/`: outstanding amount + pay button → gateway redirect/webview → result → receipt view; payment history list
 
 **Checkpoint**: User Story 5 functional — the full financial collection loop works end-to-end.
 

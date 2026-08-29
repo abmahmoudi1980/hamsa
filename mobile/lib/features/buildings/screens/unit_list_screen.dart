@@ -44,7 +44,18 @@ class _UnitListScreenState extends ConsumerState<UnitListScreen> {
     final status = async.valueOrNull?.filter.status ?? '';
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.unitsTitle)),
+      appBar: AppBar(
+        title: Text(l10n.unitsTitle),
+        actions: [
+          // US5 (T060): the building's payment ledger.
+          IconButton(
+            icon: const Icon(Icons.payments_outlined),
+            tooltip: l10n.ledgerTitle,
+            onPressed: () =>
+                context.push('/manager/ledger/${widget.buildingId}'),
+          ),
+        ],
+      ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () async {
           await context.push(

@@ -27,13 +27,20 @@ class ResidentShellScreen extends ConsumerWidget {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          // US4 (T053): resident charges list entry; the remaining US9 menu
-          // items arrive with T084.
+          // US4 (T053) + US5 (T061): charges and payment history entries;
+          // the remaining US9 menu items arrive with T084.
           Card(
             child: ListTile(
               leading: const Icon(Icons.receipt_long),
               title: Text(l10n.myCharges),
               onTap: () => context.push('/home/charges'),
+            ),
+          ),
+          Card(
+            child: ListTile(
+              leading: const Icon(Icons.payments_outlined),
+              title: Text(l10n.paymentHistoryTitle),
+              onTap: () => context.push('/home/payments'),
             ),
           ),
           Center(child: Text(l10n.shellUnderConstruction)),

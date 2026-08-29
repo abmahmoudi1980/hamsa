@@ -12,6 +12,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 	"time"
 
 	"github.com/google/uuid"
@@ -25,17 +26,43 @@ import (
 	"hamsa/internal/platform/httpx"
 )
 
+// BalanceRecomputer is notified after invoice events that change a unit's
+// financial position (issue, cancel, adjustment) so the payment domain's
+// unit_balances rows stay current (Phase 7 wiring; nil in US4-only tests).
+type BalanceRecomputer interface {
+	RecomputeInvoice(ctx context.Context, invoiceID uuid.UUID) error
+}
+
 // PeriodService owns the period state machine, issuance, cancellation, and
 // adjustments.
 type PeriodService struct {
-	repo  *Repository
-	notif *notification.Service
-	audit *audit.Service
+	repo     *Repository
+	notif    *notification.Service
+	audit    *audit.Service
+	balances BalanceRecomputer // optional; nil before US5 is wired
 }
 
 // NewPeriodService returns the period lifecycle service.
 func NewPeriodService(repo *Repository, notif *notification.Service, aud *audit.Service) *PeriodService {
 	return &PeriodService{repo: repo, notif: notif, audit: aud}
+}
+
+// SetBalanceRecomputer wires the US5 balance service (set after construction
+// in main.go; left nil in US4-only test harnesses).
+func (s *PeriodService) SetBalanceRecomputer(b BalanceRecomputer) { s.balances = b }
+
+// recomputeBalances refreshes unit balances for the given invoices
+// (best-effort — a balance hiccup must not fail the billing operation;
+// the recompute is derived and safe to rerun).
+func (s *PeriodService) recomputeBalances(ctx context.Context, invoiceIDs ...uuid.UUID) {
+	if s.balances == nil {
+		return
+	}
+	for _, id := range invoiceIDs {
+		if err := s.balances.RecomputeInvoice(ctx, id); err != nil {
+			slog.Warn("balance recompute failed", "invoice_id", id, "error", err)
+		}
+	}
 }
 
 // Persian validation messages (contracts/api.md — all user-facing text is
@@ -404,6 +431,13 @@ func (s *PeriodService) Issue(ctx context.Context, manager *auth.User, id uuid.U
 		inv := issued[i]
 		_ = s.audit.Append(ctx, &actorID, "invoice.issued", "invoice", &inv.ID, nil, inv)
 	}
+	// US5 wiring: issued invoices are the units' financial ground truth —
+	// refresh their balance rows.
+	ids := make([]uuid.UUID, len(issued))
+	for i := range issued {
+		ids[i] = issued[i].ID
+	}
+	s.recomputeBalances(ctx, ids...)
 	return issued, nil
 }
 
@@ -451,6 +485,7 @@ func (s *PeriodService) CancelInvoice(ctx context.Context, manager *auth.User, i
 	actorID := manager.ID
 	_ = s.audit.Append(ctx, &actorID, "invoice.cancelled", "invoice", &invoiceID, nil,
 		map[string]any{"reason": in.Reason, "invoice": inv})
+	s.recomputeBalances(ctx, invoiceID)
 	return inv, nil
 }
 
@@ -501,6 +536,7 @@ func (s *PeriodService) AddAdjustment(ctx context.Context, manager *auth.User, i
 	}
 	actorID := manager.ID
 	_ = s.audit.Append(ctx, &actorID, "invoice.adjusted", "invoice", &invoiceID, nil, adj)
+	s.recomputeBalances(ctx, invoiceID)
 	return adj, nil
 }
 

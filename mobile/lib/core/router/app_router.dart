@@ -21,6 +21,10 @@ import '../../features/billing/screens/period_form_screen.dart';
 import '../../features/billing/screens/period_list_screen.dart';
 import '../../features/charges/screens/charges_list_screen.dart';
 import '../../features/charges/screens/invoice_detail_screen.dart';
+import '../../features/payments/screens/payment_history_screen.dart';
+import '../../features/payments/screens/payment_ledger_screen.dart';
+import '../../features/payments/screens/pay_invoice_screen.dart';
+import '../../features/payments/screens/record_payment_screen.dart';
 import '../../features/home/screens/resident_shell_screen.dart';
 import 'splash_screen.dart';
 
@@ -156,12 +160,35 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
         ],
       ),
-      // Shared invoice detail (manager + resident) and resident charges list.
+      // US5 payment surfaces. Manager: record manual payment on an invoice
+      // and the building ledger. Resident: pay flow + payment history.
+      GoRoute(
+        path: '/manager/records-payment/:invoiceId',
+        builder: (_, state) => RecordPaymentScreen(
+          invoiceId: state.pathParameters['invoiceId']!,
+        ),
+      ),
+      GoRoute(
+        path: '/manager/ledger/:buildingId',
+        builder: (_, state) => PaymentLedgerScreen(
+          buildingId: state.pathParameters['buildingId']!,
+        ),
+      ),
       GoRoute(
         path: '/invoice/:invoiceId',
         builder: (_, state) => InvoiceDetailScreen(
           invoiceId: state.pathParameters['invoiceId']!,
         ),
+      ),
+      GoRoute(
+        path: '/invoice/:invoiceId/pay',
+        builder: (_, state) => PayInvoiceScreen(
+          invoiceId: state.pathParameters['invoiceId']!,
+        ),
+      ),
+      GoRoute(
+        path: '/home/payments',
+        builder: (_, _) => const PaymentHistoryScreen(),
       ),
       GoRoute(
         path: '/home/charges',

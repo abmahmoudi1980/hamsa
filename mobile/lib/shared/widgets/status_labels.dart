@@ -44,3 +44,23 @@ const Map<String, Color> maintenanceStatusColors = {
   'done': Color(0xFF43A047),
   'closed': Color(0xFF757575),
 };
+
+/// US5 payment status/method labels (migration 0005 enums).
+const Map<String, String> paymentStatusLabels = {
+  'recorded': 'در انتظار تأیید',
+  'verified': 'تأییدشده',
+  'failed': 'ناموفق',
+  'reversed': 'برگشتی',
+};
+
+const Map<String, Color> paymentStatusColors = {
+  'recorded': Color(0xFFFB8C00),
+  'verified': Color(0xFF43A047),
+  'failed': Color(0xFFE53935),
+  'reversed': Color(0xFF757575),
+};
+
+const Map<String, String> paymentMethodLabels = {
+  'manual': 'دستی',
+  'gateway': 'درگاه اینترنتی',
+};

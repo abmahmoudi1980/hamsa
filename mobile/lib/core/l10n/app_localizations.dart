@@ -1101,6 +1101,138 @@ abstract class AppLocalizations {
   /// In fa, this message translates to:
   /// **'شارژهای من'**
   String get myCharges;
+
+  /// No description provided for @paymentsTitle.
+  ///
+  /// In fa, this message translates to:
+  /// **'پرداخت‌ها'**
+  String get paymentsTitle;
+
+  /// No description provided for @recordPayment.
+  ///
+  /// In fa, this message translates to:
+  /// **'ثبت پرداخت'**
+  String get recordPayment;
+
+  /// No description provided for @paymentAmountLabel.
+  ///
+  /// In fa, this message translates to:
+  /// **'مبلغ پرداخت (تومان)'**
+  String get paymentAmountLabel;
+
+  /// No description provided for @paymentDateLabel.
+  ///
+  /// In fa, this message translates to:
+  /// **'تاریخ پرداخت'**
+  String get paymentDateLabel;
+
+  /// No description provided for @trackingNumberLabel.
+  ///
+  /// In fa, this message translates to:
+  /// **'شماره پیگیری / رسید (اختیاری)'**
+  String get trackingNumberLabel;
+
+  /// No description provided for @paymentRecordedOk.
+  ///
+  /// In fa, this message translates to:
+  /// **'پرداخت با موفقیت ثبت شد'**
+  String get paymentRecordedOk;
+
+  /// No description provided for @ledgerTitle.
+  ///
+  /// In fa, this message translates to:
+  /// **'دفتر پرداخت‌ها'**
+  String get ledgerTitle;
+
+  /// No description provided for @filterMethodLabel.
+  ///
+  /// In fa, this message translates to:
+  /// **'روش پرداخت'**
+  String get filterMethodLabel;
+
+  /// No description provided for @filterAll.
+  ///
+  /// In fa, this message translates to:
+  /// **'همه'**
+  String get filterAll;
+
+  /// No description provided for @filterFromDate.
+  ///
+  /// In fa, this message translates to:
+  /// **'از تاریخ'**
+  String get filterFromDate;
+
+  /// No description provided for @filterToDate.
+  ///
+  /// In fa, this message translates to:
+  /// **'تا تاریخ'**
+  String get filterToDate;
+
+  /// No description provided for @payTitle.
+  ///
+  /// In fa, this message translates to:
+  /// **'پرداخت آنلاین'**
+  String get payTitle;
+
+  /// No description provided for @outstandingLabel.
+  ///
+  /// In fa, this message translates to:
+  /// **'مبلغ باقی‌مانده'**
+  String get outstandingLabel;
+
+  /// No description provided for @payLaunchConfirm.
+  ///
+  /// In fa, this message translates to:
+  /// **'به درگاه پرداخت منتقل می‌شوید. پس از بازگشت، وضعیت پرداخت بررسی می‌شود.'**
+  String get payLaunchConfirm;
+
+  /// No description provided for @paySuccess.
+  ///
+  /// In fa, this message translates to:
+  /// **'پرداخت با موفقیت انجام شد'**
+  String get paySuccess;
+
+  /// No description provided for @payFailed.
+  ///
+  /// In fa, this message translates to:
+  /// **'پرداخت ناموفق بود یا تأیید نشد'**
+  String get payFailed;
+
+  /// No description provided for @launchFailed.
+  ///
+  /// In fa, this message translates to:
+  /// **'باز کردن درگاه پرداخت ممکن نشد'**
+  String get launchFailed;
+
+  /// No description provided for @receiptTitle.
+  ///
+  /// In fa, this message translates to:
+  /// **'رسید پرداخت'**
+  String get receiptTitle;
+
+  /// No description provided for @paymentHistoryTitle.
+  ///
+  /// In fa, this message translates to:
+  /// **'تاریخچه پرداخت‌ها'**
+  String get paymentHistoryTitle;
+
+  /// No description provided for @unitLabel.
+  ///
+  /// In fa, this message translates to:
+  /// **'واحد'**
+  String get unitLabel;
+
+  /// No description provided for @payNow.
+  ///
+  /// In fa, this message translates to:
+  /// **'پرداخت آنلاین'**
+  String get payNow;
+
+  /// No description provided for @noPayments.
+  ///
+  /// In fa, this message translates to:
+  /// **'هنوز پرداختی ثبت نشده است'**
+  String get noPayments;
 }
 
 class _AppLocalizationsDelegate

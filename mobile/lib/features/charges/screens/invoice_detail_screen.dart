@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
+import 'package:go_router/go_router.dart';
 import '../../../core/datetime/jalali.dart';
 import '../../../core/l10n/app_localizations.dart';
 import '../../../core/network/api_exception.dart';
@@ -188,6 +188,16 @@ class _InvoiceDetailScreenState extends ConsumerState<InvoiceDetailScreen> {
             ? inv.invoiceNumber
             : l10n.invoicesTitle),
         actions: [
+          // US5 (T060): manager records manual payments here.
+          if (_isManager && _payable(inv))
+            IconButton(
+              icon: const Icon(Icons.payments_outlined),
+              tooltip: l10n.recordPayment,
+              onPressed: () async {
+                await context.push('/manager/records-payment/${inv.id}');
+                await _load();
+              },
+            ),
           if (_isManager && inv.status != 'cancelled') ...[
             IconButton(
               icon: const Icon(Icons.receipt_long),
@@ -238,6 +248,18 @@ class _InvoiceDetailScreenState extends ConsumerState<InvoiceDetailScreen> {
               trailing: Text(formatJalaliLongDate(
                   DateTime.tryParse(inv.dueDate!) ?? DateTime(2000))),
             ),
+          // US5 (T061): resident online payment entry.
+          if (!_isManager && _payable(inv)) ...[
+            const SizedBox(height: 16),
+            FilledButton.icon(
+              icon: const Icon(Icons.credit_card),
+              label: Text(l10n.payNow),
+              onPressed: () async {
+                await context.push('/invoice/${inv.id}/pay');
+                await _load();
+              },
+            ),
+          ],
           if (inv.issueDate != null)
             ListTile(
               contentPadding: EdgeInsets.zero,
@@ -279,6 +301,12 @@ class _InvoiceDetailScreenState extends ConsumerState<InvoiceDetailScreen> {
       ),
     );
   }
+
+  /// Issued and still carrying an outstanding amount — the only invoices a
+  /// payment can target (server rejects the rest with a Persian 409).
+  bool _payable(Invoice inv) =>
+      inv.invoiceNumberPresent &&
+      (inv.status == 'unpaid' || inv.status == 'partial');
 
   IconData _kindIcon(String kind) => switch (kind) {
         'late_fee' => Icons.hourglass_bottom,
