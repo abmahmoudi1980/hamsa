@@ -215,11 +215,13 @@ String? _redirect(Ref ref, GoRouterState state) {
   if (auth.status == AuthStatus.unauthenticated) {
     return location.startsWith('/login') ? null : '/login';
   }
-
-  // Authenticated: never show splash/login; land each role on its own shell
-  // and keep roles inside their own section.
+  // Authenticated: never show splash/login — post-login (OTP verified while
+  // still on /login/otp) and app-start land each role on its own shell;
+  // keep roles out of the other role's section. Shared surfaces
+  // (/invoice/:id, /invoice/:id/pay) are reachable from both sections.
   final isManager = auth.user?.role == UserRole.manager;
   final home = isManager ? '/manager' : '/home';
-  final section = isManager ? '/manager' : '/home';
-  return location.startsWith(section) ? null : home;
+  final otherSection = isManager ? '/home' : '/manager';
+  if (location == '/' || location.startsWith('/login')) return home;
+  return location.startsWith(otherSection) ? home : null;
 }
