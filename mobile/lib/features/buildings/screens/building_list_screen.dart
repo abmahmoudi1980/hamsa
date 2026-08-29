@@ -68,7 +68,19 @@ class BuildingListScreen extends ConsumerWidget {
                         '${b.unitCount} ${l10n.unitsTitle}'
                         '${b.address == null || b.address!.isEmpty ? '' : ' • ${b.address}'}',
                       ),
-                      trailing: const Icon(Icons.chevron_left),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          // US4 (T050): billing periods entry point.
+                          IconButton(
+                            icon: const Icon(Icons.receipt_long),
+                            tooltip: l10n.billingTitle,
+                            onPressed: () =>
+                                context.push('/manager/periods/${b.id}'),
+                          ),
+                          const Icon(Icons.chevron_left),
+                        ],
+                      ),
                       onTap: () =>
                           context.push('/manager/buildings/${b.id}/units'),
                     );

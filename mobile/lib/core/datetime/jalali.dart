@@ -143,13 +143,21 @@ class _JalaliDatePickerFieldState extends FormFieldState<DateTime> {
     final now = Jalali.now();
     final first = _field.firstDate;
     final last = _field.lastDate;
+    final firstJ = first == null ? Jalali(1300) : jalaliOf(first);
+    final lastJ = last == null ? now.addYears(30) : jalaliOf(last);
+    // Empty field → open on Jalali today; never let the plugin fall back
+    // to a Gregorian initialDate (mixed-calendar display bug). When a
+    // first/last bound exists, clamp the initial date into the allowed
+    // range — e.g. a due-date picker bounded by the period end must not
+    // open on today when today precedes that bound (assertion crash).
+    var initialJ = value == null ? now : jalaliOf(value!);
+    if (initialJ.isBefore(firstJ)) initialJ = firstJ;
+    if (initialJ.isAfter(lastJ)) initialJ = lastJ;
     final picked = await showPersianDatePicker(
       context: context,
-      // Empty field → open on Jalali today; never let the plugin fall back
-      // to a Gregorian initialDate (mixed-calendar display bug).
-      initialDate: value == null ? now : jalaliOf(value!),
-      firstDate: first == null ? Jalali(1300) : jalaliOf(first),
-      lastDate: last == null ? now.addYears(30) : jalaliOf(last),
+      initialDate: initialJ,
+      firstDate: firstJ,
+      lastDate: lastJ,
       currentDate: now,
     );
     if (picked != null) {

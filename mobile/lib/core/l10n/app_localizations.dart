@@ -729,6 +729,378 @@ abstract class AppLocalizations {
   /// In fa, this message translates to:
   /// **'هنوز شخصی برای این ساختمان ثبت نشده است؛ ابتدا یک شخص اضافه کنید.'**
   String get occupancyNeedsPerson;
+
+  /// No description provided for @billingTitle.
+  ///
+  /// In fa, this message translates to:
+  /// **'شارژها'**
+  String get billingTitle;
+
+  /// No description provided for @addPeriod.
+  ///
+  /// In fa, this message translates to:
+  /// **'دوره جدید'**
+  String get addPeriod;
+
+  /// No description provided for @editPeriod.
+  ///
+  /// In fa, this message translates to:
+  /// **'ویرایش دوره'**
+  String get editPeriod;
+
+  /// No description provided for @periodTitleLabel.
+  ///
+  /// In fa, this message translates to:
+  /// **'عنوان دوره'**
+  String get periodTitleLabel;
+
+  /// No description provided for @periodStart.
+  ///
+  /// In fa, this message translates to:
+  /// **'تاریخ شروع'**
+  String get periodStart;
+
+  /// No description provided for @periodEnd.
+  ///
+  /// In fa, this message translates to:
+  /// **'تاریخ پایان'**
+  String get periodEnd;
+
+  /// No description provided for @periodDue.
+  ///
+  /// In fa, this message translates to:
+  /// **'تاریخ سررسید'**
+  String get periodDue;
+
+  /// No description provided for @lateFeeType.
+  ///
+  /// In fa, this message translates to:
+  /// **'نوع دیرکرد'**
+  String get lateFeeType;
+
+  /// No description provided for @lateFeeNone.
+  ///
+  /// In fa, this message translates to:
+  /// **'بدون دیرکرد'**
+  String get lateFeeNone;
+
+  /// No description provided for @lateFeeFixed.
+  ///
+  /// In fa, this message translates to:
+  /// **'مبلغ ثابت'**
+  String get lateFeeFixed;
+
+  /// No description provided for @lateFeePercent.
+  ///
+  /// In fa, this message translates to:
+  /// **'درصدی'**
+  String get lateFeePercent;
+
+  /// No description provided for @lateFeePerDay.
+  ///
+  /// In fa, this message translates to:
+  /// **'روزانه'**
+  String get lateFeePerDay;
+
+  /// No description provided for @lateFeeValue.
+  ///
+  /// In fa, this message translates to:
+  /// **'مقدار دیرکرد'**
+  String get lateFeeValue;
+
+  /// No description provided for @costItemsTitle.
+  ///
+  /// In fa, this message translates to:
+  /// **'اقلام هزینه'**
+  String get costItemsTitle;
+
+  /// No description provided for @addCostItem.
+  ///
+  /// In fa, this message translates to:
+  /// **'افزودن قلم هزینه'**
+  String get addCostItem;
+
+  /// No description provided for @editCostItem.
+  ///
+  /// In fa, this message translates to:
+  /// **'ویرایش قلم هزینه'**
+  String get editCostItem;
+
+  /// No description provided for @costItemTitle.
+  ///
+  /// In fa, this message translates to:
+  /// **'عنوان قلم'**
+  String get costItemTitle;
+
+  /// No description provided for @costItemAmount.
+  ///
+  /// In fa, this message translates to:
+  /// **'مبلغ'**
+  String get costItemAmount;
+
+  /// No description provided for @calcMethod.
+  ///
+  /// In fa, this message translates to:
+  /// **'روش محاسبه'**
+  String get calcMethod;
+
+  /// No description provided for @methodEqual.
+  ///
+  /// In fa, this message translates to:
+  /// **'مساوی'**
+  String get methodEqual;
+
+  /// No description provided for @methodPerOccupant.
+  ///
+  /// In fa, this message translates to:
+  /// **'سرشمار (ساکن)'**
+  String get methodPerOccupant;
+
+  /// No description provided for @methodPerArea.
+  ///
+  /// In fa, this message translates to:
+  /// **'متراژ'**
+  String get methodPerArea;
+
+  /// No description provided for @methodFixed.
+  ///
+  /// In fa, this message translates to:
+  /// **'مبلغ ثابت'**
+  String get methodFixed;
+
+  /// No description provided for @methodSpecificUnits.
+  ///
+  /// In fa, this message translates to:
+  /// **'واحدهای مشخص'**
+  String get methodSpecificUnits;
+
+  /// No description provided for @methodCombined.
+  ///
+  /// In fa, this message translates to:
+  /// **'ترکیبی'**
+  String get methodCombined;
+
+  /// No description provided for @fixedPerUnit.
+  ///
+  /// In fa, this message translates to:
+  /// **'مبلغ هر واحد'**
+  String get fixedPerUnit;
+
+  /// No description provided for @includeVacant.
+  ///
+  /// In fa, this message translates to:
+  /// **'شامل واحدهای خالی'**
+  String get includeVacant;
+
+  /// No description provided for @selectUnits.
+  ///
+  /// In fa, this message translates to:
+  /// **'انتخاب واحدها'**
+  String get selectUnits;
+
+  /// No description provided for @comboWeights.
+  ///
+  /// In fa, this message translates to:
+  /// **'ترکیب وزن‌ها'**
+  String get comboWeights;
+
+  /// No description provided for @addWeight.
+  ///
+  /// In fa, this message translates to:
+  /// **'افزودن سهم'**
+  String get addWeight;
+
+  /// No description provided for @comboWeightsInvalid.
+  ///
+  /// In fa, this message translates to:
+  /// **'جمع وزن‌ها باید ۱۰۰ باشد'**
+  String get comboWeightsInvalid;
+
+  /// No description provided for @calculate.
+  ///
+  /// In fa, this message translates to:
+  /// **'محاسبه'**
+  String get calculate;
+
+  /// No description provided for @recalculate.
+  ///
+  /// In fa, this message translates to:
+  /// **'محاسبه مجدد'**
+  String get recalculate;
+
+  /// No description provided for @previewTitle.
+  ///
+  /// In fa, this message translates to:
+  /// **'پیش‌نمایش محاسبه'**
+  String get previewTitle;
+
+  /// No description provided for @reconciliationOk.
+  ///
+  /// In fa, this message translates to:
+  /// **'مغایرت ندارد'**
+  String get reconciliationOk;
+
+  /// No description provided for @reconciliationBad.
+  ///
+  /// In fa, this message translates to:
+  /// **'مغایرت در جمع اقلام!'**
+  String get reconciliationBad;
+
+  /// No description provided for @exactShare.
+  ///
+  /// In fa, this message translates to:
+  /// **'سهم دقیق'**
+  String get exactShare;
+
+  /// No description provided for @issue.
+  ///
+  /// In fa, this message translates to:
+  /// **'صدور صورتحساب‌ها'**
+  String get issue;
+
+  /// No description provided for @issueConfirm.
+  ///
+  /// In fa, this message translates to:
+  /// **'پس از صدور، صورتحساب‌ها تغییرناپذیرند و ساکنان مطلع می‌شوند. ادامه می‌دهید؟'**
+  String get issueConfirm;
+
+  /// No description provided for @issuedOk.
+  ///
+  /// In fa, this message translates to:
+  /// **'صورتحساب‌ها صادر شد'**
+  String get issuedOk;
+
+  /// No description provided for @reopen.
+  ///
+  /// In fa, this message translates to:
+  /// **'بازگشایی دوره'**
+  String get reopen;
+
+  /// No description provided for @reopenConfirm.
+  ///
+  /// In fa, this message translates to:
+  /// **'پیش‌نمایش محاسبه حذف و دوره به پیش‌نویس بازمی‌گردد. ادامه می‌دهید؟'**
+  String get reopenConfirm;
+
+  /// No description provided for @closePeriod.
+  ///
+  /// In fa, this message translates to:
+  /// **'بستن دوره'**
+  String get closePeriod;
+
+  /// No description provided for @closeConfirm.
+  ///
+  /// In fa, this message translates to:
+  /// **'با بستن دوره دیگر هیچ تغییری امکان‌پذیر نیست. ادامه می‌دهید؟'**
+  String get closeConfirm;
+
+  /// No description provided for @invoicesTitle.
+  ///
+  /// In fa, this message translates to:
+  /// **'صورتحساب‌ها'**
+  String get invoicesTitle;
+
+  /// No description provided for @baseAmount.
+  ///
+  /// In fa, this message translates to:
+  /// **'شارژ دوره'**
+  String get baseAmount;
+
+  /// No description provided for @priorDebt.
+  ///
+  /// In fa, this message translates to:
+  /// **'بدهی قبلی'**
+  String get priorDebt;
+
+  /// No description provided for @lateFeeAmount.
+  ///
+  /// In fa, this message translates to:
+  /// **'دیرکرد'**
+  String get lateFeeAmount;
+
+  /// No description provided for @creditAmount.
+  ///
+  /// In fa, this message translates to:
+  /// **'اعتبار'**
+  String get creditAmount;
+
+  /// No description provided for @finalAmount.
+  ///
+  /// In fa, this message translates to:
+  /// **'مبلغ نهایی'**
+  String get finalAmount;
+
+  /// No description provided for @paidAmount.
+  ///
+  /// In fa, this message translates to:
+  /// **'پرداخت‌شده'**
+  String get paidAmount;
+
+  /// No description provided for @issueDateLabel.
+  ///
+  /// In fa, this message translates to:
+  /// **'تاریخ صدور'**
+  String get issueDateLabel;
+
+  /// No description provided for @dueDateLabel.
+  ///
+  /// In fa, this message translates to:
+  /// **'تاریخ سررسید'**
+  String get dueDateLabel;
+
+  /// No description provided for @itemKindAdjustment.
+  ///
+  /// In fa, this message translates to:
+  /// **'اصلاحیه'**
+  String get itemKindAdjustment;
+
+  /// No description provided for @adjustmentDebit.
+  ///
+  /// In fa, this message translates to:
+  /// **'بدهکار'**
+  String get adjustmentDebit;
+
+  /// No description provided for @adjustmentCredit.
+  ///
+  /// In fa, this message translates to:
+  /// **'بستانکار'**
+  String get adjustmentCredit;
+
+  /// No description provided for @addAdjustment.
+  ///
+  /// In fa, this message translates to:
+  /// **'ثبت اصلاحیه'**
+  String get addAdjustment;
+
+  /// No description provided for @adjustmentReason.
+  ///
+  /// In fa, this message translates to:
+  /// **'دلیل اصلاحیه'**
+  String get adjustmentReason;
+
+  /// No description provided for @cancelInvoice.
+  ///
+  /// In fa, this message translates to:
+  /// **'ابطال صورتحساب'**
+  String get cancelInvoice;
+
+  /// No description provided for @cancelInvoiceConfirm.
+  ///
+  /// In fa, this message translates to:
+  /// **'صورتحساب ابطال شود؟ ردیف و سابقه آن حفظ خواهد شد.'**
+  String get cancelInvoiceConfirm;
+
+  /// No description provided for @cancelReason.
+  ///
+  /// In fa, this message translates to:
+  /// **'دلیل ابطال'**
+  String get cancelReason;
+
+  /// No description provided for @myCharges.
+  ///
+  /// In fa, this message translates to:
+  /// **'شارژهای من'**
+  String get myCharges;
 }
 
 class _AppLocalizationsDelegate

@@ -14,6 +14,13 @@ import '../../features/buildings/screens/unit_form_screen.dart';
 import '../../features/buildings/screens/unit_history_screen.dart';
 import '../../features/buildings/screens/unit_list_screen.dart';
 import '../../features/buildings/screens/unit_occupancy_screen.dart';
+import '../../features/billing/models/billing.dart';
+import '../../features/billing/screens/cost_item_form_screen.dart';
+import '../../features/billing/screens/period_detail_screen.dart';
+import '../../features/billing/screens/period_form_screen.dart';
+import '../../features/billing/screens/period_list_screen.dart';
+import '../../features/charges/screens/charges_list_screen.dart';
+import '../../features/charges/screens/invoice_detail_screen.dart';
 import '../../features/home/screens/resident_shell_screen.dart';
 import 'splash_screen.dart';
 
@@ -107,7 +114,58 @@ final routerProvider = Provider<GoRouter>((ref) {
               ),
             ],
           ),
+          GoRoute(
+            path: 'periods/:buildingId',
+            builder: (_, state) => PeriodListScreen(
+              buildingId: state.pathParameters['buildingId']!,
+            ),
+            routes: [
+              GoRoute(
+                path: 'new',
+                builder: (_, state) => PeriodFormScreen(
+                  buildingId: state.pathParameters['buildingId']!,
+                ),
+              ),
+              GoRoute(
+                path: ':periodId',
+                builder: (_, state) => PeriodDetailScreen(
+                  buildingId: state.pathParameters['buildingId']!,
+                  periodId: state.pathParameters['periodId']!,
+                ),
+                routes: [
+                  GoRoute(
+                    path: 'cost-items/new',
+                    builder: (_, state) => CostItemFormScreen(
+                      buildingId: state.pathParameters['buildingId']!,
+                      periodId: state.pathParameters['periodId']!,
+                    ),
+                  ),
+                  GoRoute(
+                    path: 'cost-items/:costItemId',
+                    builder: (_, state) => CostItemFormScreen(
+                      buildingId: state.pathParameters['buildingId']!,
+                      periodId: state.pathParameters['periodId']!,
+                      existing: state.extra is CostItem
+                          ? state.extra as CostItem
+                          : null,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ],
+      ),
+      // Shared invoice detail (manager + resident) and resident charges list.
+      GoRoute(
+        path: '/invoice/:invoiceId',
+        builder: (_, state) => InvoiceDetailScreen(
+          invoiceId: state.pathParameters['invoiceId']!,
+        ),
+      ),
+      GoRoute(
+        path: '/home/charges',
+        builder: (_, _) => const ChargesListScreen(),
       ),
       GoRoute(path: '/home', builder: (_, _) => const ResidentShellScreen()),
     ],

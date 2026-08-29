@@ -13,6 +13,7 @@ import (
 
 	"hamsa/internal/audit"
 	"hamsa/internal/auth"
+	"hamsa/internal/billing"
 	"hamsa/internal/building"
 	"hamsa/internal/notification"
 	"hamsa/internal/platform/config"
@@ -91,6 +92,16 @@ func main() {
 	buildingRepo := building.NewRepository(gormDB)
 	building.Register(v1.Group("", authMW, auth.RequireRole(auth.RoleManager)),
 		building.NewService(buildingRepo), auditSvc)
+
+	// US4: billing — periods, cost items, charge engine, invoices. Manager
+	// routes enforce the role per handler; /me/invoices serves residents and
+	// scopes to their own units via the resolver.
+	billingRepo := billing.NewRepository(gormDB)
+	billing.Register(v1.Group("", authMW),
+		billing.NewCalcService(billingRepo, billing.ZeroBalanceProvider{}), // Phase 7 (T057) swaps in the balance service
+		billing.NewPeriodService(billingRepo, notifSvc, auditSvc),
+		auditSvc,
+		auth.NewScopeResolver(gormDB))
 	srv := &http.Server{
 		Addr:              cfg.App.Addr,
 		Handler:           router,

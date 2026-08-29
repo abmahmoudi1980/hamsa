@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hamsa/core/l10n/app_localizations.dart';
 
 import '../../auth/auth_controller.dart';
@@ -23,7 +24,21 @@ class ResidentShellScreen extends ConsumerWidget {
           ),
         ],
       ),
-      body: Center(child: Text(l10n.shellUnderConstruction)),
+      body: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          // US4 (T053): resident charges list entry; the remaining US9 menu
+          // items arrive with T084.
+          Card(
+            child: ListTile(
+              leading: const Icon(Icons.receipt_long),
+              title: Text(l10n.myCharges),
+              onTap: () => context.push('/home/charges'),
+            ),
+          ),
+          Center(child: Text(l10n.shellUnderConstruction)),
+        ],
+      ),
     );
   }
 }

@@ -336,4 +336,194 @@ class AppLocalizationsFa extends AppLocalizations {
   @override
   String get occupancyNeedsPerson =>
       'هنوز شخصی برای این ساختمان ثبت نشده است؛ ابتدا یک شخص اضافه کنید.';
+
+  @override
+  String get billingTitle => 'شارژها';
+
+  @override
+  String get addPeriod => 'دوره جدید';
+
+  @override
+  String get editPeriod => 'ویرایش دوره';
+
+  @override
+  String get periodTitleLabel => 'عنوان دوره';
+
+  @override
+  String get periodStart => 'تاریخ شروع';
+
+  @override
+  String get periodEnd => 'تاریخ پایان';
+
+  @override
+  String get periodDue => 'تاریخ سررسید';
+
+  @override
+  String get lateFeeType => 'نوع دیرکرد';
+
+  @override
+  String get lateFeeNone => 'بدون دیرکرد';
+
+  @override
+  String get lateFeeFixed => 'مبلغ ثابت';
+
+  @override
+  String get lateFeePercent => 'درصدی';
+
+  @override
+  String get lateFeePerDay => 'روزانه';
+
+  @override
+  String get lateFeeValue => 'مقدار دیرکرد';
+
+  @override
+  String get costItemsTitle => 'اقلام هزینه';
+
+  @override
+  String get addCostItem => 'افزودن قلم هزینه';
+
+  @override
+  String get editCostItem => 'ویرایش قلم هزینه';
+
+  @override
+  String get costItemTitle => 'عنوان قلم';
+
+  @override
+  String get costItemAmount => 'مبلغ';
+
+  @override
+  String get calcMethod => 'روش محاسبه';
+
+  @override
+  String get methodEqual => 'مساوی';
+
+  @override
+  String get methodPerOccupant => 'سرشمار (ساکن)';
+
+  @override
+  String get methodPerArea => 'متراژ';
+
+  @override
+  String get methodFixed => 'مبلغ ثابت';
+
+  @override
+  String get methodSpecificUnits => 'واحدهای مشخص';
+
+  @override
+  String get methodCombined => 'ترکیبی';
+
+  @override
+  String get fixedPerUnit => 'مبلغ هر واحد';
+
+  @override
+  String get includeVacant => 'شامل واحدهای خالی';
+
+  @override
+  String get selectUnits => 'انتخاب واحدها';
+
+  @override
+  String get comboWeights => 'ترکیب وزن‌ها';
+
+  @override
+  String get addWeight => 'افزودن سهم';
+
+  @override
+  String get comboWeightsInvalid => 'جمع وزن‌ها باید ۱۰۰ باشد';
+
+  @override
+  String get calculate => 'محاسبه';
+
+  @override
+  String get recalculate => 'محاسبه مجدد';
+
+  @override
+  String get previewTitle => 'پیش‌نمایش محاسبه';
+
+  @override
+  String get reconciliationOk => 'مغایرت ندارد';
+
+  @override
+  String get reconciliationBad => 'مغایرت در جمع اقلام!';
+
+  @override
+  String get exactShare => 'سهم دقیق';
+
+  @override
+  String get issue => 'صدور صورتحساب‌ها';
+
+  @override
+  String get issueConfirm =>
+      'پس از صدور، صورتحساب‌ها تغییرناپذیرند و ساکنان مطلع می‌شوند. ادامه می‌دهید؟';
+
+  @override
+  String get issuedOk => 'صورتحساب‌ها صادر شد';
+
+  @override
+  String get reopen => 'بازگشایی دوره';
+
+  @override
+  String get reopenConfirm =>
+      'پیش‌نمایش محاسبه حذف و دوره به پیش‌نویس بازمی‌گردد. ادامه می‌دهید؟';
+
+  @override
+  String get closePeriod => 'بستن دوره';
+
+  @override
+  String get closeConfirm =>
+      'با بستن دوره دیگر هیچ تغییری امکان‌پذیر نیست. ادامه می‌دهید؟';
+
+  @override
+  String get invoicesTitle => 'صورتحساب‌ها';
+
+  @override
+  String get baseAmount => 'شارژ دوره';
+
+  @override
+  String get priorDebt => 'بدهی قبلی';
+
+  @override
+  String get lateFeeAmount => 'دیرکرد';
+
+  @override
+  String get creditAmount => 'اعتبار';
+
+  @override
+  String get finalAmount => 'مبلغ نهایی';
+
+  @override
+  String get paidAmount => 'پرداخت‌شده';
+
+  @override
+  String get issueDateLabel => 'تاریخ صدور';
+
+  @override
+  String get dueDateLabel => 'تاریخ سررسید';
+
+  @override
+  String get itemKindAdjustment => 'اصلاحیه';
+
+  @override
+  String get adjustmentDebit => 'بدهکار';
+
+  @override
+  String get adjustmentCredit => 'بستانکار';
+
+  @override
+  String get addAdjustment => 'ثبت اصلاحیه';
+
+  @override
+  String get adjustmentReason => 'دلیل اصلاحیه';
+
+  @override
+  String get cancelInvoice => 'ابطال صورتحساب';
+
+  @override
+  String get cancelInvoiceConfirm =>
+      'صورتحساب ابطال شود؟ ردیف و سابقه آن حفظ خواهد شد.';
+
+  @override
+  String get cancelReason => 'دلیل ابطال';
+
+  @override
+  String get myCharges => 'شارژهای من';
 }
