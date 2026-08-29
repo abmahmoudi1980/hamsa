@@ -21,9 +21,12 @@ import '../../features/billing/screens/period_form_screen.dart';
 import '../../features/billing/screens/period_list_screen.dart';
 import '../../features/charges/screens/charges_list_screen.dart';
 import '../../features/charges/screens/invoice_detail_screen.dart';
-import '../../features/payments/screens/payment_history_screen.dart';
 import '../../features/payments/screens/payment_ledger_screen.dart';
 import '../../features/payments/screens/pay_invoice_screen.dart';
+import '../../features/expenses/screens/expense_form_screen.dart';
+import '../../features/expenses/screens/financial_report_screen.dart';
+import '../../features/expenses/screens/expense_list_screen.dart';
+import '../../features/payments/screens/payment_history_screen.dart';
 import '../../features/payments/screens/record_payment_screen.dart';
 import '../../features/home/screens/resident_shell_screen.dart';
 import 'splash_screen.dart';
@@ -193,6 +196,34 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/home/charges',
         builder: (_, _) => const ChargesListScreen(),
+      ),
+      // US6 (T066/T067): expenses and the financial report — manager only.
+      GoRoute(
+        path: '/manager/expenses/:buildingId',
+        builder: (_, state) => ExpenseListScreen(
+          buildingId: state.pathParameters['buildingId']!,
+        ),
+        routes: [
+          GoRoute(
+            path: 'new',
+            builder: (_, state) => ExpenseFormScreen(
+              buildingId: state.pathParameters['buildingId']!,
+            ),
+          ),
+          GoRoute(
+            path: ':expenseId',
+            builder: (_, state) => ExpenseFormScreen(
+              buildingId: state.pathParameters['buildingId']!,
+              expenseId: state.pathParameters['expenseId'],
+            ),
+          ),
+        ],
+      ),
+      GoRoute(
+        path: '/manager/report/:buildingId',
+        builder: (_, state) => FinancialReportScreen(
+          buildingId: state.pathParameters['buildingId']!,
+        ),
       ),
       GoRoute(path: '/home', builder: (_, _) => const ResidentShellScreen()),
     ],

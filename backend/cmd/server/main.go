@@ -17,6 +17,7 @@ import (
 	"hamsa/internal/auth"
 	"hamsa/internal/billing"
 	"hamsa/internal/building"
+	"hamsa/internal/expense"
 	"hamsa/internal/notification"
 	"hamsa/internal/payment"
 	"hamsa/internal/payment/gateway"
@@ -128,6 +129,9 @@ func main() {
 	// a bearer token); everything else is authenticated.
 	payment.Register(v1.Group("", authMW), v1.Group(""), paymentSvc, balanceSvc, auditSvc,
 		auth.NewScopeResolver(gormDB))
+
+	// US6: expenses & financial report (manager-only, audited).
+	expense.Register(v1.Group("", authMW), expense.NewService(expense.NewRepository(gormDB)), auditSvc)
 	srv := &http.Server{
 		Addr:              cfg.App.Addr,
 		Handler:           router,

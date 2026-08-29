@@ -99,6 +99,9 @@ String formatJalaliDateTime(DateTime dt) {
       '${toPersianDigits(_two(local.minute))}';
 }
 
+/// Jalali month name for 1–12 (financial report month display).
+String jalaliMonthName(int month) => _jalaliMonthNames[month - 1];
+
 String _two(int n) => n.toString().padLeft(2, '0');
 
 /// The single date-entry component of the entire app (plan.md constraint).

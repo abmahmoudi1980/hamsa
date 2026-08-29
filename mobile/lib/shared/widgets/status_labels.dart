@@ -64,3 +64,29 @@ const Map<String, String> paymentMethodLabels = {
   'manual': 'دستی',
   'gateway': 'درگاه اینترنتی',
 };
+
+/// US6 expense category + approval labels (migration 0006 enums).
+const Map<String, String> expenseCategoryLabels = {
+  'water': 'آب',
+  'electricity': 'برق',
+  'gas': 'گاز',
+  'elevator': 'آسانسور',
+  'cleaning': 'نظافت',
+  'security': 'نگهبانی',
+  'repair': 'تعمیرات',
+  'insurance': 'بیمه',
+  'equipment': 'تجهیزات',
+  'other': 'سایر',
+};
+
+const Map<String, String> expenseApprovalLabels = {
+  'pending': 'در انتظار تأیید',
+  'approved': 'تأییدشده',
+  'rejected': 'تأییدنشده',
+};
+
+const Map<String, Color> expenseApprovalColors = {
+  'pending': Color(0xFFFFB300),
+  'approved': Color(0xFF43A047),
+  'rejected': Color(0xFFE53935),
+};

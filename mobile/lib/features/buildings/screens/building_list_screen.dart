@@ -79,6 +79,13 @@ class BuildingListScreen extends ConsumerWidget {
                                 context.push('/manager/periods/${b.id}'),
                           ),
                           const Icon(Icons.chevron_left),
+                          // US6 (T066): expenses & financial report entry.
+                          IconButton(
+                            icon: const Icon(Icons.receipt),
+                            tooltip: l10n.expensesTitle,
+                            onPressed: () =>
+                                context.push('/manager/expenses/${b.id}'),
+                          ),
                         ],
                       ),
                       onTap: () =>

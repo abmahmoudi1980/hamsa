@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'status_labels.dart';
 
 /// Which domain an enum value belongs to — selects the label/color maps.
-enum StatusKind { invoice, period, maintenance, payment }
+enum StatusKind { invoice, period, maintenance, payment, expense }
 
 /// Pill showing a wire-enum status with its Persian label and accent color.
 class StatusChip extends StatelessWidget {
@@ -19,6 +19,7 @@ class StatusChip extends StatelessWidget {
         StatusKind.period => periodStatusLabels[value],
         StatusKind.maintenance => maintenanceStatusLabels[value],
         StatusKind.payment => paymentStatusLabels[value],
+        StatusKind.expense => expenseApprovalLabels[value],
       } ?? value;
 
   Color? get _color => switch (kind) {
@@ -26,6 +27,7 @@ class StatusChip extends StatelessWidget {
         StatusKind.period => null,
         StatusKind.maintenance => maintenanceStatusColors[value],
         StatusKind.payment => paymentStatusColors[value],
+        StatusKind.expense => expenseApprovalColors[value],
       };
 
   @override

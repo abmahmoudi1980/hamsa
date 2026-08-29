@@ -1233,6 +1233,150 @@ abstract class AppLocalizations {
   /// In fa, this message translates to:
   /// **'هنوز پرداختی ثبت نشده است'**
   String get noPayments;
+
+  /// No description provided for @expensesTitle.
+  ///
+  /// In fa, this message translates to:
+  /// **'هزینه‌ها'**
+  String get expensesTitle;
+
+  /// No description provided for @financialReport.
+  ///
+  /// In fa, this message translates to:
+  /// **'گزارش مالی'**
+  String get financialReport;
+
+  /// No description provided for @addExpense.
+  ///
+  /// In fa, this message translates to:
+  /// **'ثبت هزینه'**
+  String get addExpense;
+
+  /// No description provided for @editExpense.
+  ///
+  /// In fa, this message translates to:
+  /// **'ویرایش هزینه'**
+  String get editExpense;
+
+  /// No description provided for @expenseTitleLabel.
+  ///
+  /// In fa, this message translates to:
+  /// **'عنوان هزینه'**
+  String get expenseTitleLabel;
+
+  /// No description provided for @expenseCategoryLabel.
+  ///
+  /// In fa, this message translates to:
+  /// **'دسته‌بندی'**
+  String get expenseCategoryLabel;
+
+  /// No description provided for @expenseAmountLabel.
+  ///
+  /// In fa, this message translates to:
+  /// **'مبلغ (تومان)'**
+  String get expenseAmountLabel;
+
+  /// No description provided for @expenseDateLabel.
+  ///
+  /// In fa, this message translates to:
+  /// **'تاریخ هزینه'**
+  String get expenseDateLabel;
+
+  /// No description provided for @expenseApprovalLabel.
+  ///
+  /// In fa, this message translates to:
+  /// **'وضعیت تأیید'**
+  String get expenseApprovalLabel;
+
+  /// No description provided for @expenseDescriptionLabel.
+  ///
+  /// In fa, this message translates to:
+  /// **'توضیحات (اختیاری)'**
+  String get expenseDescriptionLabel;
+
+  /// No description provided for @filterCategoryLabel.
+  ///
+  /// In fa, this message translates to:
+  /// **'دسته‌بندی'**
+  String get filterCategoryLabel;
+
+  /// No description provided for @filterApprovalLabel.
+  ///
+  /// In fa, this message translates to:
+  /// **'وضعیت تأیید'**
+  String get filterApprovalLabel;
+
+  /// No description provided for @noExpenses.
+  ///
+  /// In fa, this message translates to:
+  /// **'هنوز هزینه‌ای ثبت نشده است'**
+  String get noExpenses;
+
+  /// No description provided for @expenseSavedOk.
+  ///
+  /// In fa, this message translates to:
+  /// **'هزینه با موفقیت ثبت شد'**
+  String get expenseSavedOk;
+
+  /// No description provided for @expenseDeletedOk.
+  ///
+  /// In fa, this message translates to:
+  /// **'هزینه حذف شد'**
+  String get expenseDeletedOk;
+
+  /// No description provided for @deleteExpense.
+  ///
+  /// In fa, this message translates to:
+  /// **'حذف هزینه'**
+  String get deleteExpense;
+
+  /// No description provided for @deleteExpenseConfirm.
+  ///
+  /// In fa, this message translates to:
+  /// **'این هزینه حذف شود؟ ردیف آن از گزارش‌ها حذف می‌شود ولی سابقه مالی حفظ می‌شود.'**
+  String get deleteExpenseConfirm;
+
+  /// No description provided for @reportMonthLabel.
+  ///
+  /// In fa, this message translates to:
+  /// **'انتخاب ماه'**
+  String get reportMonthLabel;
+
+  /// No description provided for @reportMonthlyIncome.
+  ///
+  /// In fa, this message translates to:
+  /// **'درآمد این ماه'**
+  String get reportMonthlyIncome;
+
+  /// No description provided for @reportMonthlyExpense.
+  ///
+  /// In fa, this message translates to:
+  /// **'هزینه این ماه'**
+  String get reportMonthlyExpense;
+
+  /// No description provided for @reportNet.
+  ///
+  /// In fa, this message translates to:
+  /// **'تراز این ماه'**
+  String get reportNet;
+
+  /// No description provided for @reportTotalDebt.
+  ///
+  /// In fa, this message translates to:
+  /// **'مجموع بدهی ساکنان'**
+  String get reportTotalDebt;
+
+  /// No description provided for @reportTotalPayments.
+  ///
+  /// In fa, this message translates to:
+  /// **'مجموع پرداخت‌ها'**
+  String get reportTotalPayments;
+
+  /// No description provided for @reportTotalExpenses.
+  ///
+  /// In fa, this message translates to:
+  /// **'مجموع هزینه‌ها'**
+  String get reportTotalExpenses;
 }
 
 class _AppLocalizationsDelegate

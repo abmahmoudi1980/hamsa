@@ -188,15 +188,15 @@
 
 ### Tests for User Story 6 (write first, must FAIL)
 
-- [ ] T062 [P] [US6] Go integration tests in `backend/internal/expense/expense_integration_test.go`: CRUD + receipt file, approval statuses, financial-report aggregation accuracy vs seeded payments/expenses/balances
+- [x] T062 [P] [US6] Go integration tests in `backend/internal/expense/expense_integration_test.go`: CRUD + receipt file, approval statuses, financial-report aggregation accuracy vs seeded payments/expenses/balances
 
 ### Implementation for User Story 6
 
-- [ ] T063 [P] [US6] Create migration `backend/migrations/0006_expenses.up.sql`: `expenses` per data-model.md
-- [ ] T064 [P] [US6] Implement models + repository in `backend/internal/expense/`
-- [ ] T065 [US6] Implement expense service + handlers in `backend/internal/expense/`: CRUD (soft delete, audited, receipt via T010 files), category enum, approval workflow, `GET /buildings/{id}/financial-report?month=YYYY-MM` aggregating monthly income/expense/net, total debt, total payments, total expenses (FR-027)
-- [ ] T066 [P] [US6] Implement Flutter expense screens in `mobile/lib/features/expenses/`: list with category/approval filters, create/edit form (categories → Persian labels, Jalali date, receipt attach)
-- [ ] T067 [P] [US6] Implement Flutter financial report screen in `mobile/lib/features/expenses/`: month selector (Jalali), summary cards with Persian-digit Toman amounts
+- [x] T063 [P] [US6] Create migration `backend/migrations/0006_expenses.up.sql`: `expenses` per data-model.md
+- [x] T064 [P] [US6] Implement models + repository in `backend/internal/expense/`
+- [x] T065 [US6] Implement expense service + handlers in `backend/internal/expense/`: CRUD (soft delete, audited, receipt via T010 files), category enum, approval workflow, `GET /buildings/{id}/financial-report?month=YYYY-MM` aggregating monthly income/expense/net, total debt, total payments, total expenses (FR-027)
+- [x] T066 [P] [US6] Implement Flutter expense screens in `mobile/lib/features/expenses/`: list with category/approval filters, create/edit form (categories → Persian labels, Jalali date, receipt attach)
+- [x] T067 [P] [US6] Implement Flutter financial report screen in `mobile/lib/features/expenses/`: month selector (Jalali), summary cards with Persian-digit Toman amounts
 
 **Checkpoint**: User Story 6 functional — expenses and report independently testable.
 

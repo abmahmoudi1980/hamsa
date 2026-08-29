@@ -593,4 +593,77 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get noPayments => 'هنوز پرداختی ثبت نشده است';
+
+  @override
+  String get expensesTitle => 'هزینه‌ها';
+
+  @override
+  String get financialReport => 'گزارش مالی';
+
+  @override
+  String get addExpense => 'ثبت هزینه';
+
+  @override
+  String get editExpense => 'ویرایش هزینه';
+
+  @override
+  String get expenseTitleLabel => 'عنوان هزینه';
+
+  @override
+  String get expenseCategoryLabel => 'دسته‌بندی';
+
+  @override
+  String get expenseAmountLabel => 'مبلغ (تومان)';
+
+  @override
+  String get expenseDateLabel => 'تاریخ هزینه';
+
+  @override
+  String get expenseApprovalLabel => 'وضعیت تأیید';
+
+  @override
+  String get expenseDescriptionLabel => 'توضیحات (اختیاری)';
+
+  @override
+  String get filterCategoryLabel => 'دسته‌بندی';
+
+  @override
+  String get filterApprovalLabel => 'وضعیت تأیید';
+
+  @override
+  String get noExpenses => 'هنوز هزینه‌ای ثبت نشده است';
+
+  @override
+  String get expenseSavedOk => 'هزینه با موفقیت ثبت شد';
+
+  @override
+  String get expenseDeletedOk => 'هزینه حذف شد';
+
+  @override
+  String get deleteExpense => 'حذف هزینه';
+
+  @override
+  String get deleteExpenseConfirm =>
+      'این هزینه حذف شود؟ ردیف آن از گزارش‌ها حذف می‌شود ولی سابقه مالی حفظ می‌شود.';
+
+  @override
+  String get reportMonthLabel => 'انتخاب ماه';
+
+  @override
+  String get reportMonthlyIncome => 'درآمد این ماه';
+
+  @override
+  String get reportMonthlyExpense => 'هزینه این ماه';
+
+  @override
+  String get reportNet => 'تراز این ماه';
+
+  @override
+  String get reportTotalDebt => 'مجموع بدهی ساکنان';
+
+  @override
+  String get reportTotalPayments => 'مجموع پرداخت‌ها';
+
+  @override
+  String get reportTotalExpenses => 'مجموع هزینه‌ها';
 }
