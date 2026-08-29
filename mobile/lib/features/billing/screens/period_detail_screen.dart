@@ -221,9 +221,20 @@ class PeriodDetailScreen extends ConsumerWidget {
                   title: Text(inv.unitNumber.isEmpty
                       ? inv.unitId
                       : '${l10n.unitNumber} ${inv.unitNumber}'),
-                  subtitle: inv.status == 'unpaid'
-                      ? null
-                      : StatusChip(kind: StatusKind.invoice, value: inv.status),
+                  subtitle: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // Issued invoices carry BLD-YYYY-NNNN; drafts keep a
+                      // DRAFT- placeholder worth hiding (no number yet).
+                      if (!inv.invoiceNumber.startsWith('DRAFT-'))
+                        Text(inv.invoiceNumber),
+                      if (inv.status != 'unpaid') ...[
+                        if (!inv.invoiceNumber.startsWith('DRAFT-'))
+                          const SizedBox(width: 8),
+                        StatusChip(kind: StatusKind.invoice, value: inv.status),
+                      ],
+                    ],
+                  ),
                   trailing: MoneyText(
                     amount: inv.finalAmount,
                     style: Theme.of(context).textTheme.titleMedium,

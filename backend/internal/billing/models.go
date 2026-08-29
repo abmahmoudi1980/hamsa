@@ -187,9 +187,11 @@ type Invoice struct {
 	// Items/adjustments populated by repository detail reads (not a column).
 	Items       []InvoiceItem       `gorm:"-" json:"items,omitempty"`
 	Adjustments []InvoiceAdjustment `gorm:"-" json:"adjustments,omitempty"`
-	// UnitNumber/PeriodTitle denormalized for list/detail display (not columns).
-	UnitNumber  string `gorm:"-" json:"unit_number,omitempty"`
-	PeriodTitle string `gorm:"-" json:"period_title,omitempty"`
+	// UnitNumber/PeriodTitle are read-only scan targets for the denormalized
+	// subquery columns in the invoice queries; "->" (not "-") so GORM maps
+	// them on Scan while never writing/migrating them.
+	UnitNumber  string `gorm:"->" json:"unit_number,omitempty"`
+	PeriodTitle string `gorm:"->" json:"period_title,omitempty"`
 }
 
 func (Invoice) TableName() string { return "invoices" }
