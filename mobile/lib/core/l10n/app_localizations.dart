@@ -723,6 +723,12 @@ abstract class AppLocalizations {
   /// In fa, this message translates to:
   /// **'تاریخ اثر'**
   String get effectiveFrom;
+
+  /// No description provided for @occupancyNeedsPerson.
+  ///
+  /// In fa, this message translates to:
+  /// **'هنوز شخصی برای این ساختمان ثبت نشده است؛ ابتدا یک شخص اضافه کنید.'**
+  String get occupancyNeedsPerson;
 }
 
 class _AppLocalizationsDelegate

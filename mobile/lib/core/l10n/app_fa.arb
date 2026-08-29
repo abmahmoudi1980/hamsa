@@ -125,5 +125,6 @@
   "endOccupancy": "پایان سکونت",
   "occupantCountTitle": "تعداد ساکن",
   "recordOccupantCount": "ثبت تعداد جدید",
-  "effectiveFrom": "تاریخ اثر"
+  "effectiveFrom": "تاریخ اثر",
+  "occupancyNeedsPerson": "هنوز شخصی برای این ساختمان ثبت نشده است؛ ابتدا یک شخص اضافه کنید."
 }

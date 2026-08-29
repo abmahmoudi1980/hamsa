@@ -332,4 +332,8 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get effectiveFrom => 'تاریخ اثر';
+
+  @override
+  String get occupancyNeedsPerson =>
+      'هنوز شخصی برای این ساختمان ثبت نشده است؛ ابتدا یک شخص اضافه کنید.';
 }
