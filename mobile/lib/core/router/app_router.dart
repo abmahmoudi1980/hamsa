@@ -43,8 +43,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/login', builder: (_, _) => const LoginScreen()),
       GoRoute(
         path: '/login/otp',
-        builder: (_, state) =>
-            OtpScreen(phone: state.uri.queryParameters['phone'] ?? ''),
+        builder: (_, state) => OtpScreen(
+          phone: state.uri.queryParameters['phone'] ?? '',
+          devCode: state.uri.queryParameters['dev'],
+        ),
       ),
       // Manager section (US2 buildings & units; US3 people & occupancy;
       // dashboard arrives in US10).

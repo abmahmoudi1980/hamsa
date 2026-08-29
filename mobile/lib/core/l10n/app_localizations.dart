@@ -1377,6 +1377,12 @@ abstract class AppLocalizations {
   /// In fa, this message translates to:
   /// **'مجموع هزینه‌ها'**
   String get reportTotalExpenses;
+
+  /// No description provided for @devTestCode.
+  ///
+  /// In fa, this message translates to:
+  /// **'کد آزمایشی (حالت توسعه): {code}'**
+  String devTestCode(String code);
 }
 
 class _AppLocalizationsDelegate

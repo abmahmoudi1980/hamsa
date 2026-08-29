@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 
 import 'package:hamsa/core/l10n/app_localizations.dart';
 
@@ -103,4 +104,23 @@ extension ApiErrorL10n on AppLocalizations {
         'INTERNAL' => errorServer,
         _ => e.serverMessage ?? errorUnknown,
       };
+}
+
+/// Maps ANY error thrown by an API call to a displayable Persian message.
+/// `DioException`s (backend unreachable, timeouts, …) are parsed via
+/// [ApiException.from]; connection failures always carry a diagnostics line
+/// with the failure type and target host:port so "nothing happened" cases
+/// (e.g. the phone cannot reach the backend) are visible on-device.
+String describeError(AppLocalizations l10n, Object error) {
+  if (error is ApiException) return l10n.apiErrorMessage(error);
+  if (error is DioException) {
+    var message = l10n.apiErrorMessage(ApiException.from(error));
+    if (error.response == null) {
+      final uri = error.requestOptions.uri;
+      message += '\n[diagnostic] ${error.type.name} → ${uri.host}:${uri.port}';
+    }
+    return message;
+  }
+  if (kDebugMode) return '[diagnostic] ${error.runtimeType}: $error';
+  return l10n.errorUnknown;
 }

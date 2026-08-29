@@ -666,4 +666,9 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get reportTotalExpenses => 'مجموع هزینه‌ها';
+
+  @override
+  String devTestCode(String code) {
+    return 'کد آزمایشی (حالت توسعه): $code';
+  }
 }

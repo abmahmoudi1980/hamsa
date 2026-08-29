@@ -74,4 +74,29 @@ void main() {
     expect(repo.verifyCalls, 1);
     expect(repo.requestCalls, 1); // initial auto-request only
   });
+
+  testWidgets('dev code from login is shown in banner, pre-filled, no extra '
+      'request', (tester) async {
+    final repo = _StubbedRepository();
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [authRepositoryProvider.overrideWithValue(repo)],
+        child: const MaterialApp(
+          locale: Locale('fa'),
+          supportedLocales: AppLocalizations.supportedLocales,
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          home: OtpScreen(phone: '09123456789', devCode: '482913'),
+        ),
+      ),
+    );
+    await tester.pump();
+
+    // Banner carries the code with Persian digits; field is pre-filled.
+    expect(find.text('کد آزمایشی (حالت توسعه): ۴۸۲۹۱۳'), findsOneWidget);
+    expect(find.text('482913'), findsOneWidget);
+    // The login screen already requested — the screen must not re-request
+    // (60 s backend throttle would reject it).
+    expect(repo.requestCalls, 0);
+  });
 }

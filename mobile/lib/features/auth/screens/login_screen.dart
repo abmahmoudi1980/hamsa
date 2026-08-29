@@ -39,11 +39,18 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final phone = fromPersianDigits(_phoneController.text.trim());
 
     try {
-      await ref.read(authRepositoryProvider).requestOtp(phone);
+      final devCode =
+          await ref.read(authRepositoryProvider).requestOtp(phone);
       if (!mounted) return;
-      context.push('/login/otp?phone=$phone');
-    } on ApiException catch (e) {
-      messenger.showSnackBar(SnackBar(content: Text(l10n.apiErrorMessage(e))));
+      final dev = devCode == null ? '' : '&dev=$devCode';
+      context.push('/login/otp?phone=$phone$dev');
+    } catch (e) {
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(describeError(l10n, e)),
+          duration: const Duration(seconds: 8),
+        ),
+      );
     } finally {
       if (mounted) setState(() => _submitting = false);
     }

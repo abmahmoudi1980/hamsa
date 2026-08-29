@@ -16,9 +16,14 @@ import '../auth_repository.dart';
 /// auth-state redirect lands the user on their role shell (manager →
 /// building list, resident → resident panel).
 class OtpScreen extends ConsumerStatefulWidget {
-  const OtpScreen({super.key, required this.phone});
+  const OtpScreen({super.key, required this.phone, this.devCode});
 
   final String phone;
+
+  /// Dev-mode code returned by the request response (backend dev builds
+  /// only). When present the screen skips its own request (avoiding the
+  /// 60-second resend throttle), shows it and pre-fills the field.
+  final String? devCode;
 
   @override
   ConsumerState<OtpScreen> createState() => _OtpScreenState();
@@ -33,9 +38,19 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
   Duration _elapsed = Duration.zero;
   bool _submitting = false;
 
+  /// Code surfaced by the backend in dev mode — shown in the banner and
+  /// pre-filled so testers never leave the app to fetch it.
+  String? _devCode;
+
   @override
   void initState() {
     super.initState();
+    if (widget.devCode != null && widget.devCode!.isNotEmpty) {
+      _devCode = widget.devCode;
+      _codeController.text = widget.devCode!;
+      _startCountdown();
+      return;
+    }
     // Dev convenience: server may return the code in the response.
     WidgetsBinding.instance.addPostFrameCallback((_) => _requestCode());
   }
@@ -67,13 +82,17 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
           .read(authRepositoryProvider)
           .requestOtp(widget.phone);
       if (!mounted) return;
-      if (announce && devCode != null && devCode.isNotEmpty) {
-        messenger.showSnackBar(
-          SnackBar(content: Text(toPersianDigits(devCode))),
-        );
+      if (devCode != null && devCode.isNotEmpty) {
+        setState(() => _devCode = devCode);
+        _codeController.text = devCode;
       }
-    } on ApiException catch (e) {
-      messenger.showSnackBar(SnackBar(content: Text(l10n.apiErrorMessage(e))));
+    } catch (e) {
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(describeError(l10n, e)),
+          duration: const Duration(seconds: 8),
+        ),
+      );
     }
   }
 
@@ -99,8 +118,13 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
             refreshToken: result.refreshToken,
           );
       // Router redirect navigates to /manager or /home by role — no push here.
-    } on ApiException catch (e) {
-      messenger.showSnackBar(SnackBar(content: Text(l10n.apiErrorMessage(e))));
+    } catch (e) {
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(describeError(l10n, e)),
+          duration: const Duration(seconds: 8),
+        ),
+      );
     } finally {
       if (mounted) setState(() => _submitting = false);
     }
@@ -155,6 +179,27 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
                       color: theme.colorScheme.onSurfaceVariant,
                     ),
                   ),
+                  const SizedBox(height: AppTheme.spaceXxl),
+                  if (_devCode != null) ...[
+                    const SizedBox(height: AppTheme.spaceL),
+                    Card(
+                      margin: EdgeInsets.zero,
+                      color: theme.colorScheme.secondaryContainer,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: AppTheme.spaceL,
+                          vertical: AppTheme.spaceM,
+                        ),
+                        child: Text(
+                          l10n.devTestCode(toPersianDigits(_devCode!)),
+                          textAlign: TextAlign.center,
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            color: theme.colorScheme.onSecondaryContainer,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                   const SizedBox(height: AppTheme.spaceXxl),
                   TextFormField(
                     controller: _codeController,

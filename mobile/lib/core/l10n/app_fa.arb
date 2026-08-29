@@ -235,5 +235,13 @@
   "reportNet": "تراز این ماه",
   "reportTotalDebt": "مجموع بدهی ساکنان",
   "reportTotalPayments": "مجموع پرداخت‌ها",
-  "reportTotalExpenses": "مجموع هزینه‌ها"
+  "reportTotalExpenses": "مجموع هزینه‌ها",
+  "devTestCode": "کد آزمایشی (حالت توسعه): {code}",
+  "@devTestCode": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  }
 }
