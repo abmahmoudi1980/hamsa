@@ -8,6 +8,7 @@ import '../../../core/network/api_exception.dart';
 import '../../../core/theme/app_theme.dart';
 import '../buildings_controller.dart';
 import '../models/building.dart';
+import '../../../shared/widgets/save_bar.dart';
 
 /// Create/edit building (US2/T033). Pass [existing] for edit mode.
 class BuildingFormScreen extends ConsumerStatefulWidget {
@@ -195,21 +196,10 @@ class _BuildingFormScreenState extends ConsumerState<BuildingFormScreen> {
           ],
         ),
       ),
-      bottomNavigationBar: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(
-            AppTheme.spaceXl,
-            AppTheme.spaceS,
-            AppTheme.spaceXl,
-            0,
-          ),
-          child: SizedBox(
-            width: double.infinity,
-            child: FilledButton(
-              onPressed: _saving ? null : _save,
-              child: Text(l10n.save),
-            ),
-          ),
+      bottomNavigationBar: SaveBar(
+        child: FilledButton(
+          onPressed: _saving ? null : _save,
+          child: Text(l10n.save),
         ),
       ),
     );

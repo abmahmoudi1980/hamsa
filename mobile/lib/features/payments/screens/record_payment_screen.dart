@@ -7,6 +7,7 @@ import '../../../core/l10n/app_localizations.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../shared/validation/validators.dart';
+import '../../../shared/widgets/save_bar.dart';
 import '../payment_controller.dart';
 
 /// US5/T060 — manager records a manual payment against an issued invoice
@@ -96,22 +97,16 @@ class _RecordPaymentScreenState extends ConsumerState<RecordPaymentScreen> {
           ],
         ),
       ),
-      bottomNavigationBar: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppTheme.spaceXl,
-            vertical: AppTheme.spaceM,
-          ),
-          child: FilledButton(
-            onPressed: _saving ? null : _submit,
-            child: _saving
-                ? const SizedBox(
-                    width: 18,
-                    height: 18,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                : Text(l10n.confirm),
-          ),
+      bottomNavigationBar: SaveBar(
+        child: FilledButton(
+          onPressed: _saving ? null : _submit,
+          child: _saving
+              ? const SizedBox(
+                  width: 18,
+                  height: 18,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : Text(l10n.confirm),
         ),
       ),
     );

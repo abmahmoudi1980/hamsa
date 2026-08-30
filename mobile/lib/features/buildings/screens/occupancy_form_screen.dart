@@ -9,6 +9,7 @@ import '../../../core/theme/app_theme.dart';
 import '../models/people.dart';
 import '../people_controller.dart';
 import '../../../shared/widgets/empty_state.dart';
+import '../../../shared/widgets/save_bar.dart';
 
 /// Add person↔unit occupancy (US3/T041): person picker, relationship
 /// selector, and the Jalali start date (T018). Server closes the previous
@@ -154,21 +155,10 @@ class _OccupancyFormScreenState extends ConsumerState<OccupancyFormScreen> {
               ),
       ),
       bottomNavigationBar: canSubmit
-          ? SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(
-                  AppTheme.spaceXl,
-                  AppTheme.spaceS,
-                  AppTheme.spaceXl,
-                  0,
-                ),
-                child: SizedBox(
-                  width: double.infinity,
-                  child: FilledButton(
-                    onPressed: _saving ? null : () => _save(l10n),
-                    child: Text(l10n.save),
-                  ),
-                ),
+          ? SaveBar(
+              child: FilledButton(
+                onPressed: _saving ? null : () => _save(l10n),
+                child: Text(l10n.save),
               ),
             )
           : null,

@@ -8,6 +8,7 @@ import '../../../core/network/api_exception.dart';
 import '../../../core/theme/app_theme.dart';
 import '../billing_controller.dart';
 import '../models/billing.dart';
+import '../../../shared/widgets/save_bar.dart';
 
 /// Create/edit billing period (US4/T050). Dates go through the Jalali picker
 /// (T018 — the only date input in the app) and travel ISO-8601 on the wire.
@@ -179,21 +180,10 @@ class _PeriodFormScreenState extends ConsumerState<PeriodFormScreen> {
           ],
         ),
       ),
-      bottomNavigationBar: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(
-            AppTheme.spaceXl,
-            AppTheme.spaceS,
-            AppTheme.spaceXl,
-            0,
-          ),
-          child: SizedBox(
-            width: double.infinity,
-            child: FilledButton(
-              onPressed: _saving ? null : _save,
-              child: Text(l10n.save),
-            ),
-          ),
+      bottomNavigationBar: SaveBar(
+        child: FilledButton(
+          onPressed: _saving ? null : _save,
+          child: Text(l10n.save),
         ),
       ),
     );

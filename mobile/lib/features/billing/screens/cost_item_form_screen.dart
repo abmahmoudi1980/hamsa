@@ -12,6 +12,7 @@ import '../billing_controller.dart';
 import '../models/billing.dart';
 import '../../../shared/widgets/calc_method.dart';
 import '../../../shared/widgets/menu_card.dart';
+import '../../../shared/widgets/save_bar.dart';
 import 'period_list_screen.dart' show costItemPayload;
 
 /// Cost-item editor (US4/T051): title, amount (Persian digits), one of the
@@ -271,21 +272,10 @@ class _CostItemFormScreenState extends ConsumerState<CostItemFormScreen> {
           ],
         ),
       ),
-      bottomNavigationBar: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(
-            AppTheme.spaceXl,
-            AppTheme.spaceS,
-            AppTheme.spaceXl,
-            0,
-          ),
-          child: SizedBox(
-            width: double.infinity,
-            child: FilledButton(
-              onPressed: _saving ? null : _save,
-              child: Text(l10n.save),
-            ),
-          ),
+      bottomNavigationBar: SaveBar(
+        child: FilledButton(
+          onPressed: _saving ? null : _save,
+          child: Text(l10n.save),
         ),
       ),
     );

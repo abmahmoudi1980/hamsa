@@ -11,6 +11,7 @@ import '../../../shared/widgets/status_labels.dart';
 import '../../../shared/validation/validators.dart';
 import '../../../shared/widgets/confirm_dialog.dart';
 import '../../../shared/widgets/attachment_picker.dart';
+import '../../../shared/widgets/save_bar.dart';
 import '../expense_controller.dart';
 
 /// US6/T066 — create/edit expense (FR-026): title, Persian-labeled category,
@@ -249,22 +250,16 @@ class _ExpenseFormScreenState extends ConsumerState<ExpenseFormScreen> {
           ],
         ),
       ),
-      bottomNavigationBar: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppTheme.spaceXl,
-            vertical: AppTheme.spaceM,
-          ),
-          child: FilledButton(
-            onPressed: _saving ? null : _submit,
-            child: _saving
-                ? const SizedBox(
-                    width: 18,
-                    height: 18,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                : Text(l10n.confirm),
-          ),
+      bottomNavigationBar: SaveBar(
+        child: FilledButton(
+          onPressed: _saving ? null : _submit,
+          child: _saving
+              ? const SizedBox(
+                  width: 18,
+                  height: 18,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : Text(l10n.confirm),
         ),
       ),
     );

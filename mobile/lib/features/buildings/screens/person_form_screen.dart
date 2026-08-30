@@ -8,6 +8,7 @@ import '../../../core/network/api_exception.dart';
 import '../../../core/theme/app_theme.dart';
 import '../models/people.dart';
 import '../people_controller.dart';
+import '../../../shared/widgets/save_bar.dart';
 
 /// Person create/edit (US3/T040). Server 400/409 Persian messages surface
 /// via [ApiException.serverMessage] (e.g. کد ملی checksum, FR-005).
@@ -178,21 +179,10 @@ class _PersonFormScreenState extends ConsumerState<PersonFormScreen> {
           ],
         ),
       ),
-      bottomNavigationBar: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(
-            AppTheme.spaceXl,
-            AppTheme.spaceS,
-            AppTheme.spaceXl,
-            0,
-          ),
-          child: SizedBox(
-            width: double.infinity,
-            child: FilledButton(
-              onPressed: _saving ? null : _save,
-              child: Text(l10n.save),
-            ),
-          ),
+      bottomNavigationBar: SaveBar(
+        child: FilledButton(
+          onPressed: _saving ? null : _save,
+          child: Text(l10n.save),
         ),
       ),
     );

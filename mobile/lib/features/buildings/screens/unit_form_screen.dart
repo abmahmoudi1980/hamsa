@@ -8,6 +8,7 @@ import '../../../core/network/api_exception.dart';
 import '../../../core/theme/app_theme.dart';
 import '../buildings_controller.dart';
 import '../models/building.dart';
+import '../../../shared/widgets/save_bar.dart';
 
 /// Unit create/edit with all registry fields incl. parking/storage
 /// (US2/T034). Duplicate numbers surface the server's 409 Persian message
@@ -151,21 +152,10 @@ class _UnitFormScreenState extends ConsumerState<UnitFormScreen> {
               : _form(context, l10n),
           bottomNavigationBar: loading
               ? null
-              : SafeArea(
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(
-                      AppTheme.spaceXl,
-                      AppTheme.spaceS,
-                      AppTheme.spaceXl,
-                      0,
-                    ),
-                    child: SizedBox(
-                      width: double.infinity,
-                      child: FilledButton(
-                        onPressed: _saving ? null : () => _save(existing),
-                        child: Text(l10n.save),
-                      ),
-                    ),
+              : SaveBar(
+                  child: FilledButton(
+                    onPressed: _saving ? null : () => _save(existing),
+                    child: Text(l10n.save),
                   ),
                 ),
         );
