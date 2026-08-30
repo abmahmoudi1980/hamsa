@@ -7,6 +7,7 @@ import '../../../core/datetime/jalali.dart';
 import '../../../core/l10n/app_localizations.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../shared/widgets/confirm_dialog.dart';
 import '../../../shared/widgets/empty_state.dart';
 import '../../../shared/widgets/menu_card.dart';
 import '../models/people.dart';
@@ -38,31 +39,13 @@ class UnitOccupancyScreen extends ConsumerWidget {
     Occupancy occ,
   ) async {
     DateTime? picked;
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: Text(l10n.endOccupancy),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(l10n.archiveConfirm),
-            const SizedBox(height: AppTheme.spaceM),
-            JalaliDatePickerField(
-              label: l10n.occupancyStart,
-              onChanged: (d) => picked = d,
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext, false),
-            child: Text(l10n.cancel),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(dialogContext, true),
-            child: Text(l10n.confirm),
-          ),
-        ],
+    final confirmed = await ConfirmDialog.show(
+      context,
+      title: l10n.endOccupancy,
+      message: l10n.archiveConfirm,
+      content: JalaliDatePickerField(
+        label: l10n.occupancyStart,
+        onChanged: (d) => picked = d,
       ),
     );
     if (confirmed == true && picked != null && context.mounted) {
@@ -195,34 +178,22 @@ class UnitOccupancyScreen extends ConsumerWidget {
   ) async {
     final countCtrl = TextEditingController();
     DateTime? picked;
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: Text(l10n.recordOccupantCount),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: countCtrl,
-              keyboardType: TextInputType.number,
-              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-              decoration: InputDecoration(labelText: l10n.occupantCountTitle),
-            ),
-            const SizedBox(height: AppTheme.spaceM),
-            JalaliDatePickerField(
-              label: l10n.effectiveFrom,
-              onChanged: (d) => picked = d,
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext, false),
-            child: Text(l10n.cancel),
+    final confirmed = await ConfirmDialog.show(
+      context,
+      title: l10n.recordOccupantCount,
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          TextField(
+            controller: countCtrl,
+            keyboardType: TextInputType.number,
+            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+            decoration: InputDecoration(labelText: l10n.occupantCountTitle),
           ),
-          FilledButton(
-            onPressed: () => Navigator.pop(dialogContext, true),
-            child: Text(l10n.confirm),
+          const SizedBox(height: AppTheme.spaceM),
+          JalaliDatePickerField(
+            label: l10n.effectiveFrom,
+            onChanged: (d) => picked = d,
           ),
         ],
       ),

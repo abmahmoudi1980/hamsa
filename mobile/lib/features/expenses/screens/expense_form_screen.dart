@@ -9,6 +9,7 @@ import '../../../core/theme/app_theme.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../shared/widgets/status_labels.dart';
 import '../../../shared/validation/validators.dart';
+import '../../../shared/widgets/confirm_dialog.dart';
 import '../../../shared/widgets/attachment_picker.dart';
 import '../expense_controller.dart';
 
@@ -136,16 +137,12 @@ class _ExpenseFormScreenState extends ConsumerState<ExpenseFormScreen> {
 
   Future<void> _delete() async {
     final l10n = AppLocalizations.of(context);
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(l10n.deleteExpense),
-        content: Text(l10n.deleteExpenseConfirm),
-        actions: [
-          TextButton(onPressed: () => ctx.pop(false), child: Text(l10n.cancel)),
-          FilledButton(onPressed: () => ctx.pop(true), child: Text(l10n.delete)),
-        ],
-      ),
+    final confirmed = await ConfirmDialog.show(
+      context,
+      title: l10n.deleteExpense,
+      message: l10n.deleteExpenseConfirm,
+      confirmLabel: l10n.delete,
+      destructive: true,
     );
     if (confirmed != true) return;
     setState(() => _saving = true);

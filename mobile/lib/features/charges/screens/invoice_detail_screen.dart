@@ -7,6 +7,7 @@ import '../../../core/network/api_exception.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../shared/formatters/money_text.dart';
 import '../../../shared/widgets/calc_method.dart';
+import '../../../shared/widgets/confirm_dialog.dart';
 import '../../../shared/widgets/empty_state.dart';
 import '../../../shared/widgets/menu_card.dart';
 import '../../../shared/widgets/status_chip.dart';
@@ -68,8 +69,8 @@ class _InvoiceDetailScreenState extends ConsumerState<InvoiceDetailScreen> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => StatefulBuilder(
-        builder: (ctx, setState) => AlertDialog(
-          title: Text(l10n.addAdjustment),
+        builder: (ctx, setState) => ConfirmDialog(
+          title: l10n.addAdjustment,
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -92,14 +93,6 @@ class _InvoiceDetailScreenState extends ConsumerState<InvoiceDetailScreen> {
               ),
             ],
           ),
-          actions: [
-            TextButton(
-                onPressed: () => Navigator.pop(ctx, false),
-                child: Text(l10n.cancel)),
-            FilledButton(
-                onPressed: () => Navigator.pop(ctx, true),
-                child: Text(l10n.confirm)),
-          ],
         ),
       ),
     );
@@ -128,30 +121,15 @@ class _InvoiceDetailScreenState extends ConsumerState<InvoiceDetailScreen> {
   Future<void> _cancel() async {
     final l10n = AppLocalizations.of(context);
     final reasonCtrl = TextEditingController();
-    final ok = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(l10n.cancelInvoice),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(l10n.cancelInvoiceConfirm),
-            const SizedBox(height: 8),
-            TextField(
-              controller: reasonCtrl,
-              decoration: InputDecoration(labelText: l10n.cancelReason),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(ctx, false),
-              child: Text(l10n.cancel)),
-          FilledButton(
-              onPressed: () => Navigator.pop(ctx, true),
-              child: Text(l10n.confirm)),
-        ],
+    final ok = await ConfirmDialog.show(
+      context,
+      title: l10n.cancelInvoice,
+      message: l10n.cancelInvoiceConfirm,
+      content: TextField(
+        controller: reasonCtrl,
+        decoration: InputDecoration(labelText: l10n.cancelReason),
       ),
+      destructive: true,
     );
     if (ok != true) return;
     try {

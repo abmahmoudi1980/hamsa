@@ -8,6 +8,7 @@ import '../../../core/network/api_exception.dart';
 import '../../../core/platform/app_url_launcher.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../shared/formatters/money_text.dart';
+import '../../../shared/widgets/confirm_dialog.dart';
 import '../../../shared/widgets/empty_state.dart';
 import '../../../shared/widgets/menu_card.dart';
 import '../../../shared/widgets/status_chip.dart';
@@ -84,20 +85,10 @@ class _PayInvoiceScreenState extends ConsumerState<PayInvoiceScreen>
 
   Future<void> _pay() async {
     final l10n = AppLocalizations.of(context);
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(l10n.payTitle),
-        content: Text(l10n.payLaunchConfirm),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(ctx, false),
-              child: Text(l10n.cancel)),
-          FilledButton(
-              onPressed: () => Navigator.pop(ctx, true),
-              child: Text(l10n.confirm)),
-        ],
-      ),
+    final confirmed = await ConfirmDialog.show(
+      context,
+      title: l10n.payTitle,
+      message: l10n.payLaunchConfirm,
     );
     if (confirmed != true) return;
     setState(() => _starting = true);

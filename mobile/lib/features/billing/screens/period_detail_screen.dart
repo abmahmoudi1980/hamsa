@@ -8,6 +8,7 @@ import '../../../core/network/api_exception.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../shared/widgets/empty_state.dart';
 import '../../../shared/formatters/money_text.dart';
+import '../../../shared/widgets/confirm_dialog.dart';
 import '../../../shared/widgets/calc_method.dart';
 import '../../../shared/widgets/menu_card.dart';
 import '../../../shared/widgets/status_chip.dart';
@@ -31,20 +32,10 @@ class PeriodDetailScreen extends ConsumerWidget {
     required Future<void> Function() action,
   }) async {
     final l10n = AppLocalizations.of(context);
-    final ok = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(title),
-        content: Text(message),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(ctx, false),
-              child: Text(l10n.cancel)),
-          FilledButton(
-              onPressed: () => Navigator.pop(ctx, true),
-              child: Text(l10n.confirm)),
-        ],
-      ),
+    final ok = await ConfirmDialog.show(
+      context,
+      title: title,
+      message: message,
     );
     if (ok != true) return;
     try {
