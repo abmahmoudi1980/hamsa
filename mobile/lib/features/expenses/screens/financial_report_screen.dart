@@ -107,7 +107,8 @@ class _FinancialReportScreenState extends ConsumerState<FinancialReportScreen> {
                           _monthRef == null ? '' : _monthLabel(_monthRef!),
                           style: theme.textTheme.titleMedium,
                         ),
-                        trailing: const Icon(Icons.chevron_left),
+                        // Auto-mirrored: renders as ‹ in RTL (forward = left).
+                        trailing: const Icon(Icons.chevron_right),
                         onTap: _pickMonth,
                       ),
                     ),

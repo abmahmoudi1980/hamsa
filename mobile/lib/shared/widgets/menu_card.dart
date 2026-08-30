@@ -54,7 +54,8 @@ class MenuCard extends StatelessWidget {
               ),
               const SizedBox(width: AppTheme.spaceS),
               Icon(
-                Icons.chevron_left,
+                // Auto-mirrored: renders as ‹ in RTL (forward = left).
+                Icons.chevron_right,
                 size: 20,
                 color: scheme.onSurfaceVariant,
               ),

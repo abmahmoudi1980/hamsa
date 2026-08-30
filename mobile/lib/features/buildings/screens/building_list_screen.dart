@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/datetime/jalali.dart';
 import '../../../core/l10n/app_localizations.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../core/theme/app_theme.dart';
@@ -80,7 +81,7 @@ class BuildingListScreen extends ConsumerWidget {
                         ),
                         title: Text(b.name),
                         subtitle: Text(
-                          '${b.unitCount} ${l10n.unitsTitle}'
+                          '${toPersianDigits('${b.unitCount}')} ${l10n.unitLabel}'
                           '${b.address == null || b.address!.isEmpty ? '' : ' • ${b.address}'}',
                         ),
                         trailing: Row(
@@ -93,13 +94,23 @@ class BuildingListScreen extends ConsumerWidget {
                               onPressed: () =>
                                   context.push('/manager/periods/${b.id}'),
                             ),
-                            const Icon(Icons.chevron_left),
                             // US6 (T066): expenses & financial report entry.
                             IconButton(
                               icon: const Icon(Icons.receipt),
                               tooltip: l10n.expensesTitle,
                               onPressed: () =>
                                   context.push('/manager/expenses/${b.id}'),
+                            ),
+                            // Chevron marks the whole-row tap (→ units); keep
+                            // it outermost so it never sits between actions.
+                            Padding(
+                              padding: const EdgeInsetsDirectional.only(end: 4),
+                              child: Icon(
+                                // Auto-mirrored: renders as ‹ in RTL (forward = left).
+                                Icons.chevron_right,
+                                size: 20,
+                                color: scheme.onSurfaceVariant,
+                              ),
                             ),
                           ],
                         ),
