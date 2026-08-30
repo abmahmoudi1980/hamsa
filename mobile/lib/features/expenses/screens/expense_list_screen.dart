@@ -34,7 +34,7 @@ class _ExpenseListScreenState extends ConsumerState<ExpenseListScreen> {
   @override
   void initState() {
     super.initState();
-    _load();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _load());
   }
 
   Future<void> _load() async {
@@ -97,6 +97,7 @@ class _ExpenseListScreenState extends ConsumerState<ExpenseListScreen> {
               alignment: WrapAlignment.end,
               children: [
                 DropdownButton<String>(
+                  isDense: true,
                   value: _category.isEmpty ? null : _category,
                   hint: Text(l10n.filterCategoryLabel),
                   items: [
@@ -111,6 +112,7 @@ class _ExpenseListScreenState extends ConsumerState<ExpenseListScreen> {
                   },
                 ),
                 DropdownButton<String>(
+                  isDense: true,
                   value: _approval.isEmpty ? null : _approval,
                   hint: Text(l10n.filterApprovalLabel),
                   items: [

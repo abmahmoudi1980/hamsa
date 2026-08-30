@@ -7,8 +7,10 @@ import '../../../core/datetime/jalali.dart';
 import '../../../core/l10n/app_localizations.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/network/api_exception.dart';
-import '../../../shared/widgets/status_labels.dart';
+import '../../../shared/formatters/money_text.dart';
+import '../../../shared/formatters/toman_input.dart';
 import '../../../shared/validation/validators.dart';
+import '../../../shared/widgets/status_labels.dart';
 import '../../../shared/widgets/confirm_dialog.dart';
 import '../../../shared/widgets/attachment_picker.dart';
 import '../../../shared/widgets/save_bar.dart';
@@ -49,7 +51,9 @@ class _ExpenseFormScreenState extends ConsumerState<ExpenseFormScreen> {
   @override
   void initState() {
     super.initState();
-    if (widget.expenseId != null) _loadExisting();
+    if (widget.expenseId != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _loadExisting());
+    }
   }
 
   @override
@@ -69,7 +73,7 @@ class _ExpenseFormScreenState extends ConsumerState<ExpenseFormScreen> {
       if (!mounted) return;
       setState(() {
         _titleCtrl.text = e.title;
-        _amountCtrl.text = '${e.amount}';
+        _amountCtrl.text = formatToman(e.amount);
         _category = e.category;
         _approval = e.approvalStatus;
         _expenseDate = DateTime.parse(e.expenseDate);
@@ -88,7 +92,7 @@ class _ExpenseFormScreenState extends ConsumerState<ExpenseFormScreen> {
   Future<void> _submit() async {
     final l10n = AppLocalizations.of(context);
     if (!_formKey.currentState!.validate() || _expenseDate == null) return;
-    final amount = int.tryParse(fromPersianDigits(_amountCtrl.text.trim()));
+    final amount = parseToman(_amountCtrl.text);
     if (amount == null || amount <= 0) return;
     setState(() => _saving = true);
     try {
@@ -212,7 +216,8 @@ class _ExpenseFormScreenState extends ConsumerState<ExpenseFormScreen> {
             TextFormField(
               controller: _amountCtrl,
               keyboardType: TextInputType.number,
-              decoration: InputDecoration(labelText: l10n.expenseAmountLabel),
+              textDirection: TextDirection.ltr,
+              inputFormatters: const [TomanInputFormatter()],
               validator: (v) => Validators.positiveAmount(l10n, v),
             ),
             const SizedBox(height: AppTheme.spaceM),

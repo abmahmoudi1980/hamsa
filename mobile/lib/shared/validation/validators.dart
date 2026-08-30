@@ -1,6 +1,8 @@
 import 'package:hamsa/core/datetime/jalali.dart';
 import 'package:hamsa/core/l10n/app_localizations.dart';
 
+import '../formatters/money_text.dart';
+
 /// Form validation helpers. Error messages come from `fa.arb` so all copy
 /// stays in a single string file.
 abstract final class Validators {
@@ -19,11 +21,10 @@ abstract final class Validators {
     return null;
   }
 
-  /// Positive integer amount in Toman; accepts Persian digits.
+  /// Positive integer amount in Toman; accepts Persian digits and
+  /// thousands separators.
   static String? positiveAmount(AppLocalizations l10n, String? value) {
-    final normalized =
-        value == null ? '' : fromPersianDigits(value.trim()).replaceAll(',', '');
-    final parsed = int.tryParse(normalized);
+    final parsed = parseToman(value ?? '');
     if (parsed == null || parsed <= 0) return l10n.invalidAmount;
     return null;
   }

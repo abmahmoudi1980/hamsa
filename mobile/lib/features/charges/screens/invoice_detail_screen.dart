@@ -6,6 +6,7 @@ import '../../../core/l10n/app_localizations.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../shared/formatters/money_text.dart';
+import '../../../shared/formatters/toman_input.dart';
 import '../../../shared/widgets/calc_method.dart';
 import '../../../shared/widgets/confirm_dialog.dart';
 import '../../../shared/widgets/empty_state.dart';
@@ -85,7 +86,8 @@ class _InvoiceDetailScreenState extends ConsumerState<InvoiceDetailScreen> {
               TextField(
                 controller: amountCtrl,
                 keyboardType: TextInputType.number,
-                decoration: InputDecoration(labelText: l10n.costItemAmount),
+                textDirection: TextDirection.ltr,
+                inputFormatters: const [TomanInputFormatter()],
               ),
               TextField(
                 controller: reasonCtrl,
@@ -97,7 +99,7 @@ class _InvoiceDetailScreenState extends ConsumerState<InvoiceDetailScreen> {
       ),
     );
     if (ok != true) return;
-    final amount = int.tryParse(fromPersianDigits(amountCtrl.text.trim()));
+    final amount = parseToman(amountCtrl.text);
     if (amount == null || amount <= 0 || reasonCtrl.text.trim().isEmpty) {
       return;
     }

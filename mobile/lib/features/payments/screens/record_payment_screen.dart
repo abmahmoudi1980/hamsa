@@ -6,6 +6,8 @@ import '../../../core/datetime/jalali.dart';
 import '../../../core/l10n/app_localizations.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/network/api_exception.dart';
+import '../../../shared/formatters/money_text.dart';
+import '../../../shared/formatters/toman_input.dart';
 import '../../../shared/validation/validators.dart';
 import '../../../shared/widgets/save_bar.dart';
 import '../payment_controller.dart';
@@ -40,7 +42,7 @@ class _RecordPaymentScreenState extends ConsumerState<RecordPaymentScreen> {
   Future<void> _submit() async {
     final l10n = AppLocalizations.of(context);
     if (!_formKey.currentState!.validate() || _paidAt == null) return;
-    final amount = int.tryParse(fromPersianDigits(_amountCtrl.text.trim()));
+    final amount = parseToman(_amountCtrl.text);
     if (amount == null || amount <= 0) return;
     setState(() => _saving = true);
     try {
@@ -78,7 +80,8 @@ class _RecordPaymentScreenState extends ConsumerState<RecordPaymentScreen> {
             TextFormField(
               controller: _amountCtrl,
               keyboardType: TextInputType.number,
-              decoration: InputDecoration(labelText: l10n.paymentAmountLabel),
+              textDirection: TextDirection.ltr,
+              inputFormatters: const [TomanInputFormatter()],
               validator: (v) => Validators.positiveAmount(l10n, v),
             ),
             const SizedBox(height: AppTheme.spaceM),

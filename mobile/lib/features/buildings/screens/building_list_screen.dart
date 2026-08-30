@@ -87,6 +87,12 @@ class BuildingListScreen extends ConsumerWidget {
                         trailing: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
+                            IconButton(
+                              icon: const Icon(Icons.group_outlined),
+                              tooltip: l10n.peopleTitle,
+                              onPressed: () =>
+                                  context.push('/manager/buildings/${b.id}/people'),
+                            ),
                             // US4 (T050): billing periods entry point.
                             IconButton(
                               icon: const Icon(Icons.receipt_long),

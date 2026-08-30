@@ -6,6 +6,8 @@ import '../../../core/datetime/jalali.dart';
 import '../../../core/l10n/app_localizations.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../shared/formatters/money_text.dart';
+import '../../../shared/formatters/toman_input.dart';
 import '../../buildings/buildings_controller.dart';
 import '../../buildings/models/building.dart';
 import '../billing_controller.dart';
@@ -39,12 +41,12 @@ class _CostItemFormScreenState extends ConsumerState<CostItemFormScreen> {
   final _formKey = GlobalKey<FormState>();
   late final _title = TextEditingController(text: widget.existing?.title ?? '');
   late final _amount = TextEditingController(
-    text: widget.existing == null ? '' : '${widget.existing!.totalAmount}',
+    text: widget.existing == null ? '' : formatToman(widget.existing!.totalAmount),
   );
   late final _fixedPerUnit = TextEditingController(
     text: widget.existing?.fixedAmountPerUnit == null
         ? ''
-        : '${widget.existing!.fixedAmountPerUnit}',
+        : formatToman(widget.existing!.fixedAmountPerUnit!),
   );
   late String _method = widget.existing?.method ?? 'equal';
   late bool _includeVacant = widget.existing?.includeVacant ?? false;
@@ -69,9 +71,9 @@ class _CostItemFormScreenState extends ConsumerState<CostItemFormScreen> {
       _apiError = null;
     });
     final amount =
-        int.tryParse(fromPersianDigits(_amount.text.trim())) ?? 0;
+        parseToman(_amount.text) ?? 0;
     final fixed =
-        int.tryParse(fromPersianDigits(_fixedPerUnit.text.trim())) ?? 0;
+        parseToman(_fixedPerUnit.text) ?? 0;
     try {
       await ref
           .read(costItemsControllerProvider(widget.periodId).notifier)
@@ -136,8 +138,10 @@ class _CostItemFormScreenState extends ConsumerState<CostItemFormScreen> {
                 decoration:
                     InputDecoration(labelText: l10n.costItemAmount),
                 keyboardType: TextInputType.number,
+                textDirection: TextDirection.ltr,
+                inputFormatters: const [TomanInputFormatter()],
                 validator: (v) {
-                  final n = int.tryParse(fromPersianDigits(v ?? ''));
+                  final n = parseToman(v ?? '');
                   if (n == null || n <= 0) return l10n.invalidAmount;
                   return null;
                 },
@@ -148,8 +152,10 @@ class _CostItemFormScreenState extends ConsumerState<CostItemFormScreen> {
                 controller: _fixedPerUnit,
                 decoration: InputDecoration(labelText: l10n.fixedPerUnit),
                 keyboardType: TextInputType.number,
+                textDirection: TextDirection.ltr,
+                inputFormatters: const [TomanInputFormatter()],
                 validator: (v) {
-                  final n = int.tryParse(fromPersianDigits(v ?? ''));
+                  final n = parseToman(v ?? '');
                   if (n == null || n <= 0) return l10n.invalidAmount;
                   return null;
                 },

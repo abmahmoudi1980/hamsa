@@ -40,7 +40,7 @@ class _PayInvoiceScreenState extends ConsumerState<PayInvoiceScreen>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _load();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _load());
   }
 
   @override

@@ -37,7 +37,7 @@ class _PaymentLedgerScreenState extends ConsumerState<PaymentLedgerScreen> {
   @override
   void initState() {
     super.initState();
-    _load();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _load());
   }
 
   Future<void> _load() async {

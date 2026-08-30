@@ -217,24 +217,26 @@ class PeriodDetailScreen extends ConsumerWidget {
                   child: ListTile(
                     title: Text(inv.unitNumber.isEmpty
                         ? inv.unitId
-                        : '${l10n.unitNumber} ${inv.unitNumber}'),
-                    subtitle: Row(
+                        : '${l10n.unitNumber} ${toPersianDigits(inv.unitNumber)}'),
+                    // Issued invoices carry BLD-YYYY-NNNN; drafts keep a
+                    // DRAFT- placeholder worth hiding (no number yet).
+                    subtitle: Text(inv.invoiceNumber.startsWith('DRAFT-')
+                        ? ''
+                        : inv.invoiceNumber),
+                    trailing: Column(
                       mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Issued invoices carry BLD-YYYY-NNNN; drafts keep a
-                        // DRAFT- placeholder worth hiding (no number yet).
-                        if (!inv.invoiceNumber.startsWith('DRAFT-'))
-                          Text(inv.invoiceNumber),
-                        if (inv.status != 'unpaid') ...[
-                          if (!inv.invoiceNumber.startsWith('DRAFT-'))
-                            const SizedBox(width: AppTheme.spaceS),
-                          StatusChip(kind: StatusKind.invoice, value: inv.status),
-                        ],
+                        MoneyText(
+                          amount: inv.finalAmount,
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                        // The chip is taller than the subtitle slot — stacking
+                        // it under the amount keeps it fully visible.
+                        if (inv.status != 'unpaid')
+                          StatusChip(
+                              kind: StatusKind.invoice, value: inv.status),
                       ],
-                    ),
-                    trailing: MoneyText(
-                      amount: inv.finalAmount,
-                      style: Theme.of(context).textTheme.titleLarge,
                     ),
                     onTap: () => context.push('/invoice/${inv.id}'),
                   ),
@@ -290,7 +292,7 @@ class _PreviewItemCard extends StatelessWidget {
                     Expanded(
                       child: Text(s.unitNumber.isEmpty
                           ? s.unitId
-                          : '${l10n.unitNumber} ${s.unitNumber}'),
+                          : '${l10n.unitNumber} ${toPersianDigits(s.unitNumber)}'),
                     ),
                     Text(
                       '${l10n.exactShare}: ${toPersianDigits(s.exactShare)}',
