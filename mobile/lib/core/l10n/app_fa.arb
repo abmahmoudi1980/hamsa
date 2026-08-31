@@ -404,4 +404,107 @@
       }
     }
   }
+  "homeMenu": "خانه",
+  "navHome": "خانه",
+  "navCharges": "شارژها",
+  "navPayments": "پرداخت‌ها",
+  "navMaintenance": "تعمیرات",
+  "navAnnouncements": "اطلاعیه‌ها",
+  "navProfile": "پروفایل",
+  "homeTitle": "خانه",
+  "homeFinancialCard": "وضعیت مالی",
+  "homePayableAmount": "مبلغ قابل پرداخت",
+  "homeNoInvoice": "صورتحساب فعالی ندارید",
+  "homeLatestInvoice": "آخرین صورتحساب",
+  "homeDueDate": "سررسید: {date}",
+  "@homeDueDate": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "homeRequestsCard": "درخواست‌های نگهداری",
+  "homeOpenRequests": "{count} درخواست باز",
+  "@homeOpenRequests": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "homeLatestRequest": "آخرین درخواست",
+  "homeNoOpenRequest": "درخواست بازی ثبت نشده است",
+  "homeAnnouncementsCard": "اطلاعیه‌ها",
+  "homeUnreadAnnouncements": "{count} ناخوانده",
+  "@homeUnreadAnnouncements": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "homeViewAll": "مشاهده همه",
+  "homeViewCharges": "مشاهده شارژها",
+  "homeViewAnnouncements": "مشاهده اطلاعیه‌ها",
+  "homePayInvoice": "پرداخت صورتحساب",
+  "profileTitle": "پروفایل",
+  "profilePhone": "شماره موبایل",
+  "profileName": "نام و نام خانوادگی",
+  "profileEditName": "ویرایش نام",
+  "profileSave": "ذخیره",
+  "profileSavedOk": "نام شما ذخیره شد",
+  "profileError": "خطا در ذخیره نام",
+  "dashboardTitle": "داشبورد",
+  "dashboardCards": "شاخص‌ها",
+  "dashboardUnitCount": "تعداد واحدها",
+  "dashboardOccupiedUnits": "واحدهای مسکونی",
+  "dashboardDebtorUnits": "واحدهای بدهکار",
+  "dashboardTotalDebt": "مجموع بدهی",
+  "dashboardMonthIncome": "درآمد ماه",
+  "dashboardMonthExpense": "هزینه ماه",
+  "dashboardOpenRequests": "درخواست‌های باز",
+  "dashboardPendingExpenses": "هزینه‌های در انتظار تأیید",
+  "dashboardAlerts": "هشدارها",
+  "dashboardQuickActions": "اقدام‌های سریع",
+  "dashboardAlertDebtor": "واحد {unit} بدهکار است",
+  "@dashboardAlertDebtor": {
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "dashboardAlertPastDue": "صورتحساب واحد {unit} سررسید گذشته",
+  "@dashboardAlertPastDue": {
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "dashboardAlertOpenRequest": "درخواست باز: {title}",
+  "@dashboardAlertOpenRequest": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "dashboardAlertPendingExpense": "هزینه در انتظار تأیید: {title}",
+  "@dashboardAlertPendingExpense": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "dashboardActionIssueCharge": "صدور شارژ",
+  "dashboardActionRecordExpense": "ثبت هزینه",
+  "dashboardActionRecordPayment": "ثبت پرداخت",
+  "dashboardActionSendAnnouncement": "انتشار اطلاعیه",
+  "dashboardActionOpenRequests": "درخواست‌ها",
+  "dashboardNoAlerts": "هشدار فعالی وجود ندارد",
+  "dashboardBuildingPicker": "انتخاب ساختمان",
+  "dashboardNoBuilding": "ابتدا یک ساختمان ایجاد کنید."
 }

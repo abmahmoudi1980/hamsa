@@ -6,7 +6,6 @@ import '../../features/auth/models/user_session.dart';
 import '../../features/auth/screens/login_screen.dart';
 import '../../features/auth/screens/otp_screen.dart';
 import '../../features/buildings/screens/building_form_screen.dart';
-import '../../features/buildings/screens/building_list_screen.dart';
 import '../../features/buildings/screens/occupancy_form_screen.dart';
 import '../../features/buildings/screens/person_form_screen.dart';
 import '../../features/buildings/screens/person_list_screen.dart';
@@ -27,6 +26,7 @@ import '../../features/expenses/screens/financial_report_screen.dart';
 import '../../features/announcements/models/announcement.dart';
 import '../../features/announcements/screens/announcement_form_screen.dart';
 import '../../features/announcements/screens/manager_announcement_list_screen.dart';
+import '../../features/dashboard/screens/manager_dashboard_screen.dart';
 import '../../features/announcements/screens/resident_announcement_detail_screen.dart';
 import '../../features/announcements/screens/resident_announcement_list_screen.dart';
 import '../../features/home/screens/resident_shell_screen.dart';
@@ -34,11 +34,13 @@ import '../../features/maintenance/screens/manager_maintenance_detail_screen.dar
 import '../../features/maintenance/screens/manager_maintenance_list_screen.dart';
 import '../../features/maintenance/screens/resident_maintenance_form_screen.dart';
 import '../../features/maintenance/screens/resident_maintenance_list_screen.dart';
-import '../../features/payments/screens/pay_invoice_screen.dart';
 import '../../features/payments/screens/payment_history_screen.dart';
 import '../../features/payments/screens/payment_ledger_screen.dart';
 import '../../features/payments/screens/record_payment_screen.dart';
 import '../../features/notifications/screens/notification_center_screen.dart';
+
+import '../../features/payments/screens/pay_invoice_screen.dart';
+
 import 'splash_screen.dart';
 /// Role-based root routing (plan.md structure): login ↔ manager shell ↔
 /// resident shell, with auth-state redirect re-evaluated on every
@@ -61,7 +63,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       // dashboard arrives in US10).
       GoRoute(
         path: '/manager',
-        builder: (_, _) => const BuildingListScreen(),
+        builder: (_, _) => const ManagerDashboardScreen(),
         routes: [
           GoRoute(
             path: 'buildings/new',

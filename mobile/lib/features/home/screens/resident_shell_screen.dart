@@ -1,60 +1,166 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+
 import '../../../core/l10n/app_localizations.dart';
-import '../../../core/theme/app_theme.dart';
+import '../../../shared/widgets/empty_state.dart';
 import '../../../shared/widgets/menu_card.dart';
+import 'resident_home_screen.dart';
+import 'resident_profile_screen.dart';
 
-import '../../auth/auth_controller.dart';
-
-/// Resident navigation shell — full panel arrives in US9 (T083/T084).
-/// Logout lives here from day one so a resident is never stuck signed in.
-class ResidentShellScreen extends ConsumerWidget {
+/// US9 (T084) — Resident navigation shell with bottom nav for the full
+/// 6-item menu: خانه، شارژها، پرداخت‌ها، تعمیرات، اطلاعیه‌ها، پروفایل.
+class ResidentShellScreen extends ConsumerStatefulWidget {
   const ResidentShellScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ResidentShellScreen> createState() =>
+      _ResidentShellScreenState();
+}
+
+class _ResidentShellScreenState extends ConsumerState<ResidentShellScreen> {
+  int _index = 0;
+
+  @override
+  Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final theme = Theme.of(context);
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.residentShellTitle),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            tooltip: l10n.logout,
-            onPressed: () => ref.read(authControllerProvider.notifier).logout(),
-          ),
-        ],
+
+    final tabs = <_Tab>[
+      _Tab(
+        label: l10n.navHome,
+        icon: Icons.home_outlined,
+        selectedIcon: Icons.home,
+        body: const ResidentHomeScreen(),
       ),
+      _Tab(
+        label: l10n.navCharges,
+        icon: Icons.receipt_long_outlined,
+        selectedIcon: Icons.receipt_long,
+        // The charges/payments/maintenance/announcements tabs are stand-alone
+        // routes handled by GoRouter; tapping the tab pushes the user into
+        // the dedicated screen (which has its own back-stack). The shell
+        // remains the home anchor for back-navigation.
+        body: _RedirectShortcut(
+          icon: Icons.receipt_long,
+          title: l10n.myCharges,
+          subtitle: l10n.homeViewAll,
+          onTap: () => context.go('/home/charges'),
+        ),
+      ),
+      _Tab(
+        label: l10n.navPayments,
+        icon: Icons.payments_outlined,
+        selectedIcon: Icons.payments,
+        body: _RedirectShortcut(
+          icon: Icons.payments,
+          title: l10n.paymentHistoryTitle,
+          subtitle: l10n.homeViewAll,
+          onTap: () => context.go('/home/payments'),
+        ),
+      ),
+      _Tab(
+        label: l10n.navMaintenance,
+        icon: Icons.build_outlined,
+        selectedIcon: Icons.build,
+        body: _RedirectShortcut(
+          icon: Icons.build,
+          title: l10n.maintenanceResidentMenu,
+          subtitle: l10n.homeViewAll,
+          onTap: () => context.go('/home/maintenance'),
+        ),
+      ),
+      _Tab(
+        label: l10n.navAnnouncements,
+        icon: Icons.campaign_outlined,
+        selectedIcon: Icons.campaign,
+        body: _RedirectShortcut(
+          icon: Icons.campaign,
+          title: l10n.navAnnouncements,
+          subtitle: l10n.homeViewAll,
+          onTap: () => context.go('/home/announcements'),
+        ),
+      ),
+      _Tab(
+        label: l10n.navProfile,
+        icon: Icons.person_outline,
+        selectedIcon: Icons.person,
+        body: const ResidentProfileScreen(),
+      ),
+    ];
+
+    return PopScope(
+      canPop: _index == 0,
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop) return;
+        setState(() => _index = 0);
+      },
+      child: Scaffold(
+        body: IndexedStack(
+          index: _index,
+          children: [for (final t in tabs) t.body],
+        ),
+        bottomNavigationBar: NavigationBar(
+          selectedIndex: _index,
+          onDestinationSelected: (i) => setState(() => _index = i),
+          destinations: [
+            for (final t in tabs)
+              NavigationDestination(
+                icon: Icon(t.icon),
+                selectedIcon: Icon(t.selectedIcon),
+                label: t.label,
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _Tab {
+  const _Tab({
+    required this.label,
+    required this.icon,
+    required this.selectedIcon,
+    required this.body,
+  });
+  final String label;
+  final IconData icon;
+  final IconData selectedIcon;
+  final Widget body;
+}
+
+class _RedirectShortcut extends StatelessWidget {
+  const _RedirectShortcut({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text(title)),
       body: ListView(
-        padding: AppTheme.pagePadding,
+        padding: const EdgeInsets.all(16),
         children: [
-          Text(l10n.residentShellTitle, style: theme.textTheme.titleLarge),
-          const SizedBox(height: AppTheme.spaceXs),
-          Text(l10n.shellUnderConstruction, style: theme.textTheme.bodySmall),
-          const SizedBox(height: AppTheme.spaceL),
-          // US4 (T053) + US5 (T061): charges and payment history entries;
-          // the remaining US9 menu items arrive with T084.
           MenuCard(
-            icon: Icons.receipt_long,
-            title: l10n.myCharges,
-            onTap: () => context.push('/home/charges'),
-          ),
-          const SizedBox(height: AppTheme.spaceM),
-          MenuCard(
-            icon: Icons.payments_outlined,
-            title: l10n.paymentHistoryTitle,
-            onTap: () => context.push('/home/payments'),
-          ),
-          const SizedBox(height: AppTheme.spaceM),
-          MenuCard(
-            icon: Icons.build_outlined,
-            title: l10n.maintenanceResidentMenu,
-            onTap: () => context.push('/home/maintenance'),
+            icon: icon,
+            title: title,
+            subtitle: subtitle,
+            onTap: onTap,
           ),
         ],
       ),
     );
   }
 }
+
+// keep imports alive for future shortcuts
+// ignore: unused_element
+typedef _EmptyStateRef = EmptyState;

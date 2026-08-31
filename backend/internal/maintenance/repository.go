@@ -143,3 +143,37 @@ func (r *Repository) PersonExists(ctx context.Context, personID uuid.UUID) (bool
 	err := r.db.WithContext(ctx).Raw(`SELECT COUNT(*) FROM persons WHERE id = ? AND deleted_at IS NULL`, personID).Scan(&n).Error
 	return n > 0, err
 }
+
+// CountOpenForUser reports the number of the resident's currently-open
+// maintenance requests — anything that hasn't reached the `closed` terminal
+// state (new/under_review/in_progress/done). Used by the US9 resident
+// dashboard (T082) to surface the open-requests card.
+func (r *Repository) CountOpenForUser(ctx context.Context, userID uuid.UUID) (int, error) {
+	var n int64
+	err := r.db.WithContext(ctx).
+		Model(&MaintenanceRequest{}).
+		Where("submitted_by = ?", userID).
+		Where("status IN ?", []string{
+			StatusNew, StatusUnderReview, StatusInProgress, StatusDone,
+		}).
+		Count(&n).Error
+	return int(n), err
+}
+
+// LatestForUser returns the resident's most recent maintenance request
+// (any status), or (nil, nil) when the resident has never submitted one.
+// Newest is chosen by created_at DESC, ties broken by id for determinism.
+func (r *Repository) LatestForUser(ctx context.Context, userID uuid.UUID) (*MaintenanceRequest, error) {
+	var m MaintenanceRequest
+	err := r.db.WithContext(ctx).
+		Where("submitted_by = ?", userID).
+		Order("created_at DESC, id DESC").
+		First(&m).Error
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return &m, nil
+}

@@ -860,4 +860,166 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get maintenanceResidentMenu => 'درخواست‌های نگهداری';
+
+  @override
+  String get homeMenu => 'خانه';
+
+  @override
+  String get navHome => 'خانه';
+
+  @override
+  String get navCharges => 'شارژها';
+
+  @override
+  String get navPayments => 'پرداخت‌ها';
+
+  @override
+  String get navMaintenance => 'تعمیرات';
+
+  @override
+  String get navAnnouncements => 'اطلاعیه‌ها';
+
+  @override
+  String get navProfile => 'پروفایل';
+
+  @override
+  String get homeTitle => 'خانه';
+
+  @override
+  String get homeFinancialCard => 'وضعیت مالی';
+
+  @override
+  String get homePayableAmount => 'مبلغ قابل پرداخت';
+
+  @override
+  String get homeNoInvoice => 'صورتحساب فعالی ندارید';
+
+  @override
+  String get homeLatestInvoice => 'آخرین صورتحساب';
+
+  @override
+  String homeDueDate(String date) => 'سررسید: $date';
+
+  @override
+  String get homeRequestsCard => 'درخواست‌های نگهداری';
+
+  @override
+  String homeOpenRequests(int count) => '$count درخواست باز';
+
+  @override
+  String get homeLatestRequest => 'آخرین درخواست';
+
+  @override
+  String get homeNoOpenRequest => 'درخواست بازی ثبت نشده است';
+
+  @override
+  String get homeAnnouncementsCard => 'اطلاعیه‌ها';
+
+  @override
+  String homeUnreadAnnouncements(int count) => '$count ناخوانده';
+
+  @override
+  String get homeViewAll => 'مشاهده همه';
+
+  @override
+  String get homeViewCharges => 'مشاهده شارژها';
+
+  @override
+  String get homeViewAnnouncements => 'مشاهده اطلاعیه‌ها';
+
+  @override
+  String get homePayInvoice => 'پرداخت صورتحساب';
+
+  @override
+  String get profileTitle => 'پروفایل';
+
+  @override
+  String get profilePhone => 'شماره موبایل';
+
+  @override
+  String get profileName => 'نام و نام خانوادگی';
+
+  @override
+  String get profileEditName => 'ویرایش نام';
+
+  @override
+  String get profileSave => 'ذخیره';
+
+  @override
+  String get profileSavedOk => 'نام شما ذخیره شد';
+
+  @override
+  String get profileError => 'خطا در ذخیره نام';
+
+  @override
+  String get dashboardTitle => 'داشبورد';
+
+  @override
+  String get dashboardCards => 'شاخص‌ها';
+
+  @override
+  String get dashboardUnitCount => 'تعداد واحدها';
+
+  @override
+  String get dashboardOccupiedUnits => 'واحدهای مسکونی';
+
+  @override
+  String get dashboardDebtorUnits => 'واحدهای بدهکار';
+
+  @override
+  String get dashboardTotalDebt => 'مجموع بدهی';
+
+  @override
+  String get dashboardMonthIncome => 'درآمد ماه';
+
+  @override
+  String get dashboardMonthExpense => 'هزینه ماه';
+
+  @override
+  String get dashboardOpenRequests => 'درخواست‌های باز';
+
+  @override
+  String get dashboardPendingExpenses => 'هزینه‌های در انتظار تأیید';
+
+  @override
+  String get dashboardAlerts => 'هشدارها';
+
+  @override
+  String get dashboardQuickActions => 'اقدام‌های سریع';
+
+  @override
+  String dashboardAlertDebtor(String unit) => 'واحد $unit بدهکار است';
+
+  @override
+  String dashboardAlertPastDue(String unit) => 'صورتحساب واحد $unit سررسید گذشته';
+
+  @override
+  String dashboardAlertOpenRequest(String title) => 'درخواست باز: $title';
+
+  @override
+  String dashboardAlertPendingExpense(String title) => 'هزینه در انتظار تأیید: $title';
+
+  @override
+  String get dashboardActionIssueCharge => 'صدور شارژ';
+
+  @override
+  String get dashboardActionRecordExpense => 'ثبت هزینه';
+
+  @override
+  String get dashboardActionRecordPayment => 'ثبت پرداخت';
+
+  @override
+  String get dashboardActionSendAnnouncement => 'انتشار اطلاعیه';
+
+  @override
+  String get dashboardActionOpenRequests => 'درخواست‌ها';
+
+  @override
+  String get dashboardNoAlerts => 'هشدار فعالی وجود ندارد';
+
+  @override
+  String get dashboardBuildingPicker => 'انتخاب ساختمان';
+
+  @override
+  String get dashboardNoBuilding => 'ابتدا یک ساختمان ایجاد کنید.';
 }

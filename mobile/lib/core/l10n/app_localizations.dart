@@ -1737,6 +1737,171 @@ abstract class AppLocalizations {
   /// In fa, this message translates to:
   /// **'درخواست‌های نگهداری'**
   String get maintenanceResidentMenu;
+
+  /// No description provided for @homeMenu.
+  ///
+  /// In fa, this message translates to:
+  /// **'خانه'**
+  String get homeMenu;
+
+  /// No description provided for @navHome.
+  String get navHome;
+
+  /// No description provided for @navCharges.
+  String get navCharges;
+
+  /// No description provided for @navPayments.
+  String get navPayments;
+
+  /// No description provided for @navMaintenance.
+  String get navMaintenance;
+
+  /// No description provided for @navAnnouncements.
+  String get navAnnouncements;
+
+  /// No description provided for @navProfile.
+  String get navProfile;
+
+  /// No description provided for @homeTitle.
+  String get homeTitle;
+
+  /// No description provided for @homeFinancialCard.
+  String get homeFinancialCard;
+
+  /// No description provided for @homePayableAmount.
+  String get homePayableAmount;
+
+  /// No description provided for @homeNoInvoice.
+  String get homeNoInvoice;
+
+  /// No description provided for @homeLatestInvoice.
+  String get homeLatestInvoice;
+
+  /// No description provided for @homeDueDate.
+  String homeDueDate(String date);
+
+  /// No description provided for @homeRequestsCard.
+  String get homeRequestsCard;
+
+  /// No description provided for @homeOpenRequests.
+  String homeOpenRequests(int count);
+
+  /// No description provided for @homeLatestRequest.
+  String get homeLatestRequest;
+
+  /// No description provided for @homeNoOpenRequest.
+  String get homeNoOpenRequest;
+
+  /// No description provided for @homeAnnouncementsCard.
+  String get homeAnnouncementsCard;
+
+  /// No description provided for @homeUnreadAnnouncements.
+  String homeUnreadAnnouncements(int count);
+
+  /// No description provided for @homeViewAll.
+  String get homeViewAll;
+
+  /// No description provided for @homeViewCharges.
+  String get homeViewCharges;
+
+  /// No description provided for @homeViewAnnouncements.
+  String get homeViewAnnouncements;
+
+  /// No description provided for @homePayInvoice.
+  String get homePayInvoice;
+
+  /// No description provided for @profileTitle.
+  String get profileTitle;
+
+  /// No description provided for @profilePhone.
+  String get profilePhone;
+
+  /// No description provided for @profileName.
+  String get profileName;
+
+  /// No description provided for @profileEditName.
+  String get profileEditName;
+
+  /// No description provided for @profileSave.
+  String get profileSave;
+
+  /// No description provided for @profileSavedOk.
+  String get profileSavedOk;
+
+  /// No description provided for @profileError.
+  String get profileError;
+
+  /// No description provided for @dashboardTitle.
+  String get dashboardTitle;
+
+  /// No description provided for @dashboardCards.
+  String get dashboardCards;
+
+  /// No description provided for @dashboardUnitCount.
+  String get dashboardUnitCount;
+
+  /// No description provided for @dashboardOccupiedUnits.
+  String get dashboardOccupiedUnits;
+
+  /// No description provided for @dashboardDebtorUnits.
+  String get dashboardDebtorUnits;
+
+  /// No description provided for @dashboardTotalDebt.
+  String get dashboardTotalDebt;
+
+  /// No description provided for @dashboardMonthIncome.
+  String get dashboardMonthIncome;
+
+  /// No description provided for @dashboardMonthExpense.
+  String get dashboardMonthExpense;
+
+  /// No description provided for @dashboardOpenRequests.
+  String get dashboardOpenRequests;
+
+  /// No description provided for @dashboardPendingExpenses.
+  String get dashboardPendingExpenses;
+
+  /// No description provided for @dashboardAlerts.
+  String get dashboardAlerts;
+
+  /// No description provided for @dashboardQuickActions.
+  String get dashboardQuickActions;
+
+  /// No description provided for @dashboardAlertDebtor.
+  String dashboardAlertDebtor(String unit);
+
+  /// No description provided for @dashboardAlertPastDue.
+  String dashboardAlertPastDue(String unit);
+
+  /// No description provided for @dashboardAlertOpenRequest.
+  String dashboardAlertOpenRequest(String title);
+
+  /// No description provided for @dashboardAlertPendingExpense.
+  String dashboardAlertPendingExpense(String title);
+
+  /// No description provided for @dashboardActionIssueCharge.
+  String get dashboardActionIssueCharge;
+
+  /// No description provided for @dashboardActionRecordExpense.
+  String get dashboardActionRecordExpense;
+
+  /// No description provided for @dashboardActionRecordPayment.
+  String get dashboardActionRecordPayment;
+
+  /// No description provided for @dashboardActionSendAnnouncement.
+  String get dashboardActionSendAnnouncement;
+
+  /// No description provided for @dashboardActionOpenRequests.
+  String get dashboardActionOpenRequests;
+
+  /// No description provided for @dashboardNoAlerts.
+  String get dashboardNoAlerts;
+
+  /// No description provided for @dashboardBuildingPicker.
+  String get dashboardBuildingPicker;
+
+  /// No description provided for @dashboardNoBuilding.
+  String get dashboardNoBuilding;
 }
 
 class _AppLocalizationsDelegate

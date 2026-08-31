@@ -18,6 +18,7 @@ go.work.sum
 # Backend build output & local data
 backend/bin/
 backend/data/
+backend/tmp/
 
 # --- Flutter / Dart mobile app ---
 mobile/.dart_tool/

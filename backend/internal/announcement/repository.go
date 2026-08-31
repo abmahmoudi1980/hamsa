@@ -20,6 +20,62 @@ func NewRepository(db *gorm.DB) *Repository { return &Repository{db: db} }
 // DB exposes the underlying handle for transactional composition.
 func (r *Repository) DB() *gorm.DB { return r.db }
 
+
+// ResidentUnits returns the minimal UnitInfo projection for a resident's
+// currently-active occupancies (joins persons.phone → occupancies → units).
+// Shared by the dashboard aggregator (US9 T082) so the resident panel can
+// reuse the announcement module's audience-targeting math.
+func (r *Repository) ResidentUnits(ctx context.Context, phone string) ([]UnitInfo, error) {
+	if phone == "" {
+		return []UnitInfo{}, nil
+	}
+	type row struct {
+		ID         uuid.UUID `gorm:"column:id"`
+		BuildingID uuid.UUID `gorm:"column:building_id"`
+		Block      *string   `gorm:"column:block"`
+		Floor      int       `gorm:"column:floor"`
+	}
+	var rows []row
+	if err := r.db.WithContext(ctx).
+		Table("occupancies o").
+		Select("un.id, un.building_id, un.block, un.floor").
+		Joins("JOIN persons p ON p.id = o.person_id").
+		Joins("JOIN units un ON un.id = o.unit_id").
+		Where("p.phone = ?", phone).
+		Where("p.deleted_at IS NULL").
+		Where("un.deleted_at IS NULL").
+		Where("o.end_date IS NULL").
+		Scan(&rows).Error; err != nil {
+		return nil, err
+	}
+	out := make([]UnitInfo, 0, len(rows))
+	for _, x := range rows {
+		out = append(out, UnitInfo{
+			ID:         x.ID,
+			BuildingID: x.BuildingID,
+			Block:      x.Block,
+			Floor:      x.Floor,
+		})
+	}
+	return out, nil
+}
+
+// VisibleAnnouncements returns every announcement the resident can see right
+// now (audience match + publish/expire window) with the resident's read
+// state hydrated. Exposed publicly so US9 (resident panel) and any other
+// reader-side consumer can build a snapshot without juggling pagination.
+func (r *Repository) VisibleAnnouncements(ctx context.Context, residentUnits []UnitInfo, now time.Time) ([]AnnouncementWithRead, error) {
+	all, err := r.visibleAnnouncements(ctx, residentUnits, now)
+	if err != nil {
+		return nil, err
+	}
+	out := make([]AnnouncementWithRead, 0, len(all))
+	for _, a := range all {
+		out = append(out, AnnouncementWithRead{Announcement: a})
+	}
+	return out, nil
+}
+
 // IsManagerOf reports whether userID has a user_buildings grant for buildingID.
 func (r *Repository) IsManagerOf(ctx context.Context, userID, buildingID uuid.UUID) (bool, error) {
 	var n int64

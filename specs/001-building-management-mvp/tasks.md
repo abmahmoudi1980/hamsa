@@ -253,15 +253,14 @@
 
 **Independent Test**: A resident with one issued invoice and one open request logs in and answers both questions entirely from the panel (quickstart Scenario 8.1).
 
-### Tests for User Story 9 (write first, must FAIL)
+- [x] T081 [P] [US9] Go integration test for `GET /me/home` in `backend/internal/dashboard/home_test.go`: data consistency with underlying invoices/requests/announcements + strict resident isolation
 
-- [ ] T081 [P] [US9] Go integration test for `GET /me/home` in `backend/internal/dashboard/home_test.go`: data consistency with underlying invoices/requests/announcements + strict resident isolation
+- [x] T082 [US9] Implement `GET /me/home` aggregation endpoint in `backend/internal/dashboard/handlers.go`: payable amount, latest invoice (amount/due date Jalali-ready ISO/status), open request count + latest status, latest announcements, unread announcement count (FR-034)
 
 ### Implementation for User Story 9
 
-- [ ] T082 [US9] Implement `GET /me/home` aggregation endpoint in `backend/internal/dashboard/handlers.go`: payable amount, latest invoice (amount/due date Jalali-ready ISO/status), open request count + latest status, latest announcements, unread announcement count (FR-034)
-- [ ] T083 [US9] Implement Flutter resident home screen in `mobile/lib/features/home/`: financial status card, requests summary card, announcements card with unread badge
-- [ ] T084 [US9] Implement Flutter resident shell + remaining menu in `mobile/lib/features/home/` + `mobile/lib/features/charges/` + `mobile/lib/features/profile/`: bottom navigation with 6 Persian menu items, resident charges list (reusing T053 detail), payment history entry point, profile view/edit
+- [x] T083 [US9] Implement Flutter resident home screen in `mobile/lib/features/home/`: financial status card, requests summary card, announcements card with unread badge
+- [x] T084 [US9] Implement Flutter resident shell + remaining menu in `mobile/lib/features/home/` + `mobile/lib/features/charges/` + `mobile/lib/features/profile/`: bottom navigation with 6 Persian menu items, resident charges list (reusing T053 detail), payment history entry point, profile view/edit
 
 **Checkpoint**: User Story 9 functional — resident self-service complete (third defining outcome of P0).
 
@@ -275,16 +274,12 @@
 
 ### Tests for User Story 10 (write first, must FAIL)
 
-- [ ] T085 [P] [US10] Go integration test for `GET /buildings/{id}/dashboard` in `backend/internal/dashboard/dashboard_test.go`: card/alert counts match seeded state
+- [x] T085 [P] [US10] Go integration test for `GET /buildings/{id}/dashboard` in `backend/internal/dashboard/dashboard_test.go`: card/alert counts match seeded state
 
 ### Implementation for User Story 10
 
-- [ ] T086 [US10] Implement dashboard aggregation endpoint in `backend/internal/dashboard/dashboard_service.go`: unit count, debtor units, total debt, month income/expense, open requests + alerts list + quick-action targets (FR-035)
-- [ ] T087 [US10] Implement Flutter manager dashboard in `mobile/lib/features/dashboard/`: card grid (Persian-digit Toman), alerts section, quick-action buttons deep-linking to issue charge / record expense / record payment / record request / send announcement
-
-**Checkpoint**: All 10 user stories functional and independently testable.
-
----
+- [x] T086 [US10] Implement dashboard aggregation endpoint in `backend/internal/dashboard/dashboard_service.go`: unit count, debtor units, total debt, month income/expense, open requests + alerts list + quick-action targets (FR-035)
+- [x] T087 [US10] Implement Flutter manager dashboard in `mobile/lib/features/dashboard/`: card grid (Persian-digit Toman), alerts section, quick-action buttons deep-linking to issue charge / record expense / record payment / record request / send announcement
 
 ## Phase 13: Polish & Cross-Cutting Concerns
 
