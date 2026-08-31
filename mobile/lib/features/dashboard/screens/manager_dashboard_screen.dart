@@ -52,16 +52,30 @@ class ManagerDashboardScreen extends ConsumerWidget {
   }
 }
 
-class _BuildingDashboardList extends ConsumerWidget {
+class _BuildingDashboardList extends ConsumerStatefulWidget {
   const _BuildingDashboardList({required this.buildings});
   final List<Building> buildings;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    // Pick the first building for the dashboard — managers with multiple
-    // buildings can swap via the bottom-sheet picker.
-    final selected = buildings.first;
-    final buildingId = selected.id;
+  ConsumerState<_BuildingDashboardList> createState() =>
+      _BuildingDashboardListState();
+}
+
+class _BuildingDashboardListState
+    extends ConsumerState<_BuildingDashboardList> {
+  // The manager's explicitly picked building (null = first building).
+  // Re-checked against the current list so a stale pick (e.g. the building
+  // was removed elsewhere) falls back to the first instead of watching a
+  // family member nobody else renders.
+  String? _pickedId;
+
+  @override
+  Widget build(BuildContext context) {
+    final buildings = widget.buildings;
+    final buildingId =
+        _pickedId != null && buildings.any((b) => b.id == _pickedId)
+            ? _pickedId!
+            : buildings.first.id;
     final async = ref.watch(buildingDashboardControllerProvider(buildingId));
 
     return RefreshIndicator(
@@ -77,8 +91,10 @@ class _BuildingDashboardList extends ConsumerWidget {
                 .toList(),
             selectedId: buildingId,
             onSelect: (id) {
-              // Invalidate so the next swap re-fetches the chosen building.
+              // Force a fresh fetch for the target building, then actually
+              // render it by updating the watched selection.
               ref.invalidate(buildingDashboardControllerProvider(id));
+              setState(() => _pickedId = id);
             },
           ),
           const SizedBox(height: AppTheme.spaceM),
