@@ -34,16 +34,15 @@ class MaintenanceRepository {
     return MaintenanceRequest.fromJson(res.data!);
   }
 
+  /// Uploads the picked photo via POST /files and returns its id.
+  /// Throws (DioException/ApiException) on failure — callers must surface the
+  /// error instead of silently submitting without the photo.
   Future<String?> uploadPhoto({required String path, required String name}) async {
     final form = FormData.fromMap({
       'file': await MultipartFile.fromFile(path, filename: name),
     });
-    try {
-      final res = await _dio.post<Map<String, dynamic>>('/files', data: form);
-      return res.data?['id'] as String?;
-    } on DioException {
-      return null;
-    }
+    final res = await _dio.post<Map<String, dynamic>>('/files', data: form);
+    return res.data?['id'] as String?;
   }
 
   Future<(List<MaintenanceRequest>, int)> myRequests({int page = 1, int pageSize = 20}) async {

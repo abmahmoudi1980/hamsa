@@ -56,9 +56,10 @@ class _ResidentMaintenanceFormScreenState extends ConsumerState<ResidentMaintena
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.maintenanceSubmitSuccess)));
       context.pop();
       ref.invalidate(myMaintenanceControllerProvider);
-    } on ApiException catch (e) {
+    } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.serverMessage ?? l10n.maintenanceSubmitError)));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(describeError(l10n, e))));
     } finally {
       if (mounted) setState(() => _saving = false);
     }

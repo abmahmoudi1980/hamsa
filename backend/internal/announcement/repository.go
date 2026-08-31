@@ -160,6 +160,35 @@ func (r *Repository) ListForResident(ctx context.Context, residentUnits []UnitIn
 		size = 20
 	}
 
+	visible, err := r.visibleAnnouncements(ctx, residentUnits, now)
+	if err != nil {
+		return nil, 0, err
+	}
+	total := int64(len(visible))
+	start := (page - 1) * size
+	if start >= len(visible) {
+		return []AnnouncementWithRead{}, total, nil
+	}
+	end := start + size
+	if end > len(visible) {
+		end = len(visible)
+	}
+	pageItems := visible[start:end]
+
+	// Note: read state is populated by the service after fetching user reads.
+	out := make([]AnnouncementWithRead, len(pageItems))
+	for i, a := range pageItems {
+		out[i] = AnnouncementWithRead{Announcement: a}
+	}
+	return out, total, nil
+}
+
+// visibleAnnouncements returns all of the resident's buildings' announcements
+// inside the publish/expire window at now whose audience matches the resident
+// units, newest first. Audience matching is in-memory (announcements per
+// building are small in P0). Shared by the paginated list and the unread
+// count so the API page-size clamp can never truncate the count.
+func (r *Repository) visibleAnnouncements(ctx context.Context, residentUnits []UnitInfo, now time.Time) ([]Announcement, error) {
 	// Build building -> blocks/floors/unitIds maps for the query.
 	buildings := map[uuid.UUID]bool{}
 	blockByBuilding := map[uuid.UUID]map[string]bool{}
@@ -194,41 +223,22 @@ func (r *Repository) ListForResident(ctx context.Context, residentUnits []UnitIn
 		Where("(expire_at IS NULL OR expire_at > ?)", now).
 		Order("created_at DESC").
 		Find(&candidates).Error; err != nil {
-		return nil, 0, err
+		return nil, err
 	}
 
-	// In-memory audience matching (building-scoped) — number of announcements
-	// per building is small in P0, so this avoids complex SQL pagination bugs.
-	var visible []Announcement
+	visible := make([]Announcement, 0, len(candidates))
 	for _, a := range candidates {
 		if isVisible(a, residentUnits, blockByBuilding, floorByBuilding, unitIDs) {
 			visible = append(visible, a)
 		}
 	}
-
-	total := int64(len(visible))
-	start := (page - 1) * size
-	if start >= len(visible) {
-		return []AnnouncementWithRead{}, total, nil
-	}
-	end := start + size
-	if end > len(visible) {
-		end = len(visible)
-	}
-	pageItems := visible[start:end]
-
-	// Note: read state is populated by the service after fetching user reads.
-	out := make([]AnnouncementWithRead, len(pageItems))
-	for i, a := range pageItems {
-		out[i] = AnnouncementWithRead{Announcement: a}
-	}
-	return out, total, nil
+	return visible, nil
 }
 
 // ListAllVisibleIDs returns ids of all announcements visible to the resident
-// (used for unread counts / tests without pagination).
+// (used for unread counts).
 func (r *Repository) ListAllVisibleIDs(ctx context.Context, residentUnits []UnitInfo, now time.Time) ([]uuid.UUID, error) {
-	items, _, err := r.ListForResident(ctx, residentUnits, now, 1, 10000)
+	items, err := r.visibleAnnouncements(ctx, residentUnits, now)
 	if err != nil {
 		return nil, err
 	}

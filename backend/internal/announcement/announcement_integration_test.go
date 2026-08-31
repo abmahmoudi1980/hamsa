@@ -98,7 +98,7 @@ func newAnnEnv(t *testing.T) *annEnv {
 	router := httpx.NewRouter(log, "dev")
 	authMW := auth.Authenticate(tokens, auth.NewRepository(gormDB))
 	authed := router.Group("/api/v1", authMW)
-	Register(authed, svc, audSvc)
+	Register(authed, svc)
 
 	return &annEnv{engine: router, gormDB: gormDB, tokens: tokens, svc: svc}
 }
@@ -329,7 +329,7 @@ func TestAnnouncementPublishExpireWindow(t *testing.T) {
 	mgrID, mgrTok := e.seedUser(t, "manager", "09120000011")
 	bID := e.seedBuilding(t, mgrID)
 	u1 := e.seedUnit(t, bID, "1", "A", 1)
-	_, resTok := e.seedUser(t, "resident", "09120000012")
+	resID, resTok := e.seedUser(t, "resident", "09120000012")
 	p := e.seedPerson(t, bID, "09120000012", "ساکن")
 	e.seedOccupancy(t, u1, p)
 
@@ -391,6 +391,13 @@ func TestAnnouncementPublishExpireWindow(t *testing.T) {
 	}
 	if titles["آینده"] || titles["منقضی"] {
 		t.Fatalf("hidden announcements leaked: %v", titles)
+	}
+
+	// Notification guard: only in-window creations notify. آینده (future
+	// publish_at) and منقضی (already expired) must NOT notify; فعال and
+	// همیشگی must.
+	if n := annNotifsFor(t, e, resID); n != 2 {
+		t.Fatalf("notifications after window creates=%d want 2 (active+always only)", n)
 	}
 }
 
@@ -478,6 +485,55 @@ func TestAnnouncementReadTracking(t *testing.T) {
 	code, _ = e.post(t, fmt.Sprintf("/api/v1/announcements/%s/read", ann2ID), resTok, nil)
 	if code != http.StatusNotFound {
 		t.Fatalf("mark unreadable announcement: got %d want 404", code)
+	}
+}
+
+// --- unread count beyond page size -------------------------------------------
+
+func TestAnnouncementUnreadCountBeyondPageSize(t *testing.T) {
+	e := newAnnEnv(t)
+
+	mgrID, mgrTok := e.seedUser(t, "manager", "09120000041")
+	bID := e.seedBuilding(t, mgrID)
+	u1 := e.seedUnit(t, bID, "1", "A", 1)
+	resID, resTok := e.seedUser(t, "resident", "09120000042")
+	p := e.seedPerson(t, bID, "09120000042", "ساکن")
+	e.seedOccupancy(t, u1, p)
+
+	// 25 always-visible announcements (resident page size is 20).
+	for i := range 25 {
+		body := map[string]any{"title": fmt.Sprintf("اطلاعیه %d", i+1), "body": "متن", "audience_type": "all"}
+		if code, out := e.post(t, fmt.Sprintf("/api/v1/buildings/%s/announcements", bID), mgrTok, body); code != http.StatusCreated {
+			t.Fatalf("create %d: %d %v", i+1, code, out)
+		}
+	}
+
+	res := &auth.User{ID: resID, Phone: "09120000042"}
+	unread, err := e.svc.UnreadCount(context.Background(), res)
+	if err != nil {
+		t.Fatalf("unread count: %v", err)
+	}
+	if unread != 25 {
+		t.Fatalf("unread=%d want 25 (must not be capped by the page size)", unread)
+	}
+
+	// Read the first page (20 items) → unread must drop to exactly 5.
+	code, out := e.get(t, "/api/v1/me/announcements", resTok)
+	if code != http.StatusOK {
+		t.Fatalf("list: %d %v", code, out)
+	}
+	for _, it := range out["items"].([]any) {
+		id := it.(map[string]any)["id"].(string)
+		if code, _ := e.post(t, "/api/v1/announcements/"+id+"/read", resTok, nil); code != http.StatusNoContent {
+			t.Fatalf("mark read: %d", code)
+		}
+	}
+	unread, err = e.svc.UnreadCount(context.Background(), res)
+	if err != nil {
+		t.Fatalf("unread count after reads: %v", err)
+	}
+	if unread != 5 {
+		t.Fatalf("unread after reading first page=%d want 5", unread)
 	}
 }
 

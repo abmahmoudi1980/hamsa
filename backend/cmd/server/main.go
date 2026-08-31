@@ -139,7 +139,7 @@ func main() {
 	maintenance.Register(v1.Group("", authMW), maintenance.NewService(maintenance.NewRepository(gormDB), notifSvc, auditSvc), auditSvc)
 
 	// US8: announcements with audience targeting (manager publish, resident targeted list + read tracking).
-	announcement.Register(v1.Group("", authMW), announcement.NewService(announcement.NewRepository(gormDB), notifSvc, auditSvc), auditSvc)
+	announcement.Register(v1.Group("", authMW), announcement.NewService(announcement.NewRepository(gormDB), notifSvc, auditSvc))
 
 	srv := &http.Server{
 		Addr:              cfg.App.Addr,

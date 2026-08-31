@@ -104,11 +104,13 @@ func (s *Service) Create(ctx context.Context, manager *auth.User, buildingID uui
 		return nil, err
 	}
 
-	// Best-effort notifications to targeted residents.
-	s.notifyTargets(ctx, a)
-
-	// Audit (best-effort; middleware also audits but service-level ensures entry
-	// even if handler forgets the decorator).
+	// Best-effort notifications to targeted residents — only for announcements
+	// already inside the publish/expire window (a future publish_at must not
+	// notify before the announcement is visible; P0 has no scheduler, so a
+	// scheduled publish notifies nothing yet).
+	if s.inWindow(a, s.clock.Now()) {
+		s.notifyTargets(ctx, a)
+	}
 	if s.audit != nil {
 		_ = s.audit.Append(ctx, &manager.ID, "announcement.publish", "announcement", &a.ID, nil, a)
 	}
@@ -117,40 +119,7 @@ func (s *Service) Create(ctx context.Context, manager *auth.User, buildingID uui
 }
 
 // Update edits an existing announcement (manager scope 403 otherwise).
-func (s *Service) Update(ctx context.Context, manager *auth.User, id uuid.UUID, in Input) (*Announcement, *Announcement, error) {
-	if manager == nil {
-		return nil, nil, httpx.Unauthorized(msgUnauthorized)
-	}
-	a, err := s.repo.Get(ctx, id)
-	if err != nil {
-		if err == gorm.ErrRecordNotFound {
-			return nil, nil, httpx.NotFound(msgNotFound)
-		}
-		return nil, nil, err
-	}
-	ok, err := s.repo.IsManagerOf(ctx, manager.ID, a.BuildingID)
-	if err != nil {
-		return nil, nil, err
-	}
-	if !ok {
-		return nil, nil, httpx.Forbidden(msgForbidden)
-	}
-
-	before := *a
-	if err := s.applyInput(ctx, a, in, false); err != nil {
-		return nil, nil, err
-	}
-	if err := s.repo.Save(ctx, a); err != nil {
-		return nil, nil, err
-	}
-	if s.audit != nil {
-		_ = s.audit.Append(ctx, &manager.ID, "announcement.update", "announcement", &a.ID, before, a)
-	}
-	return a, &before, nil
-}
-
-// Delete removes an announcement.
-func (s *Service) Delete(ctx context.Context, manager *auth.User, id uuid.UUID) (*Announcement, error) {
+func (s *Service) Update(ctx context.Context, manager *auth.User, id uuid.UUID, in Input) (*Announcement, error) {
 	if manager == nil {
 		return nil, httpx.Unauthorized(msgUnauthorized)
 	}
@@ -168,13 +137,46 @@ func (s *Service) Delete(ctx context.Context, manager *auth.User, id uuid.UUID) 
 	if !ok {
 		return nil, httpx.Forbidden(msgForbidden)
 	}
-	if err := s.repo.Delete(ctx, id); err != nil {
+
+	before := *a
+	if err := s.applyInput(ctx, a, in, false); err != nil {
 		return nil, err
+	}
+	if err := s.repo.Save(ctx, a); err != nil {
+		return nil, err
+	}
+	if s.audit != nil {
+		_ = s.audit.Append(ctx, &manager.ID, "announcement.update", "announcement", &a.ID, before, a)
+	}
+	return a, nil
+}
+
+// Delete removes an announcement.
+func (s *Service) Delete(ctx context.Context, manager *auth.User, id uuid.UUID) error {
+	if manager == nil {
+		return httpx.Unauthorized(msgUnauthorized)
+	}
+	a, err := s.repo.Get(ctx, id)
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return httpx.NotFound(msgNotFound)
+		}
+		return err
+	}
+	ok, err := s.repo.IsManagerOf(ctx, manager.ID, a.BuildingID)
+	if err != nil {
+		return err
+	}
+	if !ok {
+		return httpx.Forbidden(msgForbidden)
+	}
+	if err := s.repo.Delete(ctx, id); err != nil {
+		return err
 	}
 	if s.audit != nil {
 		_ = s.audit.Append(ctx, &manager.ID, "announcement.delete", "announcement", &a.ID, a, nil)
 	}
-	return a, nil
+	return nil
 }
 
 // GetForManager returns a permitted announcement.
@@ -472,6 +474,18 @@ func (s *Service) applyInput(ctx context.Context, a *Announcement, in Input, cre
 	}
 
 	return nil
+}
+
+// inWindow reports whether the announcement is visible at t (publish_at <= t
+// and expire_at > t — matching the repository window filters).
+func (s *Service) inWindow(a *Announcement, t time.Time) bool {
+	if a.PublishAt != nil && a.PublishAt.After(t) {
+		return false
+	}
+	if a.ExpireAt != nil && !a.ExpireAt.After(t) {
+		return false
+	}
+	return true
 }
 
 func (s *Service) notifyTargets(ctx context.Context, a *Announcement) {

@@ -8,18 +8,17 @@ import (
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 
-	"hamsa/internal/audit"
 	"hamsa/internal/auth"
 	"hamsa/internal/platform/httpx"
 )
 
 // Register mounts US8 routes.
 // Expected outer group: v1.Group("", authMW) — all routes require auth.
-func Register(r *gin.RouterGroup, svc *Service, aud *audit.Service) {
+func Register(r *gin.RouterGroup, svc *Service) {
 	// Manager: building-scoped publish & list.
 	mgr := r.Group("/buildings/:id", auth.RequireRole(auth.RoleManager))
 	{
-		mgr.POST("/announcements", aud.Middleware("announcement.publish", "announcement"), createForManager(svc))
+		mgr.POST("/announcements", createForManager(svc))
 		mgr.GET("/announcements", listForManager(svc))
 	}
 
@@ -27,8 +26,8 @@ func Register(r *gin.RouterGroup, svc *Service, aud *audit.Service) {
 	single := r.Group("/announcements", auth.RequireRole(auth.RoleManager))
 	{
 		single.GET("/:id", getForManager(svc))
-		single.PUT("/:id", aud.Middleware("announcement.update", "announcement"), updateForManager(svc))
-		single.DELETE("/:id", aud.Middleware("announcement.delete", "announcement"), deleteForManager(svc))
+		single.PUT("/:id", updateForManager(svc))
+		single.DELETE("/:id", deleteForManager(svc))
 	}
 
 	// Resident: own announcements (targeted + publish window) + mark-read.
@@ -99,8 +98,6 @@ func createForManager(svc *Service) gin.HandlerFunc {
 			writeServiceErr(c, err)
 			return
 		}
-		c.Set(audit.CtxObjectID, a.ID)
-		c.Set(audit.CtxAfter, a)
 		c.JSON(http.StatusCreated, a)
 	}
 }
@@ -164,14 +161,11 @@ func updateForManager(svc *Service) gin.HandlerFunc {
 			httpx.WriteError(c, httpx.BadRequest("اطلاعات ارسالی نامعتبر است"))
 			return
 		}
-		a, before, err := svc.Update(c.Request.Context(), mgr, id, in)
+		a, err := svc.Update(c.Request.Context(), mgr, id, in)
 		if err != nil {
 			writeServiceErr(c, err)
 			return
 		}
-		c.Set(audit.CtxObjectID, a.ID)
-		c.Set(audit.CtxBefore, before)
-		c.Set(audit.CtxAfter, a)
 		c.JSON(http.StatusOK, a)
 	}
 }
@@ -186,13 +180,11 @@ func deleteForManager(svc *Service) gin.HandlerFunc {
 		if !ok {
 			return
 		}
-		before, err := svc.Delete(c.Request.Context(), mgr, id)
+		err := svc.Delete(c.Request.Context(), mgr, id)
 		if err != nil {
 			writeServiceErr(c, err)
 			return
 		}
-		c.Set(audit.CtxObjectID, id)
-		c.Set(audit.CtxBefore, before)
 		c.Status(http.StatusNoContent)
 	}
 }
