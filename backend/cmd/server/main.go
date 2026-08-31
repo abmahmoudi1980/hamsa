@@ -13,6 +13,7 @@ import (
 
 	"github.com/google/uuid"
 
+	"hamsa/internal/announcement"
 	"hamsa/internal/audit"
 	"hamsa/internal/auth"
 	"hamsa/internal/billing"
@@ -136,7 +137,11 @@ func main() {
 
 	// US7: maintenance requests — resident submit/track + manager workflow (notifications per transition, audited).
 	maintenance.Register(v1.Group("", authMW), maintenance.NewService(maintenance.NewRepository(gormDB), notifSvc, auditSvc), auditSvc)
- 	srv := &http.Server{
+
+	// US8: announcements with audience targeting (manager publish, resident targeted list + read tracking).
+	announcement.Register(v1.Group("", authMW), announcement.NewService(announcement.NewRepository(gormDB), notifSvc, auditSvc), auditSvc)
+
+	srv := &http.Server{
 		Addr:              cfg.App.Addr,
 		Handler:           router,
 		ReadHeaderTimeout: 10 * time.Second,

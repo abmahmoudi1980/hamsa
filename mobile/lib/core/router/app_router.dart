@@ -24,6 +24,11 @@ import '../../features/charges/screens/invoice_detail_screen.dart';
 import '../../features/expenses/screens/expense_form_screen.dart';
 import '../../features/expenses/screens/expense_list_screen.dart';
 import '../../features/expenses/screens/financial_report_screen.dart';
+import '../../features/announcements/models/announcement.dart';
+import '../../features/announcements/screens/announcement_form_screen.dart';
+import '../../features/announcements/screens/manager_announcement_list_screen.dart';
+import '../../features/announcements/screens/resident_announcement_detail_screen.dart';
+import '../../features/announcements/screens/resident_announcement_list_screen.dart';
 import '../../features/home/screens/resident_shell_screen.dart';
 import '../../features/maintenance/screens/manager_maintenance_detail_screen.dart';
 import '../../features/maintenance/screens/manager_maintenance_list_screen.dart';
@@ -33,8 +38,8 @@ import '../../features/payments/screens/pay_invoice_screen.dart';
 import '../../features/payments/screens/payment_history_screen.dart';
 import '../../features/payments/screens/payment_ledger_screen.dart';
 import '../../features/payments/screens/record_payment_screen.dart';
+import '../../features/notifications/screens/notification_center_screen.dart';
 import 'splash_screen.dart';
-
 /// Role-based root routing (plan.md structure): login ↔ manager shell ↔
 /// resident shell, with auth-state redirect re-evaluated on every
 /// [authControllerProvider] change.
@@ -252,6 +257,41 @@ final routerProvider = Provider<GoRouter>((ref) {
           buildingId: state.pathParameters['buildingId']!,
           requestId: state.pathParameters['requestId']!,
         ),
+      ),
+      // US8 (T079/T080): announcements — manager publish + resident targeted list + notification center.
+      GoRoute(
+        path: '/manager/announcements/:buildingId',
+        builder: (_, state) => ManagerAnnouncementListScreen(
+          buildingId: state.pathParameters['buildingId']!,
+        ),
+      ),
+      GoRoute(
+        path: '/manager/announcements/:buildingId/new',
+        builder: (_, state) => AnnouncementFormScreen(
+          buildingId: state.pathParameters['buildingId']!,
+        ),
+      ),
+      GoRoute(
+        path: '/manager/announcements/:buildingId/:announcementId',
+        builder: (_, state) => AnnouncementFormScreen(
+          buildingId: state.pathParameters['buildingId']!,
+          announcement: state.extra is Announcement ? state.extra as Announcement : null,
+        ),
+      ),
+      GoRoute(
+        path: '/home/announcements',
+        builder: (_, _) => const ResidentAnnouncementListScreen(),
+      ),
+      GoRoute(
+        path: '/home/announcements/:id',
+        builder: (_, state) => ResidentAnnouncementDetailScreen(
+          announcementId: state.pathParameters['id']!,
+          announcement: state.extra is Announcement ? state.extra as Announcement : null,
+        ),
+      ),
+      GoRoute(
+        path: '/home/notifications',
+        builder: (_, _) => const NotificationCenterScreen(),
       ),
       GoRoute(path: '/home', builder: (_, _) => const ResidentShellScreen()),
     ],

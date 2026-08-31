@@ -302,6 +302,52 @@
   "maintenancePriorityImportant": "مهم",
   "maintenancePriorityUrgent": "فوری",
   "maintenanceResidentMenu": "درخواست‌های نگهداری",
+  "announcementsTitle": "اطلاعیه‌ها",
+  "myAnnouncementsTitle": "اطلاعیه‌های من",
+  "addAnnouncement": "انتشار اطلاعیه",
+  "editAnnouncement": "ویرایش اطلاعیه",
+  "announcementTitleLabel": "عنوان اطلاعیه",
+  "announcementTitleHint": "مثلاً: جلسه هیئت مدیره",
+  "announcementTitleRequired": "عنوان الزامی است",
+  "announcementBodyLabel": "متن اطلاعیه",
+  "announcementBodyRequired": "متن اطلاعیه الزامی است",
+  "announcementAudienceLabel": "مخاطب",
+  "announcementAudienceAll": "همه ساکنان",
+  "announcementAudienceBlock": "بلوک",
+  "announcementAudienceFloor": "طبقه",
+  "announcementAudienceUnit": "واحد مشخص",
+  "announcementAudienceValueLabel": "مقدار مخاطب",
+  "announcementAudienceValueHint": "مثلاً: A یا ۲ یا شماره واحد",
+  "announcementPublishAtLabel": "تاریخ انتشار (اختیاری)",
+  "announcementExpireAtLabel": "تاریخ انقضا (اختیاری)",
+  "announcementAttachmentLabel": "پیوست (اختیاری)",
+  "announcementSubmitSuccess": "اطلاعیه با موفقیت منتشر شد",
+  "announcementSubmitError": "خطا در انتشار اطلاعیه",
+  "announcementUpdateSuccess": "اطلاعیه ویرایش شد",
+  "announcementDeleteConfirm": "این اطلاعیه حذف شود؟",
+  "announcementDeleted": "اطلاعیه حذف شد",
+  "announcementLoadError": "خطا در دریافت اطلاعیه‌ها",
+  "announcementEmptyTitle": "هنوز اطلاعیه‌ای منتشر نشده است",
+  "announcementEmptySubtitle": "برای اطلاع‌رسانی جدید، «انتشار اطلاعیه» را بزنید.",
+  "announcementResidentEmptyTitle": "هنوز اطلاعیه‌ای برای شما منتشر نشده است",
+  "announcementResidentEmptySubtitle": "اطلاعیه‌های جدید اینجا نمایش داده می‌شود.",
+  "announcementDetailTitle": "جزئیات اطلاعیه",
+  "announcementUnread": "نخوانده",
+  "announcementRead": "خوانده‌شده",
+  "announcementMarkRead": "علامت‌گذاری به‌عنوان خوانده‌شده",
+  "announcementMarkedRead": "به‌عنوان خوانده‌شده ثبت شد",
+  "notificationCenterTitle": "مرکز اعلان‌ها",
+  "notificationEmptyTitle": "اعلانی وجود ندارد",
+  "notificationEmptySubtitle": "اعلان‌های شارژ، پرداخت و اطلاعیه‌ها اینجا نمایش داده می‌شود.",
+  "notificationMarkAllRead": "خواندن همه",
+  "notificationMarkedAllRead": "همه اعلان‌ها خوانده شد",
+  "notificationTypeInvoiceIssued": "صدور صورتحساب",
+  "notificationTypeAnnouncementPublished": "اطلاعیه جدید",
+  "notificationTypeRequestStatus": "تغییر وضعیت درخواست",
+  "announcementAudienceDisplayAll": "همه",
+  "announcementAudienceDisplayBlock": "بلوک {value}",
+  "announcementAudienceDisplayFloor": "طبقه {value}",
+  "announcementAudienceDisplayUnit": "واحد {value}",
   "@maintenanceCreatedAt": {
     "placeholders": {
       "date": {
@@ -333,6 +379,27 @@
   "@maintenanceStatusChangedTo": {
     "placeholders": {
       "status": {
+        "type": "String"
+      }
+    }
+  },
+  "@announcementAudienceDisplayBlock": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "@announcementAudienceDisplayFloor": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "@announcementAudienceDisplayUnit": {
+    "placeholders": {
+      "value": {
         "type": "String"
       }
     }

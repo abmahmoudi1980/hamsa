@@ -233,15 +233,15 @@
 
 ### Tests for User Story 8 (write first, must FAIL)
 
-- [ ] T075 [P] [US8] Go integration tests in `backend/internal/announcement/announcement_integration_test.go`: audience targeting (all/block/floor/unit), publish/expire window visibility, read-tracking/unread counts
+- [x] T075 [P] [US8] Go integration tests in `backend/internal/announcement/announcement_integration_test.go`: audience targeting (all/block/floor/unit), publish/expire window visibility, read-tracking/unread counts
 
 ### Implementation for User Story 8
 
-- [ ] T076 [P] [US8] Create migration `backend/migrations/0008_announcements.up.sql`: `announcements`, `announcement_reads` per data-model.md
-- [ ] T077 [P] [US8] Implement models + repository in `backend/internal/announcement/`
-- [ ] T078 [US8] Implement announcement service + handlers in `backend/internal/announcement/`: manager CRUD (audited), audience-scope resolution for residents (join occupancies/units), publish/expire window filter, `POST /announcements/{id}/read`, emits `announcement_published` notifications; resident list `GET /me/announcements`
-- [ ] T079 [P] [US8] Implement Flutter manager announcement screens in `mobile/lib/features/announcements/`: list + publish form (audience type/value, Jalali publish/expire pickers via T018, attachment)
-- [ ] T080 [P] [US8] Implement Flutter resident announcements + notification center in `mobile/lib/features/announcements/` and `mobile/lib/features/notifications/`: announcement list/detail (targeted only), unread badge, mark-read; notification center (list, unread filter, deep links via go_router, mark-all-read)
+- [x] T076 [P] [US8] Create migration `backend/migrations/0008_announcements.up.sql`: `announcements`, `announcement_reads` per data-model.md
+- [x] T077 [P] [US8] Implement models + repository in `backend/internal/announcement/`
+- [x] T078 [US8] Implement announcement service + handlers in `backend/internal/announcement/`: manager CRUD (audited), audience-scope resolution for residents (join occupancies/units), publish/expire window filter, `POST /announcements/{id}/read`, emits `announcement_published` notifications; resident list `GET /me/announcements`
+- [x] T079 [P] [US8] Implement Flutter manager announcement screens in `mobile/lib/features/announcements/`: list + publish form (audience type/value, Jalali publish/expire pickers via T018, attachment)
+- [x] T080 [P] [US8] Implement Flutter resident announcements + notification center in `mobile/lib/features/announcements/` and `mobile/lib/features/notifications/`: announcement list/detail (targeted only), unread badge, mark-read; notification center (list, unread filter, deep links via go_router, mark-all-read)
 
 **Checkpoint**: User Story 8 functional — communication loop complete.
 
