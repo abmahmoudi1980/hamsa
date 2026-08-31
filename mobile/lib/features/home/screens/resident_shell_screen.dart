@@ -47,6 +47,12 @@ class ResidentShellScreen extends ConsumerWidget {
             title: l10n.paymentHistoryTitle,
             onTap: () => context.push('/home/payments'),
           ),
+          const SizedBox(height: AppTheme.spaceM),
+          MenuCard(
+            icon: Icons.build_outlined,
+            title: l10n.maintenanceResidentMenu,
+            onTap: () => context.push('/home/maintenance'),
+          ),
         ],
       ),
     );

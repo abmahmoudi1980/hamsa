@@ -126,8 +126,7 @@
   "occupantCountTitle": "تعداد ساکن",
   "recordOccupantCount": "ثبت تعداد جدید",
   "effectiveFrom": "تاریخ اثر",
-  "occupancyNeedsPerson": "هنوز شخصی برای این ساختمان ثبت نشده است؛ ابتدا یک شخص اضافه کنید."
-,
+  "occupancyNeedsPerson": "هنوز شخصی برای این ساختمان ثبت نشده است؛ ابتدا یک شخص اضافه کنید.",
   "billingTitle": "شارژها",
   "addPeriod": "دوره جدید",
   "editPeriod": "ویرایش دوره",
@@ -240,6 +239,100 @@
   "@devTestCode": {
     "placeholders": {
       "code": {
+        "type": "String"
+      }
+    }
+  },
+  "maintenanceTitle": "درخواست‌های نگهداری",
+  "myMaintenanceTitle": "درخواست‌های من",
+  "addMaintenanceRequest": "ثبت درخواست",
+  "newMaintenanceTitle": "ثبت درخواست جدید",
+  "maintenanceDetailTitle": "جزئیات درخواست",
+  "maintenanceTitleLabel": "عنوان درخواست",
+  "maintenanceTitleHint": "مثلاً: آسانسور لرزش دارد",
+  "maintenanceTitleRequired": "عنوان الزامی است",
+  "maintenanceCategoryLabel": "دسته‌بندی",
+  "maintenancePriorityLabel": "اولویت",
+  "maintenanceLocationLabel": "محل (اختیاری)",
+  "maintenanceLocationHint": "مثلاً: طبقه ۳، آسانسور",
+  "maintenanceDescriptionLabel": "توضیحات (اختیاری)",
+  "maintenancePhotoLabel": "تصویر (اختیاری)",
+  "maintenanceSubmitSuccess": "درخواست با موفقیت ثبت شد",
+  "maintenanceSubmitError": "خطا در ثبت درخواست",
+  "maintenanceLoadError": "خطا در دریافت",
+  "maintenanceEmptyTitle": "هنوز درخواستی ثبت نکرده‌اید",
+  "maintenanceEmptySubtitle": "برای ثبت مشکل جدید، دکمه «ثبت درخواست» را بزنید.",
+  "maintenanceNoRequests": "درخواستی یافت نشد",
+  "maintenanceNoRequestsSubtitle": "با فیلترهای فعلی هیچ درخواستی وجود ندارد.",
+  "maintenanceFilterAllStatuses": "همه وضعیت‌ها",
+  "maintenanceFilterAllPriorities": "همه اولویت‌ها",
+  "maintenanceFilterAllCategories": "همه دسته‌ها",
+  "maintenanceCreatedAt": "تاریخ ثبت: {date}",
+  "maintenanceLocation": "محل: {location}",
+  "maintenanceRecordedCost": "هزینه ثبت‌شده: {amount} تومان",
+  "maintenanceChangeStatus": "تغییر وضعیت",
+  "maintenanceChangeStatusConfirm": "وضعیت درخواست به «{status}» تغییر کند؟",
+  "maintenanceStatusChangedTo": "وضعیت به «{status}» تغییر کرد",
+  "maintenanceStatusChangeNotAllowed": "تغییر وضعیت مجاز نیست",
+  "maintenanceMetaTitle": "مسئول و هزینه",
+  "maintenanceAssigneeLabel": "شناسه مسئول (UUID)",
+  "maintenanceAssigneeHint": "اختیاری",
+  "maintenanceCostLabel": "هزینه ثبت‌شده (تومان)",
+  "maintenanceCostHint": "مثلاً ۵۰۰۰۰۰",
+  "maintenanceNotesLabel": "یادداشت مدیر",
+  "maintenanceSaveMeta": "ذخیره مسئول / هزینه / یادداشت",
+  "maintenanceSaved": "تغییرات ذخیره شد",
+  "maintenanceSaveError": "خطا در ذخیره",
+  "maintenanceBack": "بازگشت",
+  "maintenanceClosedChip": "این درخواست بسته شده است",
+  "maintenanceStatusNew": "ثبت‌شده",
+  "maintenanceStatusUnderReview": "در حال بررسی",
+  "maintenanceStatusInProgress": "در حال انجام",
+  "maintenanceStatusDone": "انجام‌شده",
+  "maintenanceStatusClosed": "بسته‌شده",
+  "maintenanceCategoryElevator": "آسانسور",
+  "maintenanceCategoryUtilities": "تأسیسات",
+  "maintenanceCategoryElectrical": "برق",
+  "maintenanceCategoryWater": "آب",
+  "maintenanceCategoryCleaning": "نظافت",
+  "maintenanceCategoryCommonArea": "مشاعات",
+  "maintenanceCategoryParking": "پارکینگ",
+  "maintenanceCategoryOther": "سایر",
+  "maintenancePriorityNormal": "عادی",
+  "maintenancePriorityImportant": "مهم",
+  "maintenancePriorityUrgent": "فوری",
+  "maintenanceResidentMenu": "درخواست‌های نگهداری",
+  "@maintenanceCreatedAt": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "@maintenanceLocation": {
+    "placeholders": {
+      "location": {
+        "type": "String"
+      }
+    }
+  },
+  "@maintenanceRecordedCost": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "@maintenanceChangeStatusConfirm": {
+    "placeholders": {
+      "status": {
+        "type": "String"
+      }
+    }
+  },
+  "@maintenanceStatusChangedTo": {
+    "placeholders": {
+      "status": {
         "type": "String"
       }
     }

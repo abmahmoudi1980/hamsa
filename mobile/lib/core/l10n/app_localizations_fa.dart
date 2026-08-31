@@ -671,4 +671,193 @@ class AppLocalizationsFa extends AppLocalizations {
   String devTestCode(String code) {
     return 'کد آزمایشی (حالت توسعه): $code';
   }
+
+  @override
+  String get maintenanceTitle => 'درخواست‌های نگهداری';
+
+  @override
+  String get myMaintenanceTitle => 'درخواست‌های من';
+
+  @override
+  String get addMaintenanceRequest => 'ثبت درخواست';
+
+  @override
+  String get newMaintenanceTitle => 'ثبت درخواست جدید';
+
+  @override
+  String get maintenanceDetailTitle => 'جزئیات درخواست';
+
+  @override
+  String get maintenanceTitleLabel => 'عنوان درخواست';
+
+  @override
+  String get maintenanceTitleHint => 'مثلاً: آسانسور لرزش دارد';
+
+  @override
+  String get maintenanceTitleRequired => 'عنوان الزامی است';
+
+  @override
+  String get maintenanceCategoryLabel => 'دسته‌بندی';
+
+  @override
+  String get maintenancePriorityLabel => 'اولویت';
+
+  @override
+  String get maintenanceLocationLabel => 'محل (اختیاری)';
+
+  @override
+  String get maintenanceLocationHint => 'مثلاً: طبقه ۳، آسانسور';
+
+  @override
+  String get maintenanceDescriptionLabel => 'توضیحات (اختیاری)';
+
+  @override
+  String get maintenancePhotoLabel => 'تصویر (اختیاری)';
+
+  @override
+  String get maintenanceSubmitSuccess => 'درخواست با موفقیت ثبت شد';
+
+  @override
+  String get maintenanceSubmitError => 'خطا در ثبت درخواست';
+
+  @override
+  String get maintenanceLoadError => 'خطا در دریافت';
+
+  @override
+  String get maintenanceEmptyTitle => 'هنوز درخواستی ثبت نکرده‌اید';
+
+  @override
+  String get maintenanceEmptySubtitle =>
+      'برای ثبت مشکل جدید، دکمه «ثبت درخواست» را بزنید.';
+
+  @override
+  String get maintenanceNoRequests => 'درخواستی یافت نشد';
+
+  @override
+  String get maintenanceNoRequestsSubtitle =>
+      'با فیلترهای فعلی هیچ درخواستی وجود ندارد.';
+
+  @override
+  String get maintenanceFilterAllStatuses => 'همه وضعیت‌ها';
+
+  @override
+  String get maintenanceFilterAllPriorities => 'همه اولویت‌ها';
+
+  @override
+  String get maintenanceFilterAllCategories => 'همه دسته‌ها';
+
+  @override
+  String maintenanceCreatedAt(String date) {
+    return 'تاریخ ثبت: $date';
+  }
+
+  @override
+  String maintenanceLocation(String location) {
+    return 'محل: $location';
+  }
+
+  @override
+  String maintenanceRecordedCost(String amount) {
+    return 'هزینه ثبت‌شده: $amount تومان';
+  }
+
+  @override
+  String get maintenanceChangeStatus => 'تغییر وضعیت';
+
+  @override
+  String maintenanceChangeStatusConfirm(String status) {
+    return 'وضعیت درخواست به «$status» تغییر کند؟';
+  }
+
+  @override
+  String maintenanceStatusChangedTo(String status) {
+    return 'وضعیت به «$status» تغییر کرد';
+  }
+
+  @override
+  String get maintenanceStatusChangeNotAllowed => 'تغییر وضعیت مجاز نیست';
+
+  @override
+  String get maintenanceMetaTitle => 'مسئول و هزینه';
+
+  @override
+  String get maintenanceAssigneeLabel => 'شناسه مسئول (UUID)';
+
+  @override
+  String get maintenanceAssigneeHint => 'اختیاری';
+
+  @override
+  String get maintenanceCostLabel => 'هزینه ثبت‌شده (تومان)';
+
+  @override
+  String get maintenanceCostHint => 'مثلاً ۵۰۰۰۰۰';
+
+  @override
+  String get maintenanceNotesLabel => 'یادداشت مدیر';
+
+  @override
+  String get maintenanceSaveMeta => 'ذخیره مسئول / هزینه / یادداشت';
+
+  @override
+  String get maintenanceSaved => 'تغییرات ذخیره شد';
+
+  @override
+  String get maintenanceSaveError => 'خطا در ذخیره';
+
+  @override
+  String get maintenanceBack => 'بازگشت';
+
+  @override
+  String get maintenanceClosedChip => 'این درخواست بسته شده است';
+
+  @override
+  String get maintenanceStatusNew => 'ثبت‌شده';
+
+  @override
+  String get maintenanceStatusUnderReview => 'در حال بررسی';
+
+  @override
+  String get maintenanceStatusInProgress => 'در حال انجام';
+
+  @override
+  String get maintenanceStatusDone => 'انجام‌شده';
+
+  @override
+  String get maintenanceStatusClosed => 'بسته‌شده';
+
+  @override
+  String get maintenanceCategoryElevator => 'آسانسور';
+
+  @override
+  String get maintenanceCategoryUtilities => 'تأسیسات';
+
+  @override
+  String get maintenanceCategoryElectrical => 'برق';
+
+  @override
+  String get maintenanceCategoryWater => 'آب';
+
+  @override
+  String get maintenanceCategoryCleaning => 'نظافت';
+
+  @override
+  String get maintenanceCategoryCommonArea => 'مشاعات';
+
+  @override
+  String get maintenanceCategoryParking => 'پارکینگ';
+
+  @override
+  String get maintenanceCategoryOther => 'سایر';
+
+  @override
+  String get maintenancePriorityNormal => 'عادی';
+
+  @override
+  String get maintenancePriorityImportant => 'مهم';
+
+  @override
+  String get maintenancePriorityUrgent => 'فوری';
+
+  @override
+  String get maintenanceResidentMenu => 'درخواست‌های نگهداری';
 }

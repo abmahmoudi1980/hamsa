@@ -1383,6 +1383,360 @@ abstract class AppLocalizations {
   /// In fa, this message translates to:
   /// **'کد آزمایشی (حالت توسعه): {code}'**
   String devTestCode(String code);
+
+  /// No description provided for @maintenanceTitle.
+  ///
+  /// In fa, this message translates to:
+  /// **'درخواست‌های نگهداری'**
+  String get maintenanceTitle;
+
+  /// No description provided for @myMaintenanceTitle.
+  ///
+  /// In fa, this message translates to:
+  /// **'درخواست‌های من'**
+  String get myMaintenanceTitle;
+
+  /// No description provided for @addMaintenanceRequest.
+  ///
+  /// In fa, this message translates to:
+  /// **'ثبت درخواست'**
+  String get addMaintenanceRequest;
+
+  /// No description provided for @newMaintenanceTitle.
+  ///
+  /// In fa, this message translates to:
+  /// **'ثبت درخواست جدید'**
+  String get newMaintenanceTitle;
+
+  /// No description provided for @maintenanceDetailTitle.
+  ///
+  /// In fa, this message translates to:
+  /// **'جزئیات درخواست'**
+  String get maintenanceDetailTitle;
+
+  /// No description provided for @maintenanceTitleLabel.
+  ///
+  /// In fa, this message translates to:
+  /// **'عنوان درخواست'**
+  String get maintenanceTitleLabel;
+
+  /// No description provided for @maintenanceTitleHint.
+  ///
+  /// In fa, this message translates to:
+  /// **'مثلاً: آسانسور لرزش دارد'**
+  String get maintenanceTitleHint;
+
+  /// No description provided for @maintenanceTitleRequired.
+  ///
+  /// In fa, this message translates to:
+  /// **'عنوان الزامی است'**
+  String get maintenanceTitleRequired;
+
+  /// No description provided for @maintenanceCategoryLabel.
+  ///
+  /// In fa, this message translates to:
+  /// **'دسته‌بندی'**
+  String get maintenanceCategoryLabel;
+
+  /// No description provided for @maintenancePriorityLabel.
+  ///
+  /// In fa, this message translates to:
+  /// **'اولویت'**
+  String get maintenancePriorityLabel;
+
+  /// No description provided for @maintenanceLocationLabel.
+  ///
+  /// In fa, this message translates to:
+  /// **'محل (اختیاری)'**
+  String get maintenanceLocationLabel;
+
+  /// No description provided for @maintenanceLocationHint.
+  ///
+  /// In fa, this message translates to:
+  /// **'مثلاً: طبقه ۳، آسانسور'**
+  String get maintenanceLocationHint;
+
+  /// No description provided for @maintenanceDescriptionLabel.
+  ///
+  /// In fa, this message translates to:
+  /// **'توضیحات (اختیاری)'**
+  String get maintenanceDescriptionLabel;
+
+  /// No description provided for @maintenancePhotoLabel.
+  ///
+  /// In fa, this message translates to:
+  /// **'تصویر (اختیاری)'**
+  String get maintenancePhotoLabel;
+
+  /// No description provided for @maintenanceSubmitSuccess.
+  ///
+  /// In fa, this message translates to:
+  /// **'درخواست با موفقیت ثبت شد'**
+  String get maintenanceSubmitSuccess;
+
+  /// No description provided for @maintenanceSubmitError.
+  ///
+  /// In fa, this message translates to:
+  /// **'خطا در ثبت درخواست'**
+  String get maintenanceSubmitError;
+
+  /// No description provided for @maintenanceLoadError.
+  ///
+  /// In fa, this message translates to:
+  /// **'خطا در دریافت'**
+  String get maintenanceLoadError;
+
+  /// No description provided for @maintenanceEmptyTitle.
+  ///
+  /// In fa, this message translates to:
+  /// **'هنوز درخواستی ثبت نکرده‌اید'**
+  String get maintenanceEmptyTitle;
+
+  /// No description provided for @maintenanceEmptySubtitle.
+  ///
+  /// In fa, this message translates to:
+  /// **'برای ثبت مشکل جدید، دکمه «ثبت درخواست» را بزنید.'**
+  String get maintenanceEmptySubtitle;
+
+  /// No description provided for @maintenanceNoRequests.
+  ///
+  /// In fa, this message translates to:
+  /// **'درخواستی یافت نشد'**
+  String get maintenanceNoRequests;
+
+  /// No description provided for @maintenanceNoRequestsSubtitle.
+  ///
+  /// In fa, this message translates to:
+  /// **'با فیلترهای فعلی هیچ درخواستی وجود ندارد.'**
+  String get maintenanceNoRequestsSubtitle;
+
+  /// No description provided for @maintenanceFilterAllStatuses.
+  ///
+  /// In fa, this message translates to:
+  /// **'همه وضعیت‌ها'**
+  String get maintenanceFilterAllStatuses;
+
+  /// No description provided for @maintenanceFilterAllPriorities.
+  ///
+  /// In fa, this message translates to:
+  /// **'همه اولویت‌ها'**
+  String get maintenanceFilterAllPriorities;
+
+  /// No description provided for @maintenanceFilterAllCategories.
+  ///
+  /// In fa, this message translates to:
+  /// **'همه دسته‌ها'**
+  String get maintenanceFilterAllCategories;
+
+  /// No description provided for @maintenanceCreatedAt.
+  ///
+  /// In fa, this message translates to:
+  /// **'تاریخ ثبت: {date}'**
+  String maintenanceCreatedAt(String date);
+
+  /// No description provided for @maintenanceLocation.
+  ///
+  /// In fa, this message translates to:
+  /// **'محل: {location}'**
+  String maintenanceLocation(String location);
+
+  /// No description provided for @maintenanceRecordedCost.
+  ///
+  /// In fa, this message translates to:
+  /// **'هزینه ثبت‌شده: {amount} تومان'**
+  String maintenanceRecordedCost(String amount);
+
+  /// No description provided for @maintenanceChangeStatus.
+  ///
+  /// In fa, this message translates to:
+  /// **'تغییر وضعیت'**
+  String get maintenanceChangeStatus;
+
+  /// No description provided for @maintenanceChangeStatusConfirm.
+  ///
+  /// In fa, this message translates to:
+  /// **'وضعیت درخواست به «{status}» تغییر کند؟'**
+  String maintenanceChangeStatusConfirm(String status);
+
+  /// No description provided for @maintenanceStatusChangedTo.
+  ///
+  /// In fa, this message translates to:
+  /// **'وضعیت به «{status}» تغییر کرد'**
+  String maintenanceStatusChangedTo(String status);
+
+  /// No description provided for @maintenanceStatusChangeNotAllowed.
+  ///
+  /// In fa, this message translates to:
+  /// **'تغییر وضعیت مجاز نیست'**
+  String get maintenanceStatusChangeNotAllowed;
+
+  /// No description provided for @maintenanceMetaTitle.
+  ///
+  /// In fa, this message translates to:
+  /// **'مسئول و هزینه'**
+  String get maintenanceMetaTitle;
+
+  /// No description provided for @maintenanceAssigneeLabel.
+  ///
+  /// In fa, this message translates to:
+  /// **'شناسه مسئول (UUID)'**
+  String get maintenanceAssigneeLabel;
+
+  /// No description provided for @maintenanceAssigneeHint.
+  ///
+  /// In fa, this message translates to:
+  /// **'اختیاری'**
+  String get maintenanceAssigneeHint;
+
+  /// No description provided for @maintenanceCostLabel.
+  ///
+  /// In fa, this message translates to:
+  /// **'هزینه ثبت‌شده (تومان)'**
+  String get maintenanceCostLabel;
+
+  /// No description provided for @maintenanceCostHint.
+  ///
+  /// In fa, this message translates to:
+  /// **'مثلاً ۵۰۰۰۰۰'**
+  String get maintenanceCostHint;
+
+  /// No description provided for @maintenanceNotesLabel.
+  ///
+  /// In fa, this message translates to:
+  /// **'یادداشت مدیر'**
+  String get maintenanceNotesLabel;
+
+  /// No description provided for @maintenanceSaveMeta.
+  ///
+  /// In fa, this message translates to:
+  /// **'ذخیره مسئول / هزینه / یادداشت'**
+  String get maintenanceSaveMeta;
+
+  /// No description provided for @maintenanceSaved.
+  ///
+  /// In fa, this message translates to:
+  /// **'تغییرات ذخیره شد'**
+  String get maintenanceSaved;
+
+  /// No description provided for @maintenanceSaveError.
+  ///
+  /// In fa, this message translates to:
+  /// **'خطا در ذخیره'**
+  String get maintenanceSaveError;
+
+  /// No description provided for @maintenanceBack.
+  ///
+  /// In fa, this message translates to:
+  /// **'بازگشت'**
+  String get maintenanceBack;
+
+  /// No description provided for @maintenanceClosedChip.
+  ///
+  /// In fa, this message translates to:
+  /// **'این درخواست بسته شده است'**
+  String get maintenanceClosedChip;
+
+  /// No description provided for @maintenanceStatusNew.
+  ///
+  /// In fa, this message translates to:
+  /// **'ثبت‌شده'**
+  String get maintenanceStatusNew;
+
+  /// No description provided for @maintenanceStatusUnderReview.
+  ///
+  /// In fa, this message translates to:
+  /// **'در حال بررسی'**
+  String get maintenanceStatusUnderReview;
+
+  /// No description provided for @maintenanceStatusInProgress.
+  ///
+  /// In fa, this message translates to:
+  /// **'در حال انجام'**
+  String get maintenanceStatusInProgress;
+
+  /// No description provided for @maintenanceStatusDone.
+  ///
+  /// In fa, this message translates to:
+  /// **'انجام‌شده'**
+  String get maintenanceStatusDone;
+
+  /// No description provided for @maintenanceStatusClosed.
+  ///
+  /// In fa, this message translates to:
+  /// **'بسته‌شده'**
+  String get maintenanceStatusClosed;
+
+  /// No description provided for @maintenanceCategoryElevator.
+  ///
+  /// In fa, this message translates to:
+  /// **'آسانسور'**
+  String get maintenanceCategoryElevator;
+
+  /// No description provided for @maintenanceCategoryUtilities.
+  ///
+  /// In fa, this message translates to:
+  /// **'تأسیسات'**
+  String get maintenanceCategoryUtilities;
+
+  /// No description provided for @maintenanceCategoryElectrical.
+  ///
+  /// In fa, this message translates to:
+  /// **'برق'**
+  String get maintenanceCategoryElectrical;
+
+  /// No description provided for @maintenanceCategoryWater.
+  ///
+  /// In fa, this message translates to:
+  /// **'آب'**
+  String get maintenanceCategoryWater;
+
+  /// No description provided for @maintenanceCategoryCleaning.
+  ///
+  /// In fa, this message translates to:
+  /// **'نظافت'**
+  String get maintenanceCategoryCleaning;
+
+  /// No description provided for @maintenanceCategoryCommonArea.
+  ///
+  /// In fa, this message translates to:
+  /// **'مشاعات'**
+  String get maintenanceCategoryCommonArea;
+
+  /// No description provided for @maintenanceCategoryParking.
+  ///
+  /// In fa, this message translates to:
+  /// **'پارکینگ'**
+  String get maintenanceCategoryParking;
+
+  /// No description provided for @maintenanceCategoryOther.
+  ///
+  /// In fa, this message translates to:
+  /// **'سایر'**
+  String get maintenanceCategoryOther;
+
+  /// No description provided for @maintenancePriorityNormal.
+  ///
+  /// In fa, this message translates to:
+  /// **'عادی'**
+  String get maintenancePriorityNormal;
+
+  /// No description provided for @maintenancePriorityImportant.
+  ///
+  /// In fa, this message translates to:
+  /// **'مهم'**
+  String get maintenancePriorityImportant;
+
+  /// No description provided for @maintenancePriorityUrgent.
+  ///
+  /// In fa, this message translates to:
+  /// **'فوری'**
+  String get maintenancePriorityUrgent;
+
+  /// No description provided for @maintenanceResidentMenu.
+  ///
+  /// In fa, this message translates to:
+  /// **'درخواست‌های نگهداری'**
+  String get maintenanceResidentMenu;
 }
 
 class _AppLocalizationsDelegate

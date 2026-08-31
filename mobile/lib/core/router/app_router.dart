@@ -21,14 +21,18 @@ import '../../features/billing/screens/period_form_screen.dart';
 import '../../features/billing/screens/period_list_screen.dart';
 import '../../features/charges/screens/charges_list_screen.dart';
 import '../../features/charges/screens/invoice_detail_screen.dart';
-import '../../features/payments/screens/payment_ledger_screen.dart';
-import '../../features/payments/screens/pay_invoice_screen.dart';
 import '../../features/expenses/screens/expense_form_screen.dart';
-import '../../features/expenses/screens/financial_report_screen.dart';
 import '../../features/expenses/screens/expense_list_screen.dart';
-import '../../features/payments/screens/payment_history_screen.dart';
-import '../../features/payments/screens/record_payment_screen.dart';
+import '../../features/expenses/screens/financial_report_screen.dart';
 import '../../features/home/screens/resident_shell_screen.dart';
+import '../../features/maintenance/screens/manager_maintenance_detail_screen.dart';
+import '../../features/maintenance/screens/manager_maintenance_list_screen.dart';
+import '../../features/maintenance/screens/resident_maintenance_form_screen.dart';
+import '../../features/maintenance/screens/resident_maintenance_list_screen.dart';
+import '../../features/payments/screens/pay_invoice_screen.dart';
+import '../../features/payments/screens/payment_history_screen.dart';
+import '../../features/payments/screens/payment_ledger_screen.dart';
+import '../../features/payments/screens/record_payment_screen.dart';
 import 'splash_screen.dart';
 
 /// Role-based root routing (plan.md structure): login ↔ manager shell ↔
@@ -225,6 +229,28 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/manager/report/:buildingId',
         builder: (_, state) => FinancialReportScreen(
           buildingId: state.pathParameters['buildingId']!,
+        ),
+      ),
+      // US7 (T073/T074): maintenance — resident submit/track + manager workflow.
+      GoRoute(
+        path: '/home/maintenance',
+        builder: (_, _) => const ResidentMaintenanceListScreen(),
+      ),
+      GoRoute(
+        path: '/home/maintenance/new',
+        builder: (_, _) => const ResidentMaintenanceFormScreen(),
+      ),
+      GoRoute(
+        path: '/manager/maintenance/:buildingId',
+        builder: (_, state) => ManagerMaintenanceListScreen(
+          buildingId: state.pathParameters['buildingId']!,
+        ),
+      ),
+      GoRoute(
+        path: '/manager/maintenance/:buildingId/:requestId',
+        builder: (_, state) => ManagerMaintenanceDetailScreen(
+          buildingId: state.pathParameters['buildingId']!,
+          requestId: state.pathParameters['requestId']!,
         ),
       ),
       GoRoute(path: '/home', builder: (_, _) => const ResidentShellScreen()),

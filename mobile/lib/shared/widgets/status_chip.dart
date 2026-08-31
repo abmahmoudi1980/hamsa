@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../core/l10n/app_localizations.dart';
 import 'status_labels.dart';
 
 /// Which domain an enum value belongs to — selects the label/color maps.
@@ -16,13 +17,28 @@ class StatusChip extends StatelessWidget {
   /// Locale-neutral enum token from the API (e.g. `partial`, `in_progress`).
   final String value;
 
-  String get _label => switch (kind) {
-        StatusKind.invoice => invoiceStatusLabels[value],
-        StatusKind.period => periodStatusLabels[value],
-        StatusKind.maintenance => maintenanceStatusLabels[value],
-        StatusKind.payment => paymentStatusLabels[value],
-        StatusKind.expense => expenseApprovalLabels[value],
-      } ?? value;
+  String _label(BuildContext context) {
+    // Maintenance status is fully localized via AppLocalizations (fa.arb).
+    if (kind == StatusKind.maintenance) {
+      final l10n = AppLocalizations.of(context);
+      return switch (value) {
+        'new' => l10n.maintenanceStatusNew,
+        'under_review' => l10n.maintenanceStatusUnderReview,
+        'in_progress' => l10n.maintenanceStatusInProgress,
+        'done' => l10n.maintenanceStatusDone,
+        'closed' => l10n.maintenanceStatusClosed,
+        _ => value,
+      };
+    }
+    return switch (kind) {
+      StatusKind.invoice => invoiceStatusLabels[value],
+      StatusKind.period => periodStatusLabels[value],
+      StatusKind.maintenance => maintenanceStatusLabels[value],
+      StatusKind.payment => paymentStatusLabels[value],
+      StatusKind.expense => expenseApprovalLabels[value],
+    } ??
+        value;
+  }
 
   Color? get _color => switch (kind) {
         StatusKind.invoice => invoiceStatusColors[value],
@@ -53,9 +69,8 @@ class StatusChip extends StatelessWidget {
               shape: BoxShape.circle,
             ),
           ),
-          const SizedBox(width: 6),
           Text(
-            _label,
+            _label(context),
             style: Theme.of(context).textTheme.labelMedium?.copyWith(
                   color: color,
                   fontWeight: FontWeight.w700,

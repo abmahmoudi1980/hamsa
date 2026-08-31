@@ -18,6 +18,7 @@ import (
 	"hamsa/internal/billing"
 	"hamsa/internal/building"
 	"hamsa/internal/expense"
+	"hamsa/internal/maintenance"
 	"hamsa/internal/notification"
 	"hamsa/internal/payment"
 	"hamsa/internal/payment/gateway"
@@ -132,7 +133,10 @@ func main() {
 
 	// US6: expenses & financial report (manager-only, audited).
 	expense.Register(v1.Group("", authMW), expense.NewService(expense.NewRepository(gormDB)), auditSvc)
-	srv := &http.Server{
+
+	// US7: maintenance requests — resident submit/track + manager workflow (notifications per transition, audited).
+	maintenance.Register(v1.Group("", authMW), maintenance.NewService(maintenance.NewRepository(gormDB), notifSvc, auditSvc), auditSvc)
+ 	srv := &http.Server{
 		Addr:              cfg.App.Addr,
 		Handler:           router,
 		ReadHeaderTimeout: 10 * time.Second,

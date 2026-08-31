@@ -210,16 +210,16 @@
 
 ### Tests for User Story 7 (write first, must FAIL)
 
-- [ ] T068 [P] [US7] Go integration tests in `backend/internal/maintenance/maintenance_integration_test.go`: legal state transitions only (409 on backwards/illegal), notifications emitted per transition, resident isolation (own requests only), audit entries
+- [x] T068 [P] [US7] Go integration tests in `backend/internal/maintenance/maintenance_integration_test.go`: legal state transitions only (409 on backwards/illegal), notifications emitted per transition, resident isolation (own requests only), audit entries
 
 ### Implementation for User Story 7
 
-- [ ] T069 [P] [US7] Create migration `backend/migrations/0007_maintenance.up.sql`: `maintenance_requests` per data-model.md
-- [ ] T070 [P] [US7] Implement models + repository in `backend/internal/maintenance/`
-- [ ] T071 [US7] Implement request service in `backend/internal/maintenance/service.go`: state machine (new→under_review→in_progress→done→closed, early close allowed), assignee/cost/notes updates, per-transition notification to submitter + audit (`maintenance.status_changed`)
-- [ ] T072 [US7] Implement handlers in `backend/internal/maintenance/handlers.go`: resident `POST /me/maintenance-requests` + list with status timeline; manager list (filters) + `PATCH /maintenance-requests/{id}` per contracts/api.md
-- [ ] T073 [P] [US7] Implement Flutter resident maintenance screens in `mobile/lib/features/maintenance/`: submit form (category/priority Persian selectors, photo attach, location) + my-requests list with status timeline
-- [ ] T074 [P] [US7] Implement Flutter manager maintenance screens in `mobile/lib/features/maintenance/`: request list with filters, detail with assignee picker, cost entry, status actions, close
+- [x] T069 [P] [US7] Create migration `backend/migrations/0007_maintenance.up.sql`: `maintenance_requests` per data-model.md
+- [x] T070 [P] [US7] Implement models + repository in `backend/internal/maintenance/`
+- [x] T071 [US7] Implement request service in `backend/internal/maintenance/service.go`: state machine (new→under_review→in_progress→done→closed, early close allowed), assignee/cost/notes updates, per-transition notification to submitter + audit (`maintenance.status_changed`)
+- [x] T072 [US7] Implement handlers in `backend/internal/maintenance/handlers.go`: resident `POST /me/maintenance-requests` + list with status timeline; manager list (filters) + `PATCH /maintenance-requests/{id}` per contracts/api.md
+- [x] T073 [P] [US7] Implement Flutter resident maintenance screens in `mobile/lib/features/maintenance/`: submit form (category/priority Persian selectors, photo attach, location) + my-requests list with status timeline
+- [x] T074 [P] [US7] Implement Flutter manager maintenance screens in `mobile/lib/features/maintenance/`: request list with filters, detail with assignee picker, cost entry, status actions, close
 
 **Checkpoint**: User Story 7 functional — full maintenance workflow independently testable.
 
