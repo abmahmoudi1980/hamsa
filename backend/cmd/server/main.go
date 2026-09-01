@@ -141,18 +141,17 @@ func main() {
 
 	announcement.Register(v1.Group("", authMW), announcement.NewService(announcement.NewRepository(gormDB), notifSvc, auditSvc))
 
-
-// US9 (T082) + US10 (T086): read-only aggregation endpoints. The service
-// reuses the announcement module's audience-targeting helpers and the
-// maintenance module's status-machine constants.
-dashboardSvc := dashboard.NewService(
-	gormDB,
-	auth.NewScopeResolver(gormDB),
-	announcement.NewService(announcement.NewRepository(gormDB), notifSvc, auditSvc),
-	announcement.NewRepository(gormDB),
-	maintenance.NewRepository(gormDB),
-)
-dashboard.Register(v1.Group("", authMW), dashboardSvc)
+	// US9 (T082) + US10 (T086): read-only aggregation endpoints. The service
+	// reuses the announcement module's audience-targeting helpers and the
+	// maintenance module's status-machine constants.
+	dashboardSvc := dashboard.NewService(
+		gormDB,
+		auth.NewScopeResolver(gormDB),
+		announcement.NewService(announcement.NewRepository(gormDB), notifSvc, auditSvc),
+		announcement.NewRepository(gormDB),
+		maintenance.NewRepository(gormDB),
+	)
+	dashboard.Register(v1.Group("", authMW), dashboardSvc)
 
 	srv := &http.Server{
 		Addr:              cfg.App.Addr,

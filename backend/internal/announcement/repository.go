@@ -20,7 +20,6 @@ func NewRepository(db *gorm.DB) *Repository { return &Repository{db: db} }
 // DB exposes the underlying handle for transactional composition.
 func (r *Repository) DB() *gorm.DB { return r.db }
 
-
 // ResidentUnits returns the minimal UnitInfo projection for a resident's
 // currently-active occupancies (joins persons.phone → occupancies → units).
 // Shared by the dashboard aggregator (US9 T082) so the resident panel can
