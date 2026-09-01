@@ -84,7 +84,16 @@ func main() {
 	auth.Register(v1.Group("/auth"), &auth.Handler{
 		OTP: auth.NewOTPService(
 			&auth.GormOTPStore{DB: gormDB},
-			sms.New(cfg.SMS.Provider, cfg.SMS.Kavenegar.APIKey, cfg.SMS.Kavenegar.Sender, log),
+			sms.New(sms.Options{
+				Provider:  cfg.SMS.Provider,
+				Kavenegar: sms.KavenegarSender{APIKey: cfg.SMS.Kavenegar.APIKey, Sender: cfg.SMS.Kavenegar.Sender},
+				SmsIR: sms.SmsIRSender{
+					APIKey:     cfg.SMS.SMSIR.APIKey,
+					TemplateID: cfg.SMS.SMSIR.TemplateID,
+					ParamName:  cfg.SMS.SMSIR.ParamName,
+				},
+				Log: log,
+			}),
 			auth.RealClock{},
 			cfg.App.IsDev(),
 		),

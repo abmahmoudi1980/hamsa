@@ -22,8 +22,8 @@ func (c *fakeClock) advance(d time.Duration) {
 
 type fakeSms struct{ sent []string }
 
-func (f *fakeSms) Send(phone, message string) error {
-	f.sent = append(f.sent, phone+":"+message)
+func (f *fakeSms) SendCode(phone, code string) error {
+	f.sent = append(f.sent, phone+":"+code)
 	return nil
 }
 

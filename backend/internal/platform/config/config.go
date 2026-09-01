@@ -5,6 +5,7 @@ package config
 import (
 	"fmt"
 	"os"
+	"strconv"
 	"time"
 
 	"gopkg.in/yaml.v3"
@@ -48,11 +49,16 @@ type Auth struct {
 
 // SMS holds the SMS provider selection and provider-specific settings.
 type SMS struct {
-	Provider  string `yaml:"provider"` // console | kavenegar
+	Provider  string `yaml:"provider"` // console | kavenegar | smsir
 	Kavenegar struct {
 		APIKey string `yaml:"api_key"`
 		Sender string `yaml:"sender"`
 	} `yaml:"kavenegar"`
+	SMSIR struct {
+		APIKey     string `yaml:"api_key"`
+		TemplateID int64  `yaml:"template_id"`
+		ParamName  string `yaml:"param_name"` // template parameter name without '#'
+	} `yaml:"smsir"`
 }
 
 // Payment holds the payment gateway selection and provider-specific settings.
@@ -106,7 +112,9 @@ func Load() (*Config, error) {
 		return nil, fmt.Errorf("parse config %s: %w", path, err)
 	}
 
-	applyEnvOverrides(cfg)
+	if err := applyEnvOverrides(cfg); err != nil {
+		return nil, err
+	}
 
 	if err := cfg.validate(); err != nil {
 		return nil, err
@@ -116,7 +124,7 @@ func Load() (*Config, error) {
 
 // applyEnvOverrides maps selected environment variables onto the config so
 // production deployments can avoid secrets on disk.
-func applyEnvOverrides(cfg *Config) {
+func applyEnvOverrides(cfg *Config) error {
 	if v := os.Getenv("HAMSA_APP_ENV"); v != "" {
 		cfg.App.Env = v
 	}
@@ -126,12 +134,23 @@ func applyEnvOverrides(cfg *Config) {
 	if v := os.Getenv("HAMSA_JWT_SECRET"); v != "" {
 		cfg.Auth.JWTSecret = v
 	}
+	if v := os.Getenv("HAMSA_SMS_SMSIR_API_KEY"); v != "" {
+		cfg.SMS.SMSIR.APIKey = v
+	}
+	if v := os.Getenv("HAMSA_SMS_SMSIR_TEMPLATE_ID"); v != "" {
+		if id, err := strconv.ParseInt(v, 10, 64); err == nil {
+			cfg.SMS.SMSIR.TemplateID = id
+		} else {
+			return fmt.Errorf("HAMSA_SMS_SMSIR_TEMPLATE_ID must be an integer, got %q", v)
+		}
+	}
 	if v := os.Getenv("HAMSA_SMS_PROVIDER"); v != "" {
 		cfg.SMS.Provider = v
 	}
 	if v := os.Getenv("HAMSA_PAYMENT_PROVIDER"); v != "" {
 		cfg.Payment.Provider = v
 	}
+	return nil
 }
 
 func (c *Config) validate() error {
@@ -152,6 +171,12 @@ func (c *Config) validate() error {
 	}
 	if c.Storage.Path == "" {
 		return fmt.Errorf("storage.path must not be empty")
+	}
+	if c.SMS.Provider == "smsir" && c.SMS.SMSIR.APIKey == "" {
+		return fmt.Errorf("sms.smsir.api_key must not be empty when provider is smsir")
+	}
+	if c.SMS.Provider == "smsir" && c.SMS.SMSIR.TemplateID == 0 {
+		return fmt.Errorf("sms.smsir.template_id must be set when provider is smsir — create the OTP template in the SMS.ir panel")
 	}
 	return nil
 }

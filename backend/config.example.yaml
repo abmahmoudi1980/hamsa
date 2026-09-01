@@ -25,11 +25,18 @@ auth:
   refresh_ttl: 720h
 
 sms:
-  # console | kavenegar — console logs the OTP (dev); kavenegar sends real SMS
+  # console | kavenegar | smsir — console logs the OTP (dev); the others send real SMS
   provider: console
   kavenegar:
     api_key: ""
     sender: ""
+  smsir:
+    # SMS.ir (https://sms.ir/rest-api) verify endpoint. template_id and
+    # param_name must match the OTP template created in your SMS.ir panel
+    # (بخش ارسال سریع). Sandbox: any SMS.ir sandbox API key + template 123456.
+    api_key: ""
+    template_id: 0
+    param_name: "Code"
 
 payment:
   # mock | zarinpal — mock auto-verifies payments in dev
