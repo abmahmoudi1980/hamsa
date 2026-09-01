@@ -43,7 +43,7 @@ class _ResidentShellScreenState extends ConsumerState<ResidentShellScreen> {
           icon: Icons.receipt_long,
           title: l10n.myCharges,
           subtitle: l10n.homeViewAll,
-          onTap: () => context.go('/home/charges'),
+          onTap: () => context.push('/home/charges'),
         ),
       ),
       _Tab(
@@ -54,7 +54,7 @@ class _ResidentShellScreenState extends ConsumerState<ResidentShellScreen> {
           icon: Icons.payments,
           title: l10n.paymentHistoryTitle,
           subtitle: l10n.homeViewAll,
-          onTap: () => context.go('/home/payments'),
+          onTap: () => context.push('/home/payments'),
         ),
       ),
       _Tab(
@@ -65,7 +65,7 @@ class _ResidentShellScreenState extends ConsumerState<ResidentShellScreen> {
           icon: Icons.build,
           title: l10n.maintenanceResidentMenu,
           subtitle: l10n.homeViewAll,
-          onTap: () => context.go('/home/maintenance'),
+          onTap: () => context.push('/home/maintenance'),
         ),
       ),
       _Tab(
@@ -76,7 +76,7 @@ class _ResidentShellScreenState extends ConsumerState<ResidentShellScreen> {
           icon: Icons.campaign,
           title: l10n.navAnnouncements,
           subtitle: l10n.homeViewAll,
-          onTap: () => context.go('/home/announcements'),
+          onTap: () => context.push('/home/announcements'),
         ),
       ),
       _Tab(
