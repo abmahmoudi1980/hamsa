@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>همسا — سامانه مدیریت ساختمان</title>
+<meta name="description" content="همسا؛ مدیریت شارژ، هزینه‌ها، تعمیرات و اطلاعیه‌های ساختمان در یک اپلیکیشن ساده. برای مدیر ساختمان و ساکنین.">
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css">
+<style>
+  :root {
+    --bg: #faf9f5;
+    --surface: #ffffff;
+    --ink: #1a1c1a;
+    --muted: #5d635e;
+    --line: #e5e3da;
+    --accent: #788c5d;
+    --accent-ink: #f5f7ef;
+    --accent-dark: #5f7049;
+  }
+  * { box-sizing: border-box; margin: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: Vazirmatn, Tahoma, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.8;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 62rem; margin-inline: auto; padding-inline: 1.5rem; }
+
+  /* Header */
+  header.site {
+    position: sticky; top: 0; z-index: 10;
+    background: color-mix(in srgb, var(--bg) 88%, transparent);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--line);
+  }
+  header.site .wrap { display: flex; align-items: center; justify-content: space-between; height: 4rem; }
+  .brand { display: flex; align-items: baseline; gap: .5rem; font-weight: 800; font-size: 1.15rem; text-decoration: none; color: var(--ink); }
+  .brand small { font-weight: 400; color: var(--muted); font-size: .8rem; }
+  nav a { color: var(--muted); text-decoration: none; font-size: .95rem; margin-inline-start: 1.25rem; }
+  nav a:hover { color: var(--ink); }
+  @media (max-width: 640px) { nav a:not(.nav-cta) { display: none; } }
+
+  /* Hero */
+  .hero { padding-block: 5.5rem 4.5rem; }
+  .hero h1 { font-size: clamp(2rem, 5vw, 3.25rem); font-weight: 800; letter-spacing: -.02em; line-height: 1.35; }
+  .hero h1 em { font-style: normal; color: var(--accent-dark); }
+  .hero p.lead { margin-top: 1.25rem; max-width: 58ch; color: var(--muted); font-size: 1.1rem; }
+  .cta-row { display: flex; flex-wrap: wrap; gap: .75rem; margin-top: 2.25rem; align-items: center; }
+  .btn {
+    display: inline-flex; align-items: center; gap: .5rem;
+    padding: .8rem 1.5rem; border-radius: .75rem;
+    font-size: 1rem; font-weight: 700; text-decoration: none;
+    transition: transform .15s ease, filter .15s ease;
+  }
+  .btn:active { transform: scale(.98); }
+  .btn.primary { background: var(--accent); color: var(--accent-ink); }
+  .btn.primary:hover { filter: brightness(1.06); }
+  .btn.ghost { border: 1px solid var(--line); color: var(--ink); background: var(--surface); }
+  .btn.ghost:hover { border-color: var(--accent); }
+  .btn svg { width: 1.25rem; height: 1.25rem; flex: none; }
+
+  /* Features */
+  section.features { padding-block: 3.5rem; }
+  section.features h2, section.download h2 { font-size: 1.6rem; font-weight: 800; }
+  .grid {
+    margin-top: 2rem; display: grid; gap: 1px; background: var(--line);
+    border: 1px solid var(--line); border-radius: 1rem; overflow: hidden;
+  }
+  .feat {
+    background: var(--surface); padding: 1.75rem;
+  }
+  .feat h3 { font-size: 1.05rem; font-weight: 700; }
+  .feat p { color: var(--muted); font-size: .95rem; margin-top: .35rem; }
+  @media (min-width: 720px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+
+  /* Download */
+  section.download {
+    margin-block: 3rem; padding-block: 3.5rem;
+    background: var(--ink); color: #f3f2ec; border-radius: 1.25rem;
+  }
+  section.download .inner { max-width: 62rem; margin-inline: auto; padding-inline: 1.5rem; }
+  section.download p { color: #b9bcb3; margin-top: .75rem; max-width: 60ch; }
+  section.download .btn.primary { margin-top: 1.75rem; }
+  section.download .meta { display: block; margin-top: 1rem; color: #8a8e83; font-size: .85rem; }
+
+  /* Footer */
+  footer.site { padding-block: 3rem; color: var(--muted); font-size: .9rem; }
+  footer.site .wrap { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: space-between; align-items: center; border-top: 1px solid var(--line); padding-top: 2rem; }
+  footer.site a { color: var(--muted); }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .btn { transition: none; }
+  }
+</style>
+</head>
+<body>
+
+<header class="site">
+  <div class="wrap">
+    <a class="brand" href="#">همسا <small>مدیریت ساختمان</small></a>
+    <nav>
+      <a href="#features">ویژگی‌ها</a>
+      <a class="nav-cta" href="#download">دانلود</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="wrap">
+      <h1>مدیریت ساختمان، بدون دفتر و <em>دفترچه‌ی شارژ</em></h1>
+      <p class="lead">همسا حساب‌وکتاب ساختمان را برای مدیر و ساکنین ساده می‌کند: محاسبه و صدور شارژ هر واحد، ثبت هزینه‌ها، پیگیری تعمیرات و اطلاع‌رسانی — همه در یک اپلیکیشن فارسی.</p>
+      <div class="cta-row">
+        <a class="btn primary" href="hamsa-release.apk" download>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
+          دانلود نسخه اندروید
+        </a>
+        <a class="btn ghost" href="#features">معرفی ویژگی‌ها</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="features" id="features">
+    <div class="wrap">
+      <h2>چه کارهایی را برایتان انجام می‌دهد</h2>
+      <div class="grid">
+        <article class="feat">
+          <h3>محاسبه شارژ با ۶ روش</h3>
+          <p>مساوی، به‌ازای هر نفر، بر اساس متراژ، مبلغ ثابت، واحدهای مشخص یا ترکیبی از این روش‌ها — و صدور صورت‌حساب شفاف برای هر واحد.</p>
+        </article>
+        <article class="feat">
+          <h3>پرداخت آنلاین ساکنین</h3>
+          <p>ساکن بدون مراجعه به مدیر، بدهی قبلی و بدهی جاری واحد خود را می‌بیند و پرداخت را از طریق درگاه زرین‌پال انجام می‌دهد.</p>
+        </article>
+        <article class="feat">
+          <h3>درخواست تعمیرات</h3>
+          <p>ساکن درخواست می‌دهد، مدیر وضعیت را مرحله‌به‌مرحله به‌روز می‌کند و روند پیگیری برای هر دو طرف قابل مشاهده است.</p>
+        </article>
+        <article class="feat">
+          <h3>ثبت هزینه و گزارش مالی</h3>
+          <p>هزینه‌های ساختمان دسته‌بندی و ثبت می‌شود و گزارش مالی دوره در دسترس مدیر قرار می‌گیرد.</p>
+        </article>
+        <article class="feat">
+          <h3>اطلاعیه‌ها و اعلان‌ها</h3>
+          <p>اطلاعیه‌ها به کل ساختمان یا گروهی از واحدها ارسال می‌شود و ساکنین در مرکز اعلان‌ها اپلیکیشن آن را می‌بینند.</p>
+        </article>
+        <article class="feat">
+          <h3>تقویم شمسی و اعداد فارسی</h3>
+          <p>کل رابط کاربری فارسی و راست‌به‌چپ است؛ تاریخ‌ها شمسی و اعداد فارسی نمایش داده می‌شوند.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="download" id="download">
+    <div class="inner">
+      <h2>دانلود اپلیکیشن همسا</h2>
+      <p>برای اندروید ۸ به بالا. فایل نصبی را دانلود کنید؛ در صورت هشدار مرورگر، «دانلود را در هر حال ادامه بده» را انتخاب کنید و از تنظیمات اجازه نصب از این منبع را بدهید.</p>
+      <a class="btn primary" href="hamsa-release.apk" download>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
+        دریافت فایل APK
+      </a>
+      <span class="meta">حجم فایل: حدود ۵۵ مگابایت</span>
+    </div>
+  </section>
+</main>
+
+<footer class="site">
+  <div class="wrap">
+    <span>همسا — سامانه مدیریت ساختمان</span>
+    <a href="https://hamsa-home.ir">hamsa-home.ir</a>
+  </div>
+</footer>
+
+</body>
+</html>
