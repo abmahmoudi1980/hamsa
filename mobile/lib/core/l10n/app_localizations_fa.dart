@@ -862,6 +862,154 @@ class AppLocalizationsFa extends AppLocalizations {
   String get maintenanceResidentMenu => 'درخواست‌های نگهداری';
 
   @override
+  String get announcementsTitle => 'اطلاعیه‌ها';
+
+  @override
+  String get myAnnouncementsTitle => 'اطلاعیه‌های من';
+
+  @override
+  String get addAnnouncement => 'انتشار اطلاعیه';
+
+  @override
+  String get editAnnouncement => 'ویرایش اطلاعیه';
+
+  @override
+  String get announcementTitleLabel => 'عنوان اطلاعیه';
+
+  @override
+  String get announcementTitleHint => 'مثلاً: جلسه هیئت مدیره';
+
+  @override
+  String get announcementTitleRequired => 'عنوان الزامی است';
+
+  @override
+  String get announcementBodyLabel => 'متن اطلاعیه';
+
+  @override
+  String get announcementBodyRequired => 'متن اطلاعیه الزامی است';
+
+  @override
+  String get announcementAudienceLabel => 'مخاطب';
+
+  @override
+  String get announcementAudienceAll => 'همه ساکنان';
+
+  @override
+  String get announcementAudienceBlock => 'بلوک';
+
+  @override
+  String get announcementAudienceFloor => 'طبقه';
+
+  @override
+  String get announcementAudienceUnit => 'واحد مشخص';
+
+  @override
+  String get announcementAudienceValueLabel => 'مقدار مخاطب';
+
+  @override
+  String get announcementAudienceValueHint => 'مثلاً: A یا ۲ یا شماره واحد';
+
+  @override
+  String get announcementPublishAtLabel => 'تاریخ انتشار (اختیاری)';
+
+  @override
+  String get announcementExpireAtLabel => 'تاریخ انقضا (اختیاری)';
+
+  @override
+  String get announcementAttachmentLabel => 'پیوست (اختیاری)';
+
+  @override
+  String get announcementSubmitSuccess => 'اطلاعیه با موفقیت منتشر شد';
+
+  @override
+  String get announcementSubmitError => 'خطا در انتشار اطلاعیه';
+
+  @override
+  String get announcementUpdateSuccess => 'اطلاعیه ویرایش شد';
+
+  @override
+  String get announcementDeleteConfirm => 'این اطلاعیه حذف شود؟';
+
+  @override
+  String get announcementDeleted => 'اطلاعیه حذف شد';
+
+  @override
+  String get announcementLoadError => 'خطا در دریافت اطلاعیه‌ها';
+
+  @override
+  String get announcementEmptyTitle => 'هنوز اطلاعیه‌ای منتشر نشده است';
+
+  @override
+  String get announcementEmptySubtitle =>
+      'برای اطلاع‌رسانی جدید، «انتشار اطلاعیه» را بزنید.';
+
+  @override
+  String get announcementResidentEmptyTitle =>
+      'هنوز اطلاعیه‌ای برای شما منتشر نشده است';
+
+  @override
+  String get announcementResidentEmptySubtitle =>
+      'اطلاعیه‌های جدید اینجا نمایش داده می‌شود.';
+
+  @override
+  String get announcementDetailTitle => 'جزئیات اطلاعیه';
+
+  @override
+  String get announcementUnread => 'نخوانده';
+
+  @override
+  String get announcementRead => 'خوانده‌شده';
+
+  @override
+  String get announcementMarkRead => 'علامت‌گذاری به‌عنوان خوانده‌شده';
+
+  @override
+  String get announcementMarkedRead => 'به‌عنوان خوانده‌شده ثبت شد';
+
+  @override
+  String get notificationCenterTitle => 'مرکز اعلان‌ها';
+
+  @override
+  String get notificationEmptyTitle => 'اعلانی وجود ندارد';
+
+  @override
+  String get notificationEmptySubtitle =>
+      'اعلان‌های شارژ، پرداخت و اطلاعیه‌ها اینجا نمایش داده می‌شود.';
+
+  @override
+  String get notificationMarkAllRead => 'خواندن همه';
+
+  @override
+  String get notificationMarkedAllRead => 'همه اعلان‌ها خوانده شد';
+
+  @override
+  String get notificationTypeInvoiceIssued => 'صدور صورتحساب';
+
+  @override
+  String get notificationTypeAnnouncementPublished => 'اطلاعیه جدید';
+
+  @override
+  String get notificationTypeRequestStatus => 'تغییر وضعیت درخواست';
+
+  @override
+  String get announcementAudienceDisplayAll => 'همه';
+
+  @override
+  String announcementAudienceDisplayBlock(String value) {
+    return 'بلوک $value';
+  }
+
+  @override
+  String announcementAudienceDisplayFloor(String value) {
+    return 'طبقه $value';
+  }
+
+  @override
+  String announcementAudienceDisplayUnit(String value) {
+    return 'واحد $value';
+  }
+
+  @override
   String get homeMenu => 'خانه';
 
   @override
@@ -898,13 +1046,17 @@ class AppLocalizationsFa extends AppLocalizations {
   String get homeLatestInvoice => 'آخرین صورتحساب';
 
   @override
-  String homeDueDate(String date) => 'سررسید: $date';
+  String homeDueDate(String date) {
+    return 'سررسید: $date';
+  }
 
   @override
   String get homeRequestsCard => 'درخواست‌های نگهداری';
 
   @override
-  String homeOpenRequests(int count) => '$count درخواست باز';
+  String homeOpenRequests(int count) {
+    return '$count درخواست باز';
+  }
 
   @override
   String get homeLatestRequest => 'آخرین درخواست';
@@ -916,7 +1068,9 @@ class AppLocalizationsFa extends AppLocalizations {
   String get homeAnnouncementsCard => 'اطلاعیه‌ها';
 
   @override
-  String homeUnreadAnnouncements(int count) => '$count ناخوانده';
+  String homeUnreadAnnouncements(int count) {
+    return '$count ناخوانده';
+  }
 
   @override
   String get homeViewAll => 'مشاهده همه';
@@ -988,16 +1142,24 @@ class AppLocalizationsFa extends AppLocalizations {
   String get dashboardQuickActions => 'اقدام‌های سریع';
 
   @override
-  String dashboardAlertDebtor(String unit) => 'واحد $unit بدهکار است';
+  String dashboardAlertDebtor(String unit) {
+    return 'واحد $unit بدهکار است';
+  }
 
   @override
-  String dashboardAlertPastDue(String unit) => 'صورتحساب واحد $unit سررسید گذشته';
+  String dashboardAlertPastDue(String unit) {
+    return 'صورتحساب واحد $unit سررسید گذشته';
+  }
 
   @override
-  String dashboardAlertOpenRequest(String title) => 'درخواست باز: $title';
+  String dashboardAlertOpenRequest(String title) {
+    return 'درخواست باز: $title';
+  }
 
   @override
-  String dashboardAlertPendingExpense(String title) => 'هزینه در انتظار تأیید: $title';
+  String dashboardAlertPendingExpense(String title) {
+    return 'هزینه در انتظار تأیید: $title';
+  }
 
   @override
   String get dashboardActionIssueCharge => 'صدور شارژ';
