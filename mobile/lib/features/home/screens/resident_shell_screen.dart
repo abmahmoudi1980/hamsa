@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/l10n/app_localizations.dart';
-import '../../../shared/widgets/empty_state.dart';
 import '../../../shared/widgets/menu_card.dart';
 import 'resident_home_screen.dart';
 import 'resident_profile_screen.dart';
@@ -149,18 +148,9 @@ class _RedirectShortcut extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          MenuCard(
-            icon: icon,
-            title: title,
-            subtitle: subtitle,
-            onTap: onTap,
-          ),
+          MenuCard(icon: icon, title: title, subtitle: subtitle, onTap: onTap),
         ],
       ),
     );
   }
 }
-
-// keep imports alive for future shortcuts
-// ignore: unused_element
-typedef _EmptyStateRef = EmptyState;

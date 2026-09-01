@@ -3,8 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/l10n/app_localizations.dart';
 import '../../../core/theme/app_theme.dart';
-import '../../auth/auth_controller.dart';
 import '../../auth/models/user_session.dart';
+import '../../buildings/buildings_controller.dart';
+import '../../buildings/models/building.dart';
+import '../../auth/auth_controller.dart';
 
 /// US9 (T084) — Resident profile screen: role + name (read-only in P0),
 /// logout. Name editing arrives once `PATCH /auth/me` lands (post-P0
@@ -41,15 +43,27 @@ class ResidentProfileScreen extends ConsumerWidget {
             subtitle: Text(role),
           ),
           if (user.primaryBuildingId != null)
+            // Tile only renders when the session carries a building id
+            // (managers); the name resolves from the manager-scoped
+            // /buildings list, so the raw UUID never reaches the UI.
+            // Loading/error fall back to a dash.
             ListTile(
               leading: const Icon(Icons.apartment),
               title: Text(l10n.buildingsTitle),
-              subtitle: Text(user.primaryBuildingId!),
+              subtitle: Text(
+                ref
+                        .watch(buildingsControllerProvider)
+                        .maybeWhen(
+                          data: (buildings) =>
+                              _buildingName(buildings, user.primaryBuildingId!),
+                          orElse: () => null,
+                        ) ??
+                    '—',
+              ),
             ),
           const SizedBox(height: AppTheme.spaceXxl),
           OutlinedButton.icon(
-            onPressed: () =>
-                ref.read(authControllerProvider.notifier).logout(),
+            onPressed: () => ref.read(authControllerProvider.notifier).logout(),
             icon: const Icon(Icons.logout),
             label: Text(l10n.logout),
           ),
@@ -59,6 +73,9 @@ class ResidentProfileScreen extends ConsumerWidget {
   }
 }
 
-// Suppress unused warning for helper typedef.
-// ignore: unused_element
-typedef _UserRef = UserSession;
+String? _buildingName(List<Building> buildings, String id) {
+  for (final b in buildings) {
+    if (b.id == id) return b.name;
+  }
+  return null;
+}

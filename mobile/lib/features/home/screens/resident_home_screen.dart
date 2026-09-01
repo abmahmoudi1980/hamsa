@@ -28,10 +28,7 @@ class ResidentHomeScreen extends ConsumerWidget {
       body: async.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (_, _) => Center(
-          child: EmptyState(
-            icon: Icons.error_outline,
-            title: l10n.errorServer,
-          ),
+          child: EmptyState(icon: Icons.error_outline, title: l10n.errorServer),
         ),
         data: (home) => RefreshIndicator(
           onRefresh: () =>
@@ -141,7 +138,9 @@ class _FinancialCard extends ConsumerWidget {
                       ),
                       const SizedBox(width: AppTheme.spaceS),
                       StatusChip(
-                          kind: StatusKind.invoice, value: invoice.status),
+                        kind: StatusKind.invoice,
+                        value: invoice.status,
+                      ),
                     ],
                   ),
                 ),
@@ -192,15 +191,16 @@ class _RequestsCard extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(l10n.homeLatestRequest,
-                              style: theme.textTheme.bodySmall),
+                          Text(
+                            l10n.homeLatestRequest,
+                            style: theme.textTheme.bodySmall,
+                          ),
                           Text(req.title, style: theme.textTheme.titleMedium),
                         ],
                       ),
                     ),
                     const SizedBox(width: AppTheme.spaceS),
-                    StatusChip(
-                        kind: StatusKind.maintenance, value: req.status),
+                    StatusChip(kind: StatusKind.maintenance, value: req.status),
                   ],
                 ),
               ),
@@ -228,7 +228,9 @@ class _AnnouncementsCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                Expanded(child: SectionHeader(title: l10n.homeAnnouncementsCard)),
+                Expanded(
+                  child: SectionHeader(title: l10n.homeAnnouncementsCard),
+                ),
                 if (home.unreadAnnouncementCount > 0)
                   Container(
                     padding: const EdgeInsets.symmetric(
@@ -240,7 +242,9 @@ class _AnnouncementsCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(999),
                     ),
                     child: Text(
-                      l10n.homeUnreadAnnouncements(home.unreadAnnouncementCount),
+                      l10n.homeUnreadAnnouncements(
+                        home.unreadAnnouncementCount,
+                      ),
                       style: theme.textTheme.labelSmall?.copyWith(
                         color: scheme.onErrorContainer,
                         fontWeight: FontWeight.w700,
@@ -253,9 +257,9 @@ class _AnnouncementsCard extends StatelessWidget {
             if (home.latestAnnouncements.isEmpty)
               Text(l10n.emptyStateTitle, style: theme.textTheme.bodyMedium)
             else
-              ...home.latestAnnouncements.take(5).map(
-                    (a) => _AnnouncementRow(item: a),
-                  ),
+              ...home.latestAnnouncements
+                  .take(5)
+                  .map((a) => _AnnouncementRow(item: a)),
             const SizedBox(height: AppTheme.spaceM),
             Align(
               alignment: AlignmentDirectional.centerStart,
@@ -319,5 +323,3 @@ String _formatDue(String iso) {
     return iso;
   }
 }
-
-// Helper kept so Announcement model export is not pruned (other call-sites
