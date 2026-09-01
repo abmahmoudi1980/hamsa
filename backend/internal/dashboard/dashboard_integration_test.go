@@ -38,10 +38,8 @@ import (
 	"gorm.io/gorm"
 
 	"hamsa/internal/announcement"
-	"hamsa/internal/audit"
 	"hamsa/internal/auth"
 	"hamsa/internal/maintenance"
-	"hamsa/internal/notification"
 	"hamsa/internal/platform/db"
 	"hamsa/internal/platform/httpx"
 )
@@ -111,12 +109,9 @@ func newDashEnv(t *testing.T) *dashEnv {
 	tokens := auth.NewTokenService([]byte("test-secret-32-bytes-long!!!!!!"),
 		15*time.Minute, 30*24*time.Hour, &auth.GormRefreshStore{DB: gormDB}, auth.RealClock{})
 
-	notifSvc := notification.NewService(gormDB, notification.NoopNotifier{})
-	audSvc := audit.New(gormDB, log)
 	annRepo := announcement.NewRepository(gormDB)
 	maintRepo := maintenance.NewRepository(gormDB)
-	annSvc := announcement.NewService(annRepo, notifSvc, audSvc)
-	svc := NewService(gormDB, auth.NewScopeResolver(gormDB), annSvc, annRepo, maintRepo)
+	svc := NewService(gormDB, auth.NewScopeResolver(gormDB), annRepo, maintRepo)
 
 	gin.SetMode(gin.TestMode)
 	router := httpx.NewRouter(log, "dev")

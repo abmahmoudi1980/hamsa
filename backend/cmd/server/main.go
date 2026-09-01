@@ -147,7 +147,6 @@ func main() {
 	dashboardSvc := dashboard.NewService(
 		gormDB,
 		auth.NewScopeResolver(gormDB),
-		announcement.NewService(announcement.NewRepository(gormDB), notifSvc, auditSvc),
 		announcement.NewRepository(gormDB),
 		maintenance.NewRepository(gormDB),
 	)

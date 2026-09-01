@@ -35,28 +35,26 @@ func (realClock) Now() time.Time { return time.Now() }
 type Service struct {
 	db         *gorm.DB
 	scopes     *auth.ScopeResolver
-	annService *announcement.Service // reuse audience resolution + UnreadCount
 	annRepo    *announcement.Repository
 	maintRepo  *maintenance.Repository
 	clock      Clock
 }
 
-// NewService wires the dashboard aggregator. annService may be nil in tests
-// that stub the unread-count path; the remaining dependencies are required.
+// NewService wires the dashboard aggregator. It reads through the
+// announcement module's repository (audience resolution + UnreadCount);
+// the remaining dependencies are required.
 func NewService(
 	db *gorm.DB,
 	scopes *auth.ScopeResolver,
-	annService *announcement.Service,
 	annRepo *announcement.Repository,
 	maintRepo *maintenance.Repository,
 ) *Service {
 	return &Service{
-		db:         db,
-		scopes:     scopes,
-		annService: annService,
-		annRepo:    annRepo,
-		maintRepo:  maintRepo,
-		clock:      realClock{},
+		db:        db,
+		scopes:    scopes,
+		annRepo:   annRepo,
+		maintRepo: maintRepo,
+		clock:     realClock{},
 	}
 }
 
