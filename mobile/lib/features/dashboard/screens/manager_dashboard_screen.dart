@@ -27,7 +27,16 @@ class ManagerDashboardScreen extends ConsumerWidget {
     final buildingsAsync = ref.watch(buildingsControllerProvider);
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.dashboardTitle)),
+      appBar: AppBar(
+        title: Text(l10n.dashboardTitle),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.apartment),
+            tooltip: l10n.buildingsTitle,
+            onPressed: () => context.push('/manager/buildings'),
+          ),
+        ],
+      ),
       body: buildingsAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (_, _) => Center(

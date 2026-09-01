@@ -6,6 +6,7 @@ import '../../features/auth/models/user_session.dart';
 import '../../features/auth/screens/login_screen.dart';
 import '../../features/auth/screens/otp_screen.dart';
 import '../../features/buildings/screens/building_form_screen.dart';
+import '../../features/buildings/screens/building_list_screen.dart';
 import '../../features/buildings/screens/occupancy_form_screen.dart';
 import '../../features/buildings/screens/person_form_screen.dart';
 import '../../features/buildings/screens/person_list_screen.dart';
@@ -66,8 +67,14 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (_, _) => const ManagerDashboardScreen(),
         routes: [
           GoRoute(
-            path: 'buildings/new',
-            builder: (_, _) => const BuildingFormScreen(),
+            path: 'buildings',
+            builder: (_, _) => const BuildingListScreen(),
+            routes: [
+              GoRoute(
+                path: 'new',
+                builder: (_, _) => const BuildingFormScreen(),
+              ),
+            ],
           ),
           GoRoute(
             path: 'buildings/:buildingId/people',
