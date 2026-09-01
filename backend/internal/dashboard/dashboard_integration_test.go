@@ -28,6 +28,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"strconv"
 	"strings"
 	"testing"
 	"time"
@@ -55,6 +56,19 @@ type dashEnv struct {
 
 func (e *dashEnv) exec(query string, args ...any) error {
 	return e.gormDB.WithContext(context.Background()).Exec(query, args...).Error
+}
+
+// wantMoney asserts a contracts/api.md Toman-string money field.
+func wantMoney(t *testing.T, m map[string]any, key string, want int64) {
+	t.Helper()
+	s, ok := m[key].(string)
+	if !ok {
+		t.Fatalf("%s: want string %d got %T %v", key, want, m[key], m[key])
+	}
+	got, err := strconv.ParseInt(s, 10, 64)
+	if err != nil || got != want {
+		t.Fatalf("%s: want %d got %v", key, want, m[key])
+	}
 }
 
 const dashBaseDSN = "host=localhost port=5432 user=hamsa password=hamsa dbname=hamsa sslmode=disable"
@@ -325,9 +339,7 @@ func TestResidentHomeAggregates(t *testing.T) {
 	}
 
 	// Payable amount = sum of unpaid/partial/expired final_amount - paid_amount.
-	if got, _ := body["payable_amount"].(float64); got != 2_600_000 {
-		t.Fatalf("payable_amount: want 2_600_000 got %v", body["payable_amount"])
-	}
+	wantMoney(t, body, "payable_amount", 2_600_000)
 	if got, _ := body["unit_count"].(float64); got != 1 {
 		t.Fatalf("unit_count: want 1 got %v", body["unit_count"])
 	}
@@ -341,9 +353,7 @@ func TestResidentHomeAggregates(t *testing.T) {
 	if !ok || li == nil {
 		t.Fatalf("latest_invoice missing: %v", body["latest_invoice"])
 	}
-	if got, _ := li["final_amount"].(float64); got != 2_600_000 {
-		t.Fatalf("latest_invoice.final_amount: want 2_600_000 got %v", li["final_amount"])
-	}
+	wantMoney(t, li, "final_amount", 2_600_000)
 	if got, _ := li["status"].(string); got != "unpaid" {
 		t.Fatalf("latest_invoice.status: want unpaid got %v", li["status"])
 	}
@@ -396,9 +406,7 @@ func TestResidentHomeAggregates(t *testing.T) {
 	if code != http.StatusOK {
 		t.Fatalf("manager /me/home: code=%d body=%v", code, body)
 	}
-	if got, _ := body["payable_amount"].(float64); got != 0 {
-		t.Fatalf("manager payable_amount: want 0 got %v", body["payable_amount"])
-	}
+	wantMoney(t, body, "payable_amount", 0)
 	if got, _ := body["unit_count"].(float64); got != 0 {
 		t.Fatalf("manager unit_count: want 0 got %v", body["unit_count"])
 	}
@@ -442,9 +450,7 @@ func TestResidentHomeIsolation(t *testing.T) {
 		t.Fatalf("resident A /me/home: code=%d body=%v", code, body)
 	}
 
-	if got, _ := body["payable_amount"].(float64); got != 5_000_000 {
-		t.Fatalf("resident A payable_amount: want 5_000_000 (own invoice only) got %v", body["payable_amount"])
-	}
+	wantMoney(t, body, "payable_amount", 5_000_000)
 	lr, _ := body["latest_request"].(map[string]any)
 	if lr == nil {
 		t.Fatalf("resident A latest_request: nil")
@@ -481,9 +487,7 @@ func TestResidentHomeMultipleUnits(t *testing.T) {
 	if code != http.StatusOK {
 		t.Fatalf("/me/home: code=%d body=%v", code, body)
 	}
-	if got, _ := body["payable_amount"].(float64); got != 4_000_000 {
-		t.Fatalf("payable_amount: want 4_000_000 got %v", body["payable_amount"])
-	}
+	wantMoney(t, body, "payable_amount", 4_000_000)
 	if got, _ := body["unit_count"].(float64); got != 2 {
 		t.Fatalf("unit_count: want 2 got %v", body["unit_count"])
 	}
@@ -545,15 +549,9 @@ func TestManagerDashboardAggregation(t *testing.T) {
 	if got, _ := body["debtor_unit_count"].(float64); got != 7 {
 		t.Fatalf("debtor_unit_count: want 7 got %v", body["debtor_unit_count"])
 	}
-	if got, _ := body["total_debt"].(float64); got != 2_800_000 { // 100+200+...+700
-		t.Fatalf("total_debt: want 2_800_000 got %v", body["total_debt"])
-	}
-	if got, _ := body["month_income"].(float64); got != 3_000_000 {
-		t.Fatalf("month_income: want 3_000_000 got %v", body["month_income"])
-	}
-	if got, _ := body["month_expense"].(float64); got != 4_000_000 { // approved + pending
-		t.Fatalf("month_expense: want 4_000_000 got %v", body["month_expense"])
-	}
+	wantMoney(t, body, "total_debt", 2_800_000) // 100+200+...+700
+	wantMoney(t, body, "month_income", 3_000_000)
+	wantMoney(t, body, "month_expense", 4_000_000) // approved + pending
 	if got, _ := body["open_requests"].(float64); got != 3 {
 		t.Fatalf("open_requests: want 3 got %v", body["open_requests"])
 	}
@@ -662,9 +660,7 @@ func TestManagerDashboardPastDueAlerts(t *testing.T) {
 	if len(pastDueAlerts) != 1 {
 		t.Fatalf("past_due_invoice alerts: want 1 got %d (%v)", len(pastDueAlerts), alerts)
 	}
-	if got, _ := pastDueAlerts[0]["amount"].(float64); got != 2_100_000 { // 2_600_000 - 500_000
-		t.Fatalf("past_due amount: want 2_100_000 got %v", pastDueAlerts[0]["amount"])
-	}
+	wantMoney(t, pastDueAlerts[0], "amount", 2_100_000) // 2_600_000 - 500_000
 	if got, _ := pastDueAlerts[0]["severity"].(float64); got != 2 {
 		t.Fatalf("past_due severity: want 2 (danger) got %v", pastDueAlerts[0]["severity"])
 	}

@@ -33,12 +33,12 @@ func (realClock) Now() time.Time { return time.Now() }
 // Service owns the read-only aggregation queries backing US9 (`/me/home`) and
 // US10 (`/buildings/{id}/dashboard`). No mutations happen here.
 type Service struct {
-	db          *gorm.DB
-	scopes      *auth.ScopeResolver
-	annService  *announcement.Service // reuse audience resolution + UnreadCount
-	annRepo     *announcement.Repository
-	maintRepo   *maintenance.Repository
-	clock       Clock
+	db         *gorm.DB
+	scopes     *auth.ScopeResolver
+	annService *announcement.Service // reuse audience resolution + UnreadCount
+	annRepo    *announcement.Repository
+	maintRepo  *maintenance.Repository
+	clock      Clock
 }
 
 // NewService wires the dashboard aggregator. annService may be nil in tests
@@ -94,7 +94,7 @@ func (s *Service) Home(ctx context.Context, resident *auth.User) (*HomeSummary, 
 	if err != nil {
 		return nil, err
 	}
-	out.PayableAmount = payable
+	out.PayableAmount = billing.Money(payable)
 	out.LatestInvoice = latest
 
 	// 2. Open request count + latest request status (resident's own requests).
@@ -164,7 +164,7 @@ func (s *Service) payableAndLatestInvoice(
 			li := &LatestInvoice{
 				ID:          rows[i].ID.String(),
 				InvoiceNo:   rows[i].InvoiceNo,
-				FinalAmount: rows[i].FinalAmount,
+				FinalAmount: billing.Money(rows[i].FinalAmount),
 				Status:      rows[i].Status,
 			}
 			if rows[i].UnitNumber != nil {
@@ -312,14 +312,16 @@ func (s *Service) BuildingDashboard(
 	}
 
 	// Total debt + debtor count (unit_balances).
+	var totalDebt int64
 	if err := s.db.WithContext(ctx).
 		Table("unit_balances ub").
 		Select("COALESCE(SUM(GREATEST(ub.balance, 0)), 0)").
 		Joins("JOIN units un ON un.id = ub.unit_id").
 		Where("un.building_id = ? AND un.deleted_at IS NULL", buildingID).
-		Scan(&out.TotalDebt).Error; err != nil {
+		Scan(&totalDebt).Error; err != nil {
 		return nil, fmt.Errorf("total debt: %w", err)
 	}
+	out.TotalDebt = billing.Money(totalDebt)
 	if err := s.db.WithContext(ctx).
 		Table("unit_balances ub").
 		Joins("JOIN units un ON un.id = ub.unit_id").
@@ -330,23 +332,27 @@ func (s *Service) BuildingDashboard(
 	}
 
 	// Month income (verified payments) and month expense.
+	var monthIncome int64
 	if err := s.db.WithContext(ctx).
 		Table("payments").
 		Where("building_id = ?", buildingID).
 		Where("status = ?", "verified").
 		Where("paid_at >= ? AND paid_at < ?", monthStart, monthEnd).
 		Select("COALESCE(SUM(amount), 0)").
-		Scan(&out.MonthIncome).Error; err != nil {
+		Scan(&monthIncome).Error; err != nil {
 		return nil, fmt.Errorf("month income: %w", err)
 	}
+	out.MonthIncome = billing.Money(monthIncome)
+	var monthExpense int64
 	if err := s.db.WithContext(ctx).
 		Table("expenses").
 		Where("building_id = ? AND deleted_at IS NULL", buildingID).
 		Where("expense_date >= ? AND expense_date < ?", monthStart, monthEnd).
 		Select("COALESCE(SUM(amount), 0)").
-		Scan(&out.MonthExpense).Error; err != nil {
+		Scan(&monthExpense).Error; err != nil {
 		return nil, fmt.Errorf("month expense: %w", err)
 	}
+	out.MonthExpense = billing.Money(monthExpense)
 
 	// Open maintenance requests.
 	if err := s.db.WithContext(ctx).
@@ -411,7 +417,7 @@ func (s *Service) alerts(
 			Severity:   1,
 			UnitID:     d.UnitID.String(),
 			UnitNumber: d.UnitNumber,
-			Amount:     d.Balance,
+			Amount:     billing.Money(d.Balance),
 			Title:      "واحد بدهکار",
 			RefType:    "unit",
 			RefID:      d.UnitID.String(),
@@ -436,7 +442,6 @@ func (s *Service) alerts(
 		Where("i.status IN ?", []string{billing.InvoiceUnpaid, billing.InvoicePartial}).
 		Order("i.due_date ASC").
 		Limit(perKindLimit).
-
 		Scan(&pastDue).Error; err != nil {
 		return nil, fmt.Errorf("alerts.past_due: %w", err)
 	}
@@ -450,7 +455,7 @@ func (s *Service) alerts(
 			Severity:   2,
 			UnitID:     r.UnitID.String(),
 			UnitNumber: r.UnitNumber,
-			Amount:     outstanding,
+			Amount:     billing.Money(outstanding),
 			Title:      "صورتحساب سررسید گذشته",
 			RefType:    "invoice",
 			RefID:      r.ID.String(),
@@ -520,7 +525,7 @@ func (s *Service) alerts(
 			Kind:      "pending_expense",
 			Severity:  1,
 			Title:     r.Title,
-			Amount:    r.Amount,
+			Amount:    billing.Money(r.Amount),
 			RefType:   "expense",
 			RefID:     r.ID.String(),
 			CreatedAt: r.ExpenseDate.Format("2006-01-02"),
