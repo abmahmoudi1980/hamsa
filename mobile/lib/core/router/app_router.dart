@@ -9,6 +9,7 @@ import '../../features/auth/screens/register_screen.dart';
 import '../../features/auth/screens/setup_screen.dart';
 import '../../features/buildings/screens/building_form_screen.dart';
 import '../../features/buildings/screens/building_list_screen.dart';
+import '../../features/buildings/screens/building_managers_screen.dart';
 import '../../features/buildings/screens/occupancy_form_screen.dart';
 import '../../features/buildings/screens/person_form_screen.dart';
 import '../../features/buildings/screens/person_list_screen.dart';
@@ -93,6 +94,12 @@ final routerProvider = Provider<GoRouter>((ref) {
                 ),
               ),
             ],
+          ),
+          GoRoute(
+            path: 'buildings/:buildingId/managers',
+            builder: (_, state) => BuildingManagersScreen(
+              buildingId: state.pathParameters['buildingId']!,
+            ),
           ),
           GoRoute(
             path: 'buildings/:buildingId/units',
@@ -331,7 +338,11 @@ String? _redirect(Ref ref, GoRouterState state) {
   // each role on its own shell; keep roles out of the other role's section.
   // Shared surfaces (/invoice/:id, /invoice/:id/pay) are reachable from both
   // sections.
-  final isManager = auth.user?.role == UserRole.manager;
+  // 002-multi-manager-support: the superadmin governs no buildings but
+  // shares the manager shell for the invite tool (its home and the building
+  // lists are guarded client-side — `GET /buildings` is manager-only).
+  final role = auth.user?.role;
+  final isManager = role == UserRole.manager || role == UserRole.superadmin;
   final home = isManager ? '/manager' : '/home';
   final otherSection = isManager ? '/home' : '/manager';
   if (location == '/' ||

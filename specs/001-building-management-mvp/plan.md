@@ -71,8 +71,8 @@ backend/
 │   └── server/
 │       └── main.go              # entrypoint: config, DI wiring, router, migrations on start
 ├── internal/
-│   ├── auth/                    # password login, invite codes, JWT issue/verify, refresh rotation, login handlers
-│   ├── building/                # buildings, units, people, occupancies, occupant-count history
+│   ├── auth/                    # password login, role-carrying invite codes (002), superadmin setup, JWT issue/verify, refresh rotation, login handlers
+│   ├── building/                # buildings, units, people, occupancies, occupant-count history; per-building manager grant/revoke (002)
 │   ├── billing/                 # billing periods, cost items, charge engine, invoices, adjustments
 │   │   └── engine/              # PURE Go charge calculation (no DB/HTTP deps) + rounding
 │   ├── payment/                 # payments, unit balances, gateway interface + zarinpal adapter

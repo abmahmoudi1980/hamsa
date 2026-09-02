@@ -31,7 +31,7 @@ Dev-mode conveniences: online payments are auto-verified by the mock gateway wit
 
 ## Scenario 1 — Manager sets up a building and people (P0-01, P0-02)
 
-1. Bootstrap the manager with `POST /api/v1/auth/setup` (first account on a fresh deployment becomes the manager), then log in in the app with phone + password.
+1. Bootstrap the superadmin with `POST /api/v1/auth/setup` (first account on a fresh deployment becomes the superadmin — 002-multi-manager-support), issue it a manager-role invite for a second phone (`POST /auth/invites` with `"role":"manager"`), register that phone, then log in as the manager with phone + password.
 2. Create building "برج هامسا" (10 units). Add unit 1 (area 80 m², floor 1) … unit 10; try to create a second unit 1 → **expect rejection "شماره واحد تکراری"**.
 3. Add person "رضا محمدی" as tenant of unit 1 with occupant count 4 (and others to reach 20 total occupants across the building).
 

@@ -1222,4 +1222,57 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get dashboardNoBuilding => 'ابتدا یک ساختمان ایجاد کنید.';
+
+  @override
+  String get roleSuperAdmin => 'سرپرست ارشد';
+
+  @override
+  String get superadminHomeTitle => 'پنل سرپرست ارشد';
+
+  @override
+  String get superadminHomeHint =>
+      'ساختمانی برای مدیریت ندارید؛ برای شروع، مدیر تازه دعوت کنید.';
+
+  @override
+  String inviteIssuedRole(String role) {
+    return 'کد دعوت با نقش «$role» صادر شد.';
+  }
+
+  @override
+  String get buildingManagersTitle => 'مدیران ساختمان';
+
+  @override
+  String get addManager => 'افزودن مدیر';
+
+  @override
+  String get managerAdded => 'مدیر با موفقیت اضافه شد.';
+
+  @override
+  String get managerRemoved => 'دسترسی مدیر با موفقیت حذف شد.';
+
+  @override
+  String get removeManagerTitle => 'حذف دسترسی مدیر';
+
+  @override
+  String get removeManagerBody =>
+      'آیا مطمئنید می‌خواهید دسترسی این مدیر از ساختمان حذف شود؟';
+
+  @override
+  String get managersEmpty => 'هنوز مدیری برای این ساختمان ثبت نشده است.';
+
+  @override
+  String managersGrantedOn(String date) {
+    return 'از تاریخ $date';
+  }
+
+  @override
+  String get managerAlreadyGrantedError => 'این مدیر از قبل دسترسی دارد.';
+
+  @override
+  String get lastManagerError =>
+      'حداقل یک مدیر باید برای ساختمان باقی بماند.';
+
+  @override
+  String get selfRemoveError =>
+      'برای حذف دسترسی خود ابتدا مدیر دیگری معرفی کنید.';
 }

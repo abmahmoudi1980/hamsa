@@ -83,6 +83,122 @@ func (r *Repository) CanManagerAccess(ctx context.Context, userID, buildingID uu
 	return n > 0, err
 }
 
+// --- building managers (002-multi-manager-support) ---------------------------
+
+// ErrManagerAlreadyGranted marks a duplicate (user_id, building_id) grant;
+// the service maps it to 409 CONFLICT.
+var ErrManagerAlreadyGranted = errors.New("manager already granted")
+
+// managerTarget is the minimal user projection the grant flow needs.
+type managerTarget struct {
+	ID    uuid.UUID
+	Phone string
+	Name  string
+	Role  string
+}
+
+// FindActiveUserByPhone returns the live, active user with this phone, or
+// gorm.ErrRecordNotFound.
+func (r *Repository) FindActiveUserByPhone(ctx context.Context, phone string) (*managerTarget, error) {
+	var t managerTarget
+	err := r.db.WithContext(ctx).Raw(
+		`SELECT id, phone, name, role FROM users
+		  WHERE phone = ? AND is_active AND deleted_at IS NULL`,
+		phone).Scan(&t).Error
+	if err != nil {
+		return nil, err
+	}
+	if t.ID == uuid.Nil {
+		return nil, gorm.ErrRecordNotFound
+	}
+	return &t, nil
+}
+
+// ListBuildingManagers returns the building's current managers with
+// identity, oldest grant first (002 data-model.md BuildingManagerView).
+func (r *Repository) ListBuildingManagers(ctx context.Context, buildingID uuid.UUID) ([]BuildingManager, error) {
+	var out []BuildingManager
+	err := r.db.WithContext(ctx).Raw(
+		`SELECT ub.user_id, u.phone, u.name, u.role, ub.granted_at
+		   FROM user_buildings ub
+		   JOIN users u ON u.id = ub.user_id
+		  WHERE ub.building_id = ? AND u.deleted_at IS NULL
+		  ORDER BY ub.granted_at ASC`, buildingID).Scan(&out).Error
+	return out, err
+}
+
+// ManagerGrantRow returns the single grant row for (user, building) after a
+// successful insert (server-authoritative granted_at).
+func (r *Repository) ManagerGrantRow(ctx context.Context, userID, buildingID uuid.UUID) (*BuildingManager, error) {
+	var m BuildingManager
+	err := r.db.WithContext(ctx).Raw(
+		`SELECT ub.user_id, u.phone, u.name, u.role, ub.granted_at
+		   FROM user_buildings ub
+		   JOIN users u ON u.id = ub.user_id
+		  WHERE ub.user_id = ? AND ub.building_id = ?`, userID, buildingID).Scan(&m).Error
+	if err != nil {
+		return nil, err
+	}
+	if m.UserID == uuid.Nil {
+		return nil, gorm.ErrRecordNotFound
+	}
+	return &m, nil
+}
+
+// CountBuildingManagers returns how many managers a building currently has.
+func (r *Repository) CountBuildingManagers(ctx context.Context, buildingID uuid.UUID) (int64, error) {
+	var n int64
+	err := r.db.WithContext(ctx).Model(&UserBuilding{}).
+		Where("building_id = ?", buildingID).Count(&n).Error
+	return n, err
+}
+
+// InsertManagerGrant adds a grant; a duplicate (user_id, building_id)
+// surfaces as ErrManagerAlreadyGranted (ON CONFLICT DO NOTHING keeps the
+// check race-safe against concurrent identical grants).
+func (r *Repository) InsertManagerGrant(ctx context.Context, userID, buildingID uuid.UUID) error {
+	res := r.db.WithContext(ctx).Exec(
+		`INSERT INTO user_buildings (user_id, building_id) VALUES (?, ?) ON CONFLICT DO NOTHING`,
+		userID, buildingID)
+	if res.Error != nil {
+		return res.Error
+	}
+	if res.RowsAffected == 0 {
+		return ErrManagerAlreadyGranted
+	}
+	return nil
+}
+
+// RevokeManagerGuarded removes one grant atomically unless it would leave
+// the building without managers (research R9: the count guard lives inside
+// the DELETE, so two concurrent revokes can both never empty it).
+// deleted=false + stillGranted=true means the guard refused (last manager).
+func (r *Repository) RevokeManagerGuarded(ctx context.Context, userID, buildingID uuid.UUID) (deleted, stillGranted bool, err error) {
+	res := r.db.WithContext(ctx).Exec(
+		`DELETE FROM user_buildings
+		  WHERE user_id = ? AND building_id = ?
+		    AND (SELECT count(*) FROM user_buildings WHERE building_id = ?) > 1`,
+		userID, buildingID, buildingID)
+	if res.Error != nil {
+		return false, false, res.Error
+	}
+	if res.RowsAffected > 0 {
+		return true, false, nil
+	}
+	granted, err := r.CanManagerAccess(ctx, userID, buildingID)
+	return false, granted, err
+}
+
+// PromoteResidentToManager raises a resident account to manager — the only
+// app-path role RAISE outside invite registration (research R8). The
+// role='resident' guard makes it a no-op for any other current role; no
+// demotion path exists anywhere.
+func (r *Repository) PromoteResidentToManager(ctx context.Context, userID uuid.UUID) error {
+	return r.db.WithContext(ctx).Exec(
+		`UPDATE users SET role = 'manager', updated_at = now()
+		  WHERE id = ? AND role = 'resident'`, userID).Error
+}
+
 // --- units --------------------------------------------------------------------
 
 // ErrDuplicateUnitNumber is returned when (building_id, number) already

@@ -38,6 +38,13 @@ func Register(r *gin.RouterGroup, svc *Service, aud *audit.Service) {
 			idB.DELETE("", aud.Middleware("building.delete", "building"), deleteBuilding(svc))
 			idB.GET("/units", listUnits(svc))
 			idB.POST("/units", aud.Middleware("unit.create", "unit"), createUnit(svc))
+
+			// 002-multi-manager-support: manager management is per-building —
+			// the group already requires role manager; every handler below
+			// additionally enforces IsManagerOf(:id) via authorizedBuilding.
+			idB.GET("/managers", listManagers(svc))
+			idB.POST("/managers", aud.Middleware("building.manager_granted", "building"), grantManager(svc))
+			idB.DELETE("/managers/:userId", aud.Middleware("building.manager_revoked", "building"), revokeManager(svc))
 		}
 	}
 
@@ -269,6 +276,82 @@ func setUnitAuditCtx(c *gin.Context, id uuid.UUID, before, after any) {
 	}
 	if after != nil {
 		c.Set(audit.CtxAfter, after)
+	}
+}
+
+// --- building managers (002-multi-manager-support US3) -----------------------
+
+func listManagers(svc *Service) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		mgr, ok := requireManager(c)
+		if !ok {
+			return
+		}
+		buildingID, ok := parseID(c)
+		if !ok {
+			return
+		}
+		items, err := svc.ListManagers(c.Request.Context(), mgr, buildingID)
+		if err != nil {
+			writeServiceErr(c, err)
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{"items": items})
+	}
+}
+
+type grantManagerReq struct {
+	Phone string `json:"phone" binding:"required"`
+}
+
+func grantManager(svc *Service) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		mgr, ok := requireManager(c)
+		if !ok {
+			return
+		}
+		buildingID, ok := parseID(c)
+		if !ok {
+			return
+		}
+		var req grantManagerReq
+		if err := c.ShouldBindJSON(&req); err != nil {
+			httpx.WriteError(c, httpx.BadRequest("شماره موبایل الزامی است."))
+			return
+		}
+		m, err := svc.GrantManagerByPhone(c.Request.Context(), mgr, buildingID, req.Phone)
+		if err != nil {
+			writeServiceErr(c, err)
+			return
+		}
+		c.Set(audit.CtxObjectID, buildingID)
+		c.Set(audit.CtxAfter, map[string]any{"user_id": m.UserID, "role": m.Role})
+		c.JSON(http.StatusCreated, m)
+	}
+}
+
+func revokeManager(svc *Service) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		mgr, ok := requireManager(c)
+		if !ok {
+			return
+		}
+		buildingID, ok := parseID(c)
+		if !ok {
+			return
+		}
+		userID, err := uuid.Parse(c.Param("userId"))
+		if err != nil {
+			httpx.WriteError(c, httpx.NotFound(msgIDInvalid))
+			return
+		}
+		if err := svc.RevokeManager(c.Request.Context(), mgr, buildingID, userID); err != nil {
+			writeServiceErr(c, err)
+			return
+		}
+		c.Set(audit.CtxObjectID, buildingID)
+		c.Set(audit.CtxBefore, map[string]any{"user_id": userID})
+		c.Status(http.StatusNoContent)
 	}
 }
 

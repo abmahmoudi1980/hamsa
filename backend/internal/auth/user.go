@@ -8,10 +8,16 @@ import (
 	"gorm.io/gorm"
 )
 
-// Role values for users.role (migration 0001 user_role enum).
+// Role values for users.role (migration 0001 user_role enum; 'superadmin'
+// added by migration 0010).
 const (
-	RoleManager  = "manager"
-	RoleResident = "resident"
+	// RoleSuperAdmin is the single platform-owner account, created only by
+	// the one-time /auth/setup on a fresh deployment. It is permanent (never
+	// demoted or deleted by app paths) and never a building-management
+	// participant: it cannot be granted or removed from buildings.
+	RoleSuperAdmin = "superadmin"
+	RoleManager    = "manager"
+	RoleResident   = "resident"
 )
 
 // User is the authentication identity (migration 0001 `users`).

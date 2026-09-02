@@ -2415,6 +2415,96 @@ abstract class AppLocalizations {
   /// In fa, this message translates to:
   /// **'ابتدا یک ساختمان ایجاد کنید.'**
   String get dashboardNoBuilding;
+
+  /// No description provided for @roleSuperAdmin.
+  ///
+  /// In fa, this message translates to:
+  /// **'سرپرست ارشد'**
+  String get roleSuperAdmin;
+
+  /// No description provided for @superadminHomeTitle.
+  ///
+  /// In fa, this message translates to:
+  /// **'پنل سرپرست ارشد'**
+  String get superadminHomeTitle;
+
+  /// No description provided for @superadminHomeHint.
+  ///
+  /// In fa, this message translates to:
+  /// **'ساختمانی برای مدیریت ندارید؛ برای شروع، مدیر تازه دعوت کنید.'**
+  String get superadminHomeHint;
+
+  /// No description provided for @inviteIssuedRole.
+  ///
+  /// In fa, this message translates to:
+  /// **'کد دعوت با نقش «{role}» صادر شد.'**
+  String inviteIssuedRole(String role);
+
+  /// No description provided for @buildingManagersTitle.
+  ///
+  /// In fa, this message translates to:
+  /// **'مدیران ساختمان'**
+  String get buildingManagersTitle;
+
+  /// No description provided for @addManager.
+  ///
+  /// In fa, this message translates to:
+  /// **'افزودن مدیر'**
+  String get addManager;
+
+  /// No description provided for @managerAdded.
+  ///
+  /// In fa, this message translates to:
+  /// **'مدیر با موفقیت اضافه شد.'**
+  String get managerAdded;
+
+  /// No description provided for @managerRemoved.
+  ///
+  /// In fa, this message translates to:
+  /// **'دسترسی مدیر با موفقیت حذف شد.'**
+  String get managerRemoved;
+
+  /// No description provided for @removeManagerTitle.
+  ///
+  /// In fa, this message translates to:
+  /// **'حذف دسترسی مدیر'**
+  String get removeManagerTitle;
+
+  /// No description provided for @removeManagerBody.
+  ///
+  /// In fa, this message translates to:
+  /// **'آیا مطمئنید می‌خواهید دسترسی این مدیر از ساختمان حذف شود؟'**
+  String get removeManagerBody;
+
+  /// No description provided for @managersEmpty.
+  ///
+  /// In fa, this message translates to:
+  /// **'هنوز مدیری برای این ساختمان ثبت نشده است.'**
+  String get managersEmpty;
+
+  /// No description provided for @managersGrantedOn.
+  ///
+  /// In fa, this message translates to:
+  /// **'از تاریخ {date}'**
+  String managersGrantedOn(String date);
+
+  /// No description provided for @managerAlreadyGrantedError.
+  ///
+  /// In fa, this message translates to:
+  /// **'این مدیر از قبل دسترسی دارد.'**
+  String get managerAlreadyGrantedError;
+
+  /// No description provided for @lastManagerError.
+  ///
+  /// In fa, this message translates to:
+  /// **'حداقل یک مدیر باید برای ساختمان باقی بماند.'**
+  String get lastManagerError;
+
+  /// No description provided for @selfRemoveError.
+  ///
+  /// In fa, this message translates to:
+  /// **'برای حذف دسترسی خود ابتدا مدیر دیگری معرفی کنید.'**
+  String get selfRemoveError;
 }
 
 class _AppLocalizationsDelegate

@@ -9,9 +9,10 @@ import 'package:hamsa/shared/validation/validators.dart';
 
 import '../auth_repository.dart';
 
-/// Manager tool: issues a one-time invite code for a resident's phone. The
-/// code is shown once with a copy button; the manager passes it to the
-/// resident out-of-band.
+/// Manager/superadmin tool: issues a one-time invite code for a phone with
+/// a chosen role (ساکن default / مدیر — 002-multi-manager-support). The code
+/// is shown once with a copy button and a banner naming the issued role;
+/// the manager passes it to the invitee out-of-band.
 class ManagerInviteScreen extends ConsumerStatefulWidget {
   const ManagerInviteScreen({super.key});
 
@@ -23,7 +24,8 @@ class ManagerInviteScreen extends ConsumerStatefulWidget {
 class _ManagerInviteScreenState extends ConsumerState<ManagerInviteScreen> {
   final _formKey = GlobalKey<FormState>();
   final _phoneController = TextEditingController();
-  String? _code;
+  String _role = 'resident';
+  InviteResult? _issued;
   bool _submitting = false;
 
   @override
@@ -40,11 +42,14 @@ class _ManagerInviteScreenState extends ConsumerState<ManagerInviteScreen> {
     final l10n = AppLocalizations.of(context);
 
     try {
-      final code = await ref
+      final issued = await ref
           .read(authRepositoryProvider)
-          .createInvite(fromPersianDigits(_phoneController.text.trim()));
+          .createInvite(
+            fromPersianDigits(_phoneController.text.trim()),
+            _role,
+          );
       if (!mounted) return;
-      setState(() => _code = code);
+      setState(() => _issued = issued);
     } catch (e) {
       messenger.showSnackBar(
         SnackBar(
@@ -79,6 +84,23 @@ class _ManagerInviteScreenState extends ConsumerState<ManagerInviteScreen> {
                     children: [
                       Text(l10n.inviteDescription),
                       const SizedBox(height: AppTheme.spaceL),
+                      // ساکن / مدیر toggle (002 US5); resident is the default.
+                      SegmentedButton<String>(
+                        segments: [
+                          ButtonSegment(
+                            value: 'resident',
+                            label: Text(l10n.roleResident),
+                          ),
+                          ButtonSegment(
+                            value: 'manager',
+                            label: Text(l10n.roleManager),
+                          ),
+                        ],
+                        selected: {_role},
+                        onSelectionChanged: (s) =>
+                            setState(() => _role = s.first),
+                      ),
+                      const SizedBox(height: AppTheme.spaceL),
                       TextFormField(
                         controller: _phoneController,
                         decoration: InputDecoration(
@@ -101,8 +123,17 @@ class _ManagerInviteScreenState extends ConsumerState<ManagerInviteScreen> {
                               )
                             : Text(l10n.getInviteCode),
                       ),
-                      if (_code != null) ...[
+                      if (_issued != null) ...[
                         const SizedBox(height: AppTheme.spaceXl),
+                        Text(
+                          l10n.inviteIssuedRole(
+                            _issued!.role == 'manager'
+                                ? l10n.roleManager
+                                : l10n.roleResident,
+                          ),
+                          style: theme.textTheme.titleSmall,
+                        ),
+                        const SizedBox(height: AppTheme.spaceS),
                         Container(
                           padding: const EdgeInsets.all(AppTheme.spaceL),
                           decoration: BoxDecoration(
@@ -116,7 +147,7 @@ class _ManagerInviteScreenState extends ConsumerState<ManagerInviteScreen> {
                             children: [
                               Expanded(
                                 child: Text(
-                                  _code!,
+                                  _issued!.code,
                                   textAlign: TextAlign.center,
                                   style: theme.textTheme.headlineSmall
                                       ?.copyWith(
@@ -129,7 +160,9 @@ class _ManagerInviteScreenState extends ConsumerState<ManagerInviteScreen> {
                                 tooltip: l10n.inviteCopied,
                                 icon: const Icon(Icons.copy_outlined),
                                 onPressed: () {
-                                  Clipboard.setData(ClipboardData(text: _code!));
+                                  Clipboard.setData(
+                                    ClipboardData(text: _issued!.code),
+                                  );
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
                                         content: Text(l10n.inviteCopied)),
@@ -141,7 +174,7 @@ class _ManagerInviteScreenState extends ConsumerState<ManagerInviteScreen> {
                         ),
                         const SizedBox(height: AppTheme.spaceS),
                         Text(
-                          l10n.inviteExpiresInDays(7),
+                          l10n.inviteExpiresInDays(_issued!.expiresInDays),
                           style: theme.textTheme.bodySmall?.copyWith(
                             color: theme.colorScheme.onSurfaceVariant,
                           ),

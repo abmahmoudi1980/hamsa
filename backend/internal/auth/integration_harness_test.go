@@ -34,13 +34,18 @@ type loginAuditRecord struct {
 	action     string
 	objectType string
 	objectID   *uuid.UUID
+	before     any
+	after      any
 }
 
-type fakeAuditor struct{ records []loginAuditRecord }
+type fakeAuditor struct {
+	records []loginAuditRecord
+	err     error // when non-nil, Append fails (best-effort audit tests)
+}
 
-func (f *fakeAuditor) Append(_ context.Context, actorID *uuid.UUID, action, objectType string, objectID *uuid.UUID, _, _ any) error {
-	f.records = append(f.records, loginAuditRecord{actorID: actorID, action: action, objectType: objectType, objectID: objectID})
-	return nil
+func (f *fakeAuditor) Append(_ context.Context, actorID *uuid.UUID, action, objectType string, objectID *uuid.UUID, before, after any) error {
+	f.records = append(f.records, loginAuditRecord{actorID: actorID, action: action, objectType: objectType, objectID: objectID, before: before, after: after})
+	return f.err
 }
 
 type authEnv struct {

@@ -45,7 +45,7 @@ func Register(r *gin.RouterGroup, h *Handler) {
 	authed := r.Group("", Authenticate(h.Tokens, h.Users))
 	authed.GET("/me", h.me)
 	authed.POST("/password", h.changePassword)
-	authed.POST("/invites", RequireRole(RoleManager), h.createInvite)
+	authed.POST("/invites", RequireRole(RoleManager, RoleSuperAdmin), h.createInvite)
 }
 
 type credentialsReq struct {
@@ -55,8 +55,10 @@ type credentialsReq struct {
 }
 
 // setup bootstraps a fresh deployment: when no active users exist, the first
-// caller becomes the manager. Once any user exists the endpoint is closed
-// (409) — every later account arrives through /register with an invite code.
+// caller becomes the superadmin (002-multi-manager-support) — the single,
+// permanent platform account whose privilege is issuing manager invites.
+// Once any user exists the endpoint is closed (409) — every later account
+// arrives through /register with an invite code.
 func (h *Handler) setup(c *gin.Context) {
 	var req credentialsReq
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -89,7 +91,7 @@ func (h *Handler) setup(c *gin.Context) {
 		httpx.WriteError(c, httpx.ErrInternal)
 		return
 	}
-	u := &User{ID: uuid.New(), Phone: req.Phone, Role: RoleManager, Name: req.Name, IsActive: true, PasswordHash: &hash}
+	u := &User{ID: uuid.New(), Phone: req.Phone, Role: RoleSuperAdmin, Name: req.Name, IsActive: true, PasswordHash: &hash}
 	if err := h.Users.Create(ctx, u); err != nil {
 		httpx.WriteError(c, httpx.Internal("خطا در ساخت حساب مدیریتی."))
 		return
@@ -97,11 +99,11 @@ func (h *Handler) setup(c *gin.Context) {
 	h.respondSession(c, u)
 }
 
-// register redeems a one-time invite code. Unknown phones become resident
-// users (invite codes are only issued for this purpose); an existing user
-// with the same phone gets their password reset — the invite is the trusted
-// channel that proves control of the phone, so it doubles as password
-// recovery.
+// register redeems a one-time invite code. Unknown phones register with the
+// invite's role (resident | manager); an existing user with the same phone
+// gets their password reset ONLY — never a role change, in either direction
+// (the invite is the trusted channel that proves control of the phone, so it
+// doubles as password recovery).
 type registerReq struct {
 	credentialsReq
 	Code string `json:"code" binding:"required"`
@@ -123,7 +125,8 @@ func (h *Handler) register(c *gin.Context) {
 		httpx.WriteError(c, err)
 		return
 	}
-	if err := h.Invites.Redeem(ctx, req.Phone, req.Code); err != nil {
+	role, err := h.Invites.Redeem(ctx, req.Phone, req.Code)
+	if err != nil {
 		httpx.WriteError(c, err)
 		return
 	}
@@ -146,7 +149,7 @@ func (h *Handler) register(c *gin.Context) {
 			return
 		}
 	case errors.Is(err, gorm.ErrRecordNotFound):
-		u = &User{ID: uuid.New(), Phone: req.Phone, Role: RoleResident, Name: req.Name, IsActive: true, PasswordHash: &hash}
+		u = &User{ID: uuid.New(), Phone: req.Phone, Role: role, Name: req.Name, IsActive: true, PasswordHash: &hash}
 		if err := h.Users.Create(ctx, u); err != nil {
 			httpx.WriteError(c, httpx.Internal("خطا در ثبت‌نام کاربر."))
 			return
@@ -231,25 +234,42 @@ func (h *Handler) changePassword(c *gin.Context) {
 
 type createInviteReq struct {
 	Phone string `json:"phone" binding:"required"`
+	Role  string `json:"role"`
 }
 
-// createInvite issues a one-time invite code for a phone (manager only). The
-// plaintext code is returned exactly once; the manager passes it to the
-// resident out-of-band.
+// createInvite issues a one-time invite code for a phone (manager or
+// superadmin). The plaintext code is returned exactly once; the issuer passes
+// it to the invitee out-of-band. role defaults to resident; manager invites
+// grant nothing by themselves — the registrant only becomes a *building*
+// manager once an existing manager grants them a building.
 func (h *Handler) createInvite(c *gin.Context) {
-	manager := CurrentUser(c)
+	caller := CurrentUser(c)
 	var req createInviteReq
 	if err := c.ShouldBindJSON(&req); err != nil {
 		httpx.WriteError(c, httpx.BadRequest("شماره موبایل الزامی است."))
 		return
 	}
 
-	code, err := h.Invites.Issue(c.Request.Context(), req.Phone, &manager.ID)
+	role := req.Role
+	if role == "" {
+		role = RoleResident
+	}
+	if role != RoleResident && role != RoleManager {
+		httpx.WriteError(c, httpx.BadRequest("نقش دعوت نامعتبر است."))
+		return
+	}
+
+	ctx := c.Request.Context()
+	code, err := h.Invites.Issue(ctx, req.Phone, role, &caller.ID)
 	if err != nil {
 		httpx.WriteError(c, err)
 		return
 	}
-	c.JSON(http.StatusCreated, gin.H{"code": code, "expires_in_days": 7})
+	if h.Auditor != nil {
+		_ = h.Auditor.Append(ctx, &caller.ID, "invite.issued", "invite", nil, nil,
+			map[string]any{"phone": req.Phone, "role": role})
+	}
+	c.JSON(http.StatusCreated, gin.H{"code": code, "role": role, "expires_in_days": 7})
 }
 
 // respondSession issues a token pair and answers the standard session body.
@@ -331,6 +351,10 @@ func (h *Handler) me(c *gin.Context) {
 	resp := gin.H{"id": u.ID, "phone": u.Phone, "name": u.Name, "role": u.Role}
 
 	switch u.Role {
+	case RoleSuperAdmin:
+		// The superadmin governs no buildings (research R11): empty, never
+		// absent — the client renders a definite "nothing here" state.
+		resp["buildings"] = []uuid.UUID{}
 	case RoleManager:
 		buildings, err := h.Scopes.ManagerBuildingIDs(ctx, u.ID)
 		if err != nil && !isUndefinedTable(err) {

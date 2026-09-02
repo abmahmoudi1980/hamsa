@@ -45,11 +45,14 @@ var (
 	ErrInvitePhoneMismatch = httpx.BadRequest("این کد دعوت برای شماره موبایل دیگری صادر شده است.")
 )
 
-// InviteCode mirrors the `invite_codes` table (migration 0009).
+// InviteCode mirrors the `invite_codes` table (migrations 0009 + 0010).
+// Role is the role a NEW registrant receives when the invite is redeemed
+// (resident | manager); it never changes an existing user's role.
 type InviteCode struct {
 	ID         uuid.UUID  `gorm:"column:id;type:uuid;primaryKey"`
 	Phone      string     `gorm:"column:phone"`
 	CodeHash   string     `gorm:"column:code_hash"`
+	Role       string     `gorm:"column:role"`
 	CreatedBy  *uuid.UUID `gorm:"column:created_by;type:uuid"`
 	ExpiresAt  time.Time  `gorm:"column:expires_at"`
 	ConsumedAt *time.Time `gorm:"column:consumed_at"`
@@ -117,9 +120,10 @@ func NewInviteService(store InviteStore, clock Clock) *InviteService {
 	return &InviteService{store: store, clock: clock}
 }
 
-// Issue creates a one-time invite for phone and returns its plaintext code.
-// The code is shown to the manager exactly once.
-func (s *InviteService) Issue(ctx context.Context, phone string, createdBy *uuid.UUID) (string, error) {
+// Issue creates a one-time invite for phone with the given registrant role
+// (resident | manager; the handler owns the whitelist — research R4) and
+// returns its plaintext code. The code is shown to the issuer exactly once.
+func (s *InviteService) Issue(ctx context.Context, phone, role string, createdBy *uuid.UUID) (string, error) {
 	if !iranianMobile.MatchString(phone) {
 		return "", ErrInvalidPhone
 	}
@@ -132,6 +136,7 @@ func (s *InviteService) Issue(ctx context.Context, phone string, createdBy *uuid
 		ID:        uuid.New(),
 		Phone:     phone,
 		CodeHash:  hashCode(code),
+		Role:      role,
 		CreatedBy: createdBy,
 		ExpiresAt: now.Add(inviteValidity),
 		CreatedAt: now,
@@ -142,29 +147,37 @@ func (s *InviteService) Issue(ctx context.Context, phone string, createdBy *uuid
 	return code, nil
 }
 
-// Redeem validates phone+code and consumes the invite. A mismatch, expiry,
-// or double redemption returns an error; the most recent invite for the phone
-// is authoritative.
-func (s *InviteService) Redeem(ctx context.Context, phone, code string) error {
+// Redeem validates phone+code, consumes the invite, and returns the role it
+// carries (resident | manager). A mismatch, expiry, or double redemption
+// returns an error and no role; the most recent invite for the phone is
+// authoritative.
+func (s *InviteService) Redeem(ctx context.Context, phone, code string) (string, error) {
 	if !iranianMobile.MatchString(phone) {
-		return ErrInvalidPhone
+		return "", ErrInvalidPhone
 	}
 	invite, err := s.store.Latest(ctx, phone)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return ErrInviteInvalid
+			return "", ErrInviteInvalid
 		}
-		return fmt.Errorf("load invite: %w", err)
+		return "", fmt.Errorf("load invite: %w", err)
 	}
 	now := s.clock.Now()
 	if now.After(invite.ExpiresAt) {
-		return ErrInviteExpired
+		return "", ErrInviteExpired
 	}
 	// Constant-time compare to keep code checking timing-uniform.
 	if subtle.ConstantTimeCompare([]byte(invite.CodeHash), []byte(hashCode(code))) != 1 {
-		return ErrInviteInvalid
+		return "", ErrInviteInvalid
 	}
-	return s.store.Consume(ctx, invite.ID, now)
+	if err := s.store.Consume(ctx, invite.ID, now); err != nil {
+		return "", err
+	}
+	role := invite.Role
+	if role == "" {
+		role = RoleResident // pre-0010 rows behave exactly as before
+	}
+	return role, nil
 }
 
 // randomInviteCode returns n characters from inviteCodeAlphabet.

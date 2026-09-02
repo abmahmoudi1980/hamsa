@@ -66,3 +66,15 @@ type UserBuilding struct {
 }
 
 func (UserBuilding) TableName() string { return "user_buildings" }
+
+// BuildingManager is one row of a building's manager list — the join of
+// user_buildings with the manager's identity (002 data-model.md
+// "BuildingManagerView"). Role is the account role (always manager for
+// grantees; carried for client display and the grant response).
+type BuildingManager struct {
+	UserID    uuid.UUID `gorm:"column:user_id" json:"user_id"`
+	Phone     string    `gorm:"column:phone" json:"phone"`
+	Name      string    `gorm:"column:name" json:"name"`
+	Role      string    `gorm:"column:role" json:"role"`
+	GrantedAt time.Time `gorm:"column:granted_at" json:"granted_at"`
+}

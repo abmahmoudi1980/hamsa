@@ -18,7 +18,7 @@
 
 ### User Story 1 - Authenticate and control access (Priority: P1)
 
-A manager or a resident logs in with their mobile number and a password. The first account on a fresh deployment is created via setup bootstrap (manager); residents register with a one-time invite code issued by their manager, which also serves as the password-recovery path. After login, the system determines who they are: a manager sees the buildings they manage, and a resident sees only the data of the unit(s) they are linked to. A resident can never see financial data of other residents, and a manager sees only their permitted buildings. Sensitive operations (issuing invoices, recording payments, changing charge formulas) record who did what and when.
+A manager or a resident logs in with their mobile number and a password. The first account on a fresh deployment is created via setup bootstrap as the platform superadmin (002-multi-manager-support); managers are created by superadmin- or manager-issued **manager-role** invites, and residents register with a one-time invite code (default role), which also serves as the password-recovery path. A building can have any number of managers — an existing manager grants and revokes co-managers per building. After login, the system determines who they are: a manager sees the buildings they manage, and a resident sees only the data of the unit(s) they are linked to. A resident can never see financial data of other residents, and a manager...
 
 **Why this priority**: Access control is the gate to every other story; without it, the financial data of residents cannot be safely exposed. It is also a hard security requirement of the product.
 
@@ -257,7 +257,7 @@ A manager opens the dashboard and sees the building's status at a glance: unit c
 
 **Authentication, Access & Audit**
 
-- **FR-036**: System MUST authenticate users via mobile number + password, support first-account setup bootstrap and manager-issued one-time invite codes (registration + password recovery), and route users to their accessible buildings/units after login.
+- **FR-036**: System MUST authenticate users via mobile number + password, support first-account setup bootstrap (creating the single superadmin) and role-carrying one-time invite codes issued by the superadmin or managers (registration + password recovery; redemption never changes an existing user's role), and route users to their accessible buildings/units after login (updated by specs/002-multi-manager-support).
 - **FR-037**: System MUST enforce that residents see only their own unit's data, that managers see only their permitted buildings, and that one resident's financial data is never visible to another resident.
 - **FR-038**: System MUST record an audit log with user, operation, timestamp, and affected object for: unit create/edit, resident change, charge formula change, invoice issue, invoice cancel, payment recording, expense recording, and maintenance status change — including before/after values for sensitive operations.
 

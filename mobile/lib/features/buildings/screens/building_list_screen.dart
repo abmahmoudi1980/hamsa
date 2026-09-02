@@ -87,6 +87,14 @@ class BuildingListScreen extends ConsumerWidget {
                         trailing: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
+                            // US5 (T030): per-building managers entry point.
+                            IconButton(
+                              icon: const Icon(Icons.engineering_outlined),
+                              tooltip: l10n.buildingManagersTitle,
+                              onPressed: () => context.push(
+                                '/manager/buildings/${b.id}/managers',
+                              ),
+                            ),
                             IconButton(
                               icon: const Icon(Icons.group_outlined),
                               tooltip: l10n.peopleTitle,

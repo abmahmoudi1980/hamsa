@@ -128,3 +128,31 @@ class UnitHistoryEntry {
   final int id;
   final String action;
 }
+
+/// One per-building manager grant
+/// (`GET/POST /buildings/{id}/managers` — contracts/api.md 002 delta).
+/// `grantedAt` stays a locale-neutral ISO-8601 string on the wire; the
+/// screen renders it as a Jalali date.
+class BuildingManager {
+  BuildingManager({
+    required this.userId,
+    required this.phone,
+    required this.name,
+    required this.role,
+    required this.grantedAt,
+  });
+
+  factory BuildingManager.fromJson(Map<String, dynamic> j) => BuildingManager(
+    userId: j['user_id'] as String,
+    phone: (j['phone'] ?? '') as String,
+    name: (j['name'] ?? '') as String,
+    role: (j['role'] ?? '') as String,
+    grantedAt: (j['granted_at'] ?? '') as String,
+  );
+
+  final String userId;
+  final String phone;
+  final String name;
+  final String role;
+  final String grantedAt;
+}

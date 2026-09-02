@@ -34,14 +34,14 @@
 
 | Method | Path | Description |
 |---|---|---|
-| POST | `/auth/setup` | Body `{ "phone", "password", "name?" }` → `{ "access_token", "refresh_token", "expires_in", "user": { id, name, role } }`. First-user bootstrap: allowed only while zero active users exist (otherwise `409 CONFLICT`); the first account is the manager. |
-| POST | `/auth/register` | Body `{ "phone", "code", "password", "name?" }` → session body. Redeems a one-time manager-issued invite code bound to the phone: unknown phones register as residents; existing users get their password reset (recovery path). `401` on invalid/expired/consumed code. |
+| POST | `/auth/setup` | Body `{ "phone", "password", "name?" }` → `{ "access_token", "refresh_token", "expires_in", "user": { id, name, role } }`. First-user bootstrap: allowed only while zero active users exist (otherwise `409 CONFLICT`); the first account is the **superadmin** (002-multi-manager-support). |
+| POST | `/auth/register` | Body `{ "phone", "code", "password", "name?" }` → session body. Redeems a one-time invite code bound to the phone: unknown phones register with the **invite's role** (`resident` default, `manager` when a manager invite was issued); existing users get their password reset ONLY — their role never changes (002). `401` on invalid/expired/consumed code. |
 | POST | `/auth/login` | Body `{ "phone", "password" }` → session body. `401` (same code) for wrong password or unknown phone — no account enumeration. |
 | POST | `/auth/password` | Bearer. Body `{ "current_password", "new_password" }` → `204`. Password policy: ≥ 8 characters with at least one letter and one digit. |
-| POST | `/auth/invites` | Bearer, manager only. Body `{ "phone" }` → `201 { "code", "expires_in_days": 7 }`. One-time invite code, shown once, redeemable for that phone only. |
+| POST | `/auth/invites` | Bearer, **manager or superadmin**. Body `{ "phone", "role"? }` (`role` ∈ `resident`\|`manager`, default `resident`; any other value `400`) → `201 { "code", "role", "expires_in_days": 7 }`. One-time invite code, shown once, redeemable for that phone only; a `manager` invite registers a NEW phone as manager but grants no building — co-managers are added per building via `POST /buildings/{id}/managers` (002). |
 | POST | `/auth/refresh` | Body `{ "refresh_token" }` → new token pair (rotates refresh token; reuse of old token revokes the family). |
 | POST | `/auth/logout` | Revokes the refresh token family. |
-| GET | `/auth/me` | Current user + role context: manager → permitted buildings; resident → occupied units. |
+| GET | `/auth/me` | Current user + role context: superadmin → `buildings: []` (governs none, 002); manager → permitted buildings; resident → occupied units. |
 
 ### Buildings & Units (P0-01) — manager
 
@@ -49,6 +49,9 @@
 |---|---|---|
 | GET / POST | `/buildings` | List permitted buildings / create building. |
 | GET / PUT | `/buildings/{id}` | Building detail / update. |
+| GET | `/buildings/{id}/managers` | List the building's managers `[{ user_id, phone, name, role, granted_at }]` — caller must be a current manager (002). |
+| POST | `/buildings/{id}/managers` | Body `{ phone }` → `201` manager row. Adds an active user as co-manager; a resident target's account role is raised to `manager` (response carries the resulting role). `409 CONFLICT` duplicate ("این مدیر از قبل دسترسی دارد."), `404` unknown/inactive phone, `400` superadmin target (002). |
+| DELETE | `/buildings/{id}/managers/{userId}` | `204` revoke. `409` last-manager, `400` self-removal (hand over first), `404` never-granted; atomic guard — a building never reaches zero managers (002). |
 | GET | `/buildings/{id}/units` | List units — filter: `?q=&block=&floor=&status=`; sort; paginated (FR search/filter). |
 | POST | `/buildings/{id}/units` | Create unit — `409 CONFLICT` on duplicate number (FR-003). |
 | GET / PUT / DELETE | `/units/{id}` | Detail (soft delete) / update (audited) / archive. |

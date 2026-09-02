@@ -9,6 +9,8 @@ import '../../../shared/widgets/empty_state.dart';
 import '../../../shared/widgets/menu_card.dart';
 import '../../buildings/buildings_controller.dart';
 import '../../buildings/models/building.dart';
+import '../../auth/auth_controller.dart';
+import '../../auth/models/user_session.dart';
 import '../dashboard_controller.dart';
 import '../models/dashboard.dart';
 
@@ -24,6 +26,32 @@ class ManagerDashboardScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
+
+    // 002-multi-manager-support (T030): the superadmin manages no buildings
+    // (`GET /buildings` is manager-only server-side) — its home is just the
+    // invite tool, so the buildings list is never fetched here.
+    if (ref.watch(authControllerProvider).user?.role == UserRole.superadmin) {
+      return Scaffold(
+        appBar: AppBar(
+          title: Text(l10n.superadminHomeTitle),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.logout),
+              tooltip: l10n.logout,
+              onPressed: () =>
+                  ref.read(authControllerProvider.notifier).logout(),
+            ),
+          ],
+        ),
+        body: EmptyState(
+          icon: Icons.person_add_alt_outlined,
+          title: l10n.superadminHomeHint,
+          actionLabel: l10n.getInviteCode,
+          onAction: () => context.push('/manager/invite'),
+        ),
+      );
+    }
+
     final buildingsAsync = ref.watch(buildingsControllerProvider);
 
     return Scaffold(

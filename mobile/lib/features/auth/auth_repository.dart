@@ -36,6 +36,21 @@ class AuthResult {
   final String refreshToken;
 }
 
+/// One issued invite (`POST /auth/invites` — 002-multi-manager-support):
+/// the code plus the role it grants (`resident` | `manager`) and its
+/// validity window in days.
+class InviteResult {
+  const InviteResult({
+    required this.code,
+    required this.role,
+    required this.expiresInDays,
+  });
+
+  final String code;
+  final String role;
+  final int expiresInDays;
+}
+
 /// Auth endpoints (phone + password; contracts/api.md "Auth P0-10").
 class AuthRepository {
   AuthRepository(this._dio);
@@ -90,17 +105,22 @@ class AuthRepository {
     });
   }
 
-  /// `POST /auth/invites` (manager only) → one-time invite code.
-  Future<String> createInvite(String phone) async {
+  /// `POST /auth/invites` (manager or superadmin) → one-time invite code
+  /// carrying [role] (`resident` | `manager`; contracts/api.md 002 delta).
+  Future<InviteResult> createInvite(String phone, String role) async {
     final res = await _dio.post<Map<String, dynamic>>(
       '/auth/invites',
-      data: {'phone': phone},
+      data: {'phone': phone, 'role': role},
     );
     final code = res.data?['code']?.toString();
     if (code == null || code.isEmpty) {
       throw ApiException(code: 'unknown');
     }
-    return code;
+    return InviteResult(
+      code: code,
+      role: res.data?['role']?.toString() ?? role,
+      expiresInDays: (res.data?['expires_in_days'] as num?)?.toInt() ?? 7,
+    );
   }
 
   /// Shared session-body parsing for login/register/setup.

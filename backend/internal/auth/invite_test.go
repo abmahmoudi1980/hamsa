@@ -89,7 +89,7 @@ func TestInviteIssueAndRedeem(t *testing.T) {
 	ctx := context.Background()
 	const phone = "09121234567"
 
-	code, err := svc.Issue(ctx, phone, nil)
+	code, err := svc.Issue(ctx, phone, RoleResident, nil)
 	if err != nil {
 		t.Fatalf("Issue: %v", err)
 	}
@@ -103,12 +103,12 @@ func TestInviteIssueAndRedeem(t *testing.T) {
 		t.Fatal("invite stored as plaintext")
 	}
 
-	if err := svc.Redeem(ctx, phone, code); err != nil {
+	if _, err := svc.Redeem(ctx, phone, code); err != nil {
 		t.Fatalf("Redeem: %v", err)
 	}
 
 	// Double redemption fails.
-	if err := svc.Redeem(ctx, phone, code); !errors.Is(err, ErrInviteInvalid) {
+	if _, err := svc.Redeem(ctx, phone, code); !errors.Is(err, ErrInviteInvalid) {
 		t.Fatalf("re-redeem: got %v want ErrInviteInvalid", err)
 	}
 	_ = clock
@@ -118,16 +118,16 @@ func TestInviteRedeem_WrongCodeAndPhone(t *testing.T) {
 	svc, _, _ := newInviteService(t)
 	ctx := context.Background()
 
-	if _, err := svc.Issue(ctx, "09121234567", nil); err != nil {
+	if _, err := svc.Issue(ctx, "09121234567", RoleResident, nil); err != nil {
 		t.Fatalf("Issue: %v", err)
 	}
-	if err := svc.Redeem(ctx, "09121234567", "ZZZZZZZZ"); !errors.Is(err, ErrInviteInvalid) {
+	if _, err := svc.Redeem(ctx, "09121234567", "ZZZZZZZZ"); !errors.Is(err, ErrInviteInvalid) {
 		t.Fatalf("wrong code: got %v want ErrInviteInvalid", err)
 	}
-	if err := svc.Redeem(ctx, "09998887766", "AAAAAAAA"); !errors.Is(err, ErrInviteInvalid) {
+	if _, err := svc.Redeem(ctx, "09998887766", "AAAAAAAA"); !errors.Is(err, ErrInviteInvalid) {
 		t.Fatalf("unknown phone: got %v want ErrInviteInvalid", err)
 	}
-	if err := svc.Redeem(ctx, "12345", "AAAAAAAA"); !errors.Is(err, ErrInvalidPhone) {
+	if _, err := svc.Redeem(ctx, "12345", "AAAAAAAA"); !errors.Is(err, ErrInvalidPhone) {
 		t.Fatalf("invalid phone: got %v want ErrInvalidPhone", err)
 	}
 }
@@ -136,12 +136,81 @@ func TestInviteRedeem_Expired(t *testing.T) {
 	svc, _, clock := newInviteService(t)
 	ctx := context.Background()
 
-	code, err := svc.Issue(ctx, "09121234567", nil)
+	code, err := svc.Issue(ctx, "09121234567", RoleResident, nil)
 	if err != nil {
 		t.Fatalf("Issue: %v", err)
 	}
 	clock.advance(inviteValidity + time.Minute)
-	if err := svc.Redeem(ctx, "09121234567", code); !errors.Is(err, ErrInviteExpired) {
+	if _, err := svc.Redeem(ctx, "09121234567", code); !errors.Is(err, ErrInviteExpired) {
 		t.Fatalf("expired redeem: got %v want ErrInviteExpired", err)
+	}
+}
+
+// --- invite roles (002-multi-manager-support, research R3) ------------------
+
+func TestInviteIssueRedeem_RoleRoundTrip(t *testing.T) {
+	svc, store, _ := newInviteService(t)
+	ctx := context.Background()
+
+	for i, role := range []string{RoleResident, RoleManager} {
+		phone := "0912123456" + string(rune('7'+i)) // distinct valid phones
+		code, err := svc.Issue(ctx, phone, role, nil)
+		if err != nil {
+			t.Fatalf("Issue(%s): %v", role, err)
+		}
+		if got := store.records[len(store.records)-1].Role; got != role {
+			t.Fatalf("persisted role %q want %q", got, role)
+		}
+		got, err := svc.Redeem(ctx, phone, code)
+		if err != nil {
+			t.Fatalf("Redeem(%s): %v", role, err)
+		}
+		if got != role {
+			t.Fatalf("redeemed role %q want %q", got, role)
+		}
+	}
+}
+
+// A legacy invite row (role column defaulted at the DB, empty on the fake
+// store) must behave exactly like a resident invite: redemption returns the
+// stored role verbatim.
+func TestInviteLegacyRow_DefaultsResident(t *testing.T) {
+	svc, store, _ := newInviteService(t)
+	ctx := context.Background()
+	const phone = "09121234567"
+
+	code, err := svc.Issue(ctx, phone, RoleResident, nil)
+	if err != nil {
+		t.Fatalf("Issue: %v", err)
+	}
+	if store.records[0].Role != RoleResident {
+		t.Fatalf("role %q want resident", store.records[0].Role)
+	}
+	got, err := svc.Redeem(ctx, phone, code)
+	if err != nil {
+		t.Fatalf("Redeem: %v", err)
+	}
+	if got != RoleResident {
+		t.Fatalf("redeemed %q want resident", got)
+	}
+}
+
+// Redemption failures keep their existing error contract; the role never
+// leaks on invalid/expired invites.
+func TestInviteRedeem_RoleErrorsOnFailure(t *testing.T) {
+	svc, _, clock := newInviteService(t)
+	ctx := context.Background()
+	const phone = "09121234567"
+
+	code, err := svc.Issue(ctx, phone, RoleManager, nil)
+	if err != nil {
+		t.Fatalf("Issue: %v", err)
+	}
+	if got, err := svc.Redeem(ctx, phone, "ZZZZZZZZ"); !errors.Is(err, ErrInviteInvalid) || got != "" {
+		t.Fatalf("wrong code: got (%q,%v) want (\"\",ErrInviteInvalid)", got, err)
+	}
+	clock.advance(inviteValidity + time.Minute)
+	if got, err := svc.Redeem(ctx, phone, code); !errors.Is(err, ErrInviteExpired) || got != "" {
+		t.Fatalf("expired: got (%q,%v) want (\"\",ErrInviteExpired)", got, err)
 	}
 }

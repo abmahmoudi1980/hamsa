@@ -205,4 +205,33 @@ class BuildingsRepository {
       data: {'occupant_count': count, 'effective_from': effectiveFrom},
     );
   }
+
+  // --- US5: per-building managers (002-multi-manager-support) ---------------
+
+  /// `GET /buildings/{id}/managers` → granted managers, oldest grant first.
+  Future<List<BuildingManager>> listManagers(String buildingId) async {
+    final res = await _dio.get<Map<String, dynamic>>(
+      '/buildings/$buildingId/managers',
+    );
+    return (res.data?['items'] as List? ?? const [])
+        .map(
+          (e) => BuildingManager.fromJson(Map<String, dynamic>.from(e as Map)),
+        )
+        .toList();
+  }
+
+  /// `POST /buildings/{id}/managers` → 201 with the created grant row.
+  /// Duplicate (409) / unknown-phone (404) / superadmin-target (400) errors
+  /// propagate for [describeError] to surface the server Persian copy.
+  Future<BuildingManager> addManager(String buildingId, String phone) async {
+    final res = await _dio.post<Map<String, dynamic>>(
+      '/buildings/$buildingId/managers',
+      data: {'phone': phone},
+    );
+    return BuildingManager.fromJson(res.data!);
+  }
+
+  /// `DELETE /buildings/{id}/managers/{userId}` → 204 on success.
+  Future<void> removeManager(String buildingId, String userId) =>
+      _dio.delete<void>('/buildings/$buildingId/managers/$userId');
 }

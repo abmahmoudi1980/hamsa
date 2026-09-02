@@ -28,6 +28,15 @@ const (
 	msgDuplicateNumber = "شماره واحد در این ساختمان تکراری است."
 	msgCountNegative   = "تعداد نمی‌تواند منفی باشد."
 	msgBuiltYear       = "سال ساخت معتبر نیست."
+
+	// 002-multi-manager-support: manager grant/revoke (contracts/api.md —
+	// these exact strings are contractual).
+	msgUserNF           = "کاربری با این شماره یافت نشد."
+	msgSuperadminTarget = "نمی‌توان سرپرست ارشد را مدیر ساختمان کرد."
+	msgAlreadyManager   = "این مدیر از قبل دسترسی دارد."
+	msgLastManager      = "حداقل یک مدیر باید برای ساختمان باقی بماند."
+	msgSelfRevoke       = "برای حذف دسترسی خود ابتدا مدیر دیگری معرفی کنید."
+	msgGrantNF          = "این مدیر دسترسی‌ای برای این ساختمان ندارد."
 )
 
 var (
@@ -113,6 +122,95 @@ func (s *Service) DeleteBuilding(ctx context.Context, manager *auth.User, id uui
 		return err
 	}
 	return s.repo.DeleteBuilding(ctx, id)
+}
+
+// --- building managers (002-multi-manager-support US3) -----------------------
+
+// ListManagers returns a building's current managers. Caller must be a
+// current manager of that building (authorizedBuilding → 403).
+func (s *Service) ListManagers(ctx context.Context, manager *auth.User, buildingID uuid.UUID) ([]BuildingManager, error) {
+	if _, err := s.authorizedBuilding(ctx, manager, buildingID); err != nil {
+		return nil, err
+	}
+	return s.repo.ListBuildingManagers(ctx, buildingID)
+}
+
+// GrantManagerByPhone adds an active user (by phone) as a manager of the
+// building. A resident target's account role is RAISED to manager — the only
+// promotion path outside invite registration (FR-013); the response carries
+// the resulting role. The superadmin is never a valid target (FR-002): it
+// does not participate in building management. A duplicate grant is 409.
+func (s *Service) GrantManagerByPhone(ctx context.Context, manager *auth.User, buildingID uuid.UUID, phone string) (*BuildingManager, error) {
+	if _, err := s.authorizedBuilding(ctx, manager, buildingID); err != nil {
+		return nil, err
+	}
+	if !phoneRe.MatchString(phone) {
+		return nil, httpx.BadRequest(msgPhoneInvalid)
+	}
+	target, err := s.repo.FindActiveUserByPhone(ctx, phone)
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, httpx.NotFound(msgUserNF)
+	}
+	if err != nil {
+		return nil, err
+	}
+	if target.Role == auth.RoleSuperAdmin {
+		return nil, httpx.BadRequest(msgSuperadminTarget)
+	}
+	if err := s.repo.InsertManagerGrant(ctx, target.ID, buildingID); err != nil {
+		if errors.Is(err, ErrManagerAlreadyGranted) {
+			return nil, httpx.Conflict(msgAlreadyManager)
+		}
+		return nil, err
+	}
+	if target.Role == auth.RoleResident {
+		if err := s.repo.PromoteResidentToManager(ctx, target.ID); err != nil {
+			return nil, err
+		}
+		target.Role = auth.RoleManager
+	}
+	return s.repo.ManagerGrantRow(ctx, target.ID, buildingID)
+}
+
+// RevokeManager removes a manager's grant for the building. Rule order:
+// ungranted target → 404; removal that would leave zero managers → 409
+// (checked first so the LONE manager removing themself gets the precise
+// last-manager answer); caller removing their own grant in a multi-manager
+// building → 400 (handover first). The final delete is the atomic guarded
+// statement (research R9); its refusal re-surfaces as 409.
+func (s *Service) RevokeManager(ctx context.Context, manager *auth.User, buildingID, userID uuid.UUID) error {
+	if _, err := s.authorizedBuilding(ctx, manager, buildingID); err != nil {
+		return err
+	}
+	granted, err := s.repo.CanManagerAccess(ctx, userID, buildingID)
+	if err != nil {
+		return err
+	}
+	if !granted {
+		return httpx.NotFound(msgGrantNF)
+	}
+	count, err := s.repo.CountBuildingManagers(ctx, buildingID)
+	if err != nil {
+		return err
+	}
+	if count <= 1 {
+		return httpx.Conflict(msgLastManager)
+	}
+	if userID == manager.ID {
+		return httpx.BadRequest(msgSelfRevoke)
+	}
+	deleted, stillGranted, err := s.repo.RevokeManagerGuarded(ctx, userID, buildingID)
+	if err != nil {
+		return err
+	}
+	switch {
+	case deleted:
+		return nil
+	case stillGranted:
+		return httpx.Conflict(msgLastManager) // raced: it became the last one
+	default:
+		return httpx.NotFound(msgGrantNF) // raced: already revoked
+	}
 }
 
 // applyBuildingInput validates and copies input fields onto b.

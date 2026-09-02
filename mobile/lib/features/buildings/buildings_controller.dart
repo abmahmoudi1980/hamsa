@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/network/api_exception.dart';
 import '../auth/auth_repository.dart';
 import 'buildings_repository.dart';
+import '../auth/auth_controller.dart';
+import '../auth/models/user_session.dart';
 import 'models/building.dart';
 
 final buildingsRepositoryProvider = Provider<BuildingsRepository>(
@@ -13,8 +15,14 @@ final buildingsRepositoryProvider = Provider<BuildingsRepository>(
 /// surface as [ApiException] and resolve to Persian copy in the screen.
 class BuildingsController extends AsyncNotifier<List<Building>> {
   @override
-  Future<List<Building>> build() =>
-      ref.watch(buildingsRepositoryProvider).listBuildings();
+  Future<List<Building>> build() {
+    // 002 T030 guard: `GET /buildings` is manager-only server-side, so the
+    // superadmin's lists render empty without a request that would 403.
+    if (ref.watch(authControllerProvider).user?.role == UserRole.superadmin) {
+      return Future.value(const []);
+    }
+    return ref.watch(buildingsRepositoryProvider).listBuildings();
+  }
 
   BuildingsRepository get _repo => ref.read(buildingsRepositoryProvider);
 
@@ -37,6 +45,35 @@ class BuildingsController extends AsyncNotifier<List<Building>> {
 final buildingsControllerProvider =
     AsyncNotifierProvider<BuildingsController, List<Building>>(
       BuildingsController.new,
+    );
+
+/// Per-building manager list (US5/T029); family argument is the building id.
+/// Add/remove rethrow the raw error so the screen can surface the server
+/// Persian copy through `describeError`.
+class ManagersController extends FamilyAsyncNotifier<List<BuildingManager>, String> {
+  @override
+  Future<List<BuildingManager>> build(String buildingId) =>
+      ref.watch(buildingsRepositoryProvider).listManagers(buildingId);
+
+  BuildingsRepository get _repo => ref.read(buildingsRepositoryProvider);
+
+  /// Grants a manager by phone, then reloads; 409/404/400 propagate.
+  Future<void> add(String phone) async {
+    await _repo.addManager(arg, phone);
+    ref.invalidateSelf();
+  }
+
+  /// Revokes a grant, then reloads; 400 (self) / 409 (last manager)
+  /// propagate.
+  Future<void> remove(String userId) async {
+    await _repo.removeManager(arg, userId);
+    ref.invalidateSelf();
+  }
+}
+
+final managersControllerProvider =
+    AsyncNotifierProvider.family<ManagersController, List<BuildingManager>, String>(
+      ManagersController.new,
     );
 
 /// Unit list filters (`?q=&block=&status=` — floor arrives as its own chip

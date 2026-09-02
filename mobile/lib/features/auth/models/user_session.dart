@@ -1,13 +1,19 @@
-/// Role recorded on `users.role` (migration 0001). Authorization itself is
-/// resolved server-side per request (research.md R8) — this only drives
-/// client-side navigation.
-enum UserRole { manager, resident }
+/// Role recorded on `users.role` (migration 0001; `superadmin` added by
+/// migration 0010). Authorization itself is resolved server-side per
+/// request (research.md R8) — this only drives client-side navigation.
+enum UserRole { manager, resident, superadmin }
 
-UserRole userRoleFromWire(String value) =>
-    value == 'resident' ? UserRole.resident : UserRole.manager;
+UserRole userRoleFromWire(String value) => switch (value) {
+  'resident' => UserRole.resident,
+  'superadmin' => UserRole.superadmin,
+  _ => UserRole.manager,
+};
 
-String userRoleToWire(UserRole role) =>
-    role == UserRole.resident ? 'resident' : 'manager';
+String userRoleToWire(UserRole role) => switch (role) {
+  UserRole.resident => 'resident',
+  UserRole.superadmin => 'superadmin',
+  UserRole.manager => 'manager',
+};
 
 /// The logged-in identity returned by `POST /auth/verify` (`user` object —
 /// contracts/api.md).

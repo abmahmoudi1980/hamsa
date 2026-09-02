@@ -505,5 +505,34 @@
   "dashboardActionOpenRequests": "درخواست‌ها",
   "dashboardNoAlerts": "هشدار فعالی وجود ندارد",
   "dashboardBuildingPicker": "انتخاب ساختمان",
-  "dashboardNoBuilding": "ابتدا یک ساختمان ایجاد کنید."
+  "dashboardNoBuilding": "ابتدا یک ساختمان ایجاد کنید.",
+  "roleSuperAdmin": "سرپرست ارشد",
+  "superadminHomeTitle": "پنل سرپرست ارشد",
+  "superadminHomeHint": "ساختمانی برای مدیریت ندارید؛ برای شروع، مدیر تازه دعوت کنید.",
+  "inviteIssuedRole": "کد دعوت با نقش «{role}» صادر شد.",
+  "@inviteIssuedRole": {
+    "placeholders": {
+      "role": {
+        "type": "String"
+      }
+    }
+  },
+  "buildingManagersTitle": "مدیران ساختمان",
+  "addManager": "افزودن مدیر",
+  "managerAdded": "مدیر با موفقیت اضافه شد.",
+  "managerRemoved": "دسترسی مدیر با موفقیت حذف شد.",
+  "removeManagerTitle": "حذف دسترسی مدیر",
+  "removeManagerBody": "آیا مطمئنید می‌خواهید دسترسی این مدیر از ساختمان حذف شود؟",
+  "managersEmpty": "هنوز مدیری برای این ساختمان ثبت نشده است.",
+  "managersGrantedOn": "از تاریخ {date}",
+  "@managersGrantedOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "managerAlreadyGrantedError": "این مدیر از قبل دسترسی دارد.",
+  "lastManagerError": "حداقل یک مدیر باید برای ساختمان باقی بماند.",
+  "selfRemoveError": "برای حذف دسترسی خود ابتدا مدیر دیگری معرفی کنید."
 }

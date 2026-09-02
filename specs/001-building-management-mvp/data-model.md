@@ -19,27 +19,27 @@ users ──(1:N)── notifications / maintenance_requests (submitter) / audit
 ## Entities
 
 ### users
-Authentication identity; login is mobile number + password (bcrypt). First account is created via setup bootstrap; residents register with one-time manager-issued invite codes (migration 0009).
+Authentication identity; login is mobile number + password (bcrypt). First account is created via setup bootstrap — it becomes the platform **superadmin** (002-multi-manager-support); managers and residents register with one-time role-carrying invite codes (migrations 0009 + 0010).
 
 | Field | Type | Rules |
 |---|---|---|
 | id | UUID PK | |
 | phone | VARCHAR(11) | UNIQUE, Iranian mobile format `09xxxxxxxxx` |
 | password_hash | VARCHAR(255) | NULL until the user sets a password; bcrypt |
-| role | ENUM(`manager`, `resident`) | A user may manage buildings AND reside in others → role resolved per-context via `user_buildings` (manager) and `occupancies` (resident); `role` field records primary role |
+| role | ENUM(`manager`, `resident`, `superadmin`) | `superadmin`: exactly one, created by setup only, permanent, never a building-management participant (0010). A user may manage buildings AND reside in others → per-context scope via `user_buildings` (manager) and `occupancies` (resident). Roles are only ever RAISED (invite at registration, or an explicit building grant promoting a resident) — no app path demotes anyone |
 | name | VARCHAR(120) | |
 | fcm_token | VARCHAR | NULL — used best-effort for push |
 | is_active | BOOLEAN | soft-deactivation only; never hard-deleted |
 | created_at / updated_at / deleted_at | TIMESTAMPTZ | |
 
 ### user_buildings
-Manager permission scope (FR-037: manager sees only permitted buildings).
+Manager permission scope (FR-037: manager sees only permitted buildings). **Many-to-many, unlimited in both directions** (002-multi-manager-support): a building can have any number of managers and a manager can manage any number of buildings — replacing the earlier "one manager per deployment" reading. Rows are created by the `CreateBuilding` auto-grant or by an existing manager of that building (`POST /buildings/{id}/managers`); removed only by an existing manager of that building, never the caller's own grant, never below one manager per building.
 
 | Field | Type | Rules |
 |---|---|---|
 | user_id | UUID FK→users | PK(user_id, building_id) |
 | building_id | UUID FK→buildings | |
-| granted_at | TIMESTAMPTZ | |
+| granted_at | TIMESTAMPTZ | surfaced in the managers list (Jalali display client-side) |
 
 ### buildings
 | Field | Type | Rules |
@@ -305,20 +305,21 @@ Append-only (spec §20, FR-038).
 |---|---|---|
 | id | BIGINT PK | |
 | user_id | UUID | nullable (system actions) |
-| action | VARCHAR(60) | e.g. `unit.updated`, `invoice.issued`, `payment.recorded` |
+| action | VARCHAR(60) | e.g. `unit.updated`, `invoice.issued`, `payment.recorded`, `user.login`, `invite.issued`, `building.manager_granted`, `building.manager_revoked` |
 | object_type / object_id | VARCHAR(40) / UUID | |
 | before_value / after_value | JSONB | required for sensitive ops (formula change, invoice issue/cancel, payment) |
 | created_at | TIMESTAMPTZ | no UPDATE/DELETE ever — enforced by DB grants + trigger |
 
 ### invite_codes
-One-time manager-issued codes: registration of new residents and password recovery (migration 0009).
+One-time manager-issued codes: registration of new users (with a role) and password recovery (migrations 0009 + 0010).
 
 | Field | Type | Rules |
 |---|---|---|
 | id | UUID PK | |
 | phone | VARCHAR(11) | the only phone the code redeems for; indexed (phone, created_at DESC) |
 | code_hash | VARCHAR(64) | SHA-256, never plaintext |
-| created_by | UUID FK→users | issuing manager |
+| role | ENUM(`manager`, `resident`) DEFAULT `resident` | (0010) role a NEW registrant receives; whitelist at issue-time excludes `superadmin`; redemption NEVER changes an existing user's role |
+| created_by | UUID FK→users | issuing manager or superadmin |
 | expires_at | TIMESTAMPTZ | +7 days |
 | consumed_at | TIMESTAMPTZ | single redemption, enforced by conditional UPDATE |
 
@@ -336,4 +337,4 @@ Unified attachment registry (receipts, photos, announcement attachments).
 - **Soft delete**: `users`, `units`, `persons`, `expenses` soft-delete; `invoices`, `payments`, `audit_logs`, `occupancies`, `invite_codes` never delete.
 - **Uniqueness**: unit number per building; invoice number globally; one unconsumed invite redemption per code.
 - **Snapshot rule**: everything the charge engine consumes (occupant count, area, participation, balances) is copied into `cost_item_shares.inputs_snapshot` / invoice fields at calculation time — the single mechanism guaranteeing BR-03/BR-05 and the spec's reliability requirement.
-- **Audit coverage** (FR-038): unit create/edit, resident change, charge-formula (cost item) change, invoice issue, invoice cancel, payment record, expense record, maintenance status change.
+- **Audit coverage** (FR-038): unit create/edit, resident change, charge-formula (cost item) change, invoice issue, invoice cancel, payment record, expense record, maintenance status change — plus the sensitive privilege actions `invite.issued`, `building.manager_granted`, and `building.manager_revoked` (002).
