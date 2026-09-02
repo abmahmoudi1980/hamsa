@@ -5,31 +5,30 @@
   "roleManager": "مدیر",
   "roleResident": "ساکن",
   "loginTitle": "ورود به همسا",
-  "loginSubtitle": "برای ورود، شماره موبایل خود را وارد کنید.",
+  "loginSubtitle": "برای ورود، شماره موبایل و رمز عبور خود را وارد کنید.",
   "phoneLabel": "شماره موبایل",
-  "requestOtp": "دریافت کد تأیید",
-  "otpLabel": "کد تأیید پیامک‌شده",
-  "verifyAndLogin": "تأیید و ورود",
-  "resendIn": "ارسال مجدد کد تا {seconds} ثانیه دیگر",
-  "@resendIn": {
-    "placeholders": {
-      "seconds": {
-        "type": "String"
-      }
-    }
-  },
-  "otpSentTo": "کد تأیید به شماره {phone} پیامک شد.",
-  "@otpSentTo": {
-    "placeholders": {
-      "phone": {
-        "type": "String"
-      }
-    }
-  },
-  "resendOtp": "ارسال مجدد کد",
-  "changePhone": "تغییر شماره",
+  "loginButton": "ورود",
+  "passwordLabel": "رمز عبور",
+  "registerTitle": "ثبت‌نام ساکن",
+  "registerSubtitle": "با کد دعوت مدیر ساختمان ثبت‌نام کنید.",
+  "registerButton": "ثبت‌نام",
+  "gotoRegister": "حساب ندارید؟ ثبت‌نام با کد دعوت",
+  "gotoSetup": "راه‌اندازی اولیه ساختمان (مدیر)",
+  "inviteCodeLabel": "کد دعوت",
+  "nameLabel": "نام و نام خانوادگی (اختیاری)",
+  "setupTitle": "راه‌اندازی اولیه",
+  "setupSubtitle": "اولین حساب مدیریت ساختمان را بسازید.",
+  "setupButton": "ساخت حساب مدیر",
+  "confirmPasswordLabel": "تکرار رمز عبور",
+  "passwordsMismatch": "رمزها یکسان نیستند.",
+  "weakPassword": "رمز عبور باید حداقل ۸ کاراکتر و شامل حرف و عدد باشد.",
+  "invalidInviteCode": "کد دعوت را وارد کنید.",
+  "inviteTitle": "دعوت ساکن",
+  "inviteDescription": "برای هر ساکن یک کد دعوت یکتا صادر می‌شود؛ کد را به او بدهید تا در اپ ثبت‌نام کند. هر کد ۷ روز اعتبار دارد و فقط یک‌بار قابل استفاده است.",
+  "getInviteCode": "دریافت کد دعوت",
+  "inviteCopied": "کد دعوت کپی شد",
   "invalidMobile": "شماره موبایل معتبر نیست.",
-  "invalidOtp": "کد تأیید را وارد کنید.",
+  "invalidCode": "کد دعوت نامعتبر است.",
   "errorNetwork": "خطا در اتصال به سرور؛ اتصال اینترنت را بررسی کنید.",
   "errorTimeout": "زمان انتظار پاسخ سرور به پایان رسید؛ دوباره تلاش کنید.",
   "errorUnauthorized": "احراز هویت لازم است.",
@@ -235,11 +234,11 @@
   "reportTotalDebt": "مجموع بدهی ساکنان",
   "reportTotalPayments": "مجموع پرداخت‌ها",
   "reportTotalExpenses": "مجموع هزینه‌ها",
-  "devTestCode": "کد آزمایشی (حالت توسعه): {code}",
-  "@devTestCode": {
+  "inviteExpiresInDays": "اعتبار کد: {days} روز",
+  "@inviteExpiresInDays": {
     "placeholders": {
-      "code": {
-        "type": "String"
+      "days": {
+        "type": "int"
       }
     }
   },
@@ -403,7 +402,7 @@
         "type": "String"
       }
     }
-  }
+  },
   "homeMenu": "خانه",
   "navHome": "خانه",
   "navCharges": "شارژها",

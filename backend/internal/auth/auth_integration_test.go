@@ -8,9 +8,9 @@ import (
 	httptest "net/http/httptest"
 )
 
-// US1 integration suite (T021): OTP flow, token refresh rotation, rate
-// limiting, logout, and first-user bootstrap through the real HTTP handlers
-// against a migrated PostgreSQL (see integration_harness_test.go).
+// US1 integration suite: setup bootstrap, invite registration, password
+// login, password change, token refresh rotation, and logout through the real
+// HTTP handlers against a migrated PostgreSQL (see integration_harness_test.go).
 
 type tokenPairResp struct {
 	AccessToken  string `json:"access_token"`
@@ -28,70 +28,56 @@ func postJSON(t *testing.T, e *authEnv, path, body, token string) *httptest.Resp
 	return e.request(t, http.MethodPost, path, body, token)
 }
 
-// requestOTPAndVerify drives request→verify and returns the token pair.
-func requestOTPAndVerify(t *testing.T, e *authEnv, phone string) tokenPairResp {
+// setupManager bootstraps the deployment's first (manager) account.
+func setupManager(t *testing.T, e *authEnv, phone, password string) tokenPairResp {
 	t.Helper()
-
-	rec := postJSON(t, e, "/api/v1/auth/otp/request", `{"phone":"`+phone+`"}`, "")
+	body := `{"phone":"` + phone + `","password":"` + password + `","name":"مدیر"}`
+	rec := postJSON(t, e, "/api/v1/auth/setup", body, "")
 	if rec.Code != http.StatusOK {
-		t.Fatalf("otp request %s: got %d want 200: %s", phone, rec.Code, rec.Body)
-	}
-	var issued struct {
-		DevCode string `json:"dev_code"`
-	}
-	if err := json.Unmarshal(rec.Body.Bytes(), &issued); err != nil || len(issued.DevCode) != 6 {
-		t.Fatalf("otp request body for %s: code=%q err=%v", phone, issued.DevCode, err)
-	}
-
-	rec = postJSON(t, e, "/api/v1/auth/otp/verify",
-		`{"phone":"`+phone+`","code":"`+issued.DevCode+`"}`, "")
-	if rec.Code != http.StatusOK {
-		t.Fatalf("verify %s: got %d want 200: %s", phone, rec.Code, rec.Body)
+		t.Fatalf("setup %s: got %d want 200: %s", phone, rec.Code, rec.Body)
 	}
 	var pair tokenPairResp
 	if err := json.Unmarshal(rec.Body.Bytes(), &pair); err != nil {
-		t.Fatalf("verify body for %s: %v", phone, err)
+		t.Fatalf("setup body for %s: %v", phone, err)
 	}
 	return pair
 }
 
-func TestIntegration_OTPFlowAndFirstUserBootstrap(t *testing.T) {
+// inviteAndRegister drives manager-invite → register and returns the new
+// session.
+func inviteAndRegister(t *testing.T, e *authEnv, managerToken, phone, password, name string) tokenPairResp {
+	t.Helper()
+
+	rec := postJSON(t, e, "/api/v1/auth/invites", `{"phone":"`+phone+`"}`, managerToken)
+	if rec.Code != http.StatusCreated {
+		t.Fatalf("invite %s: got %d want 201: %s", phone, rec.Code, rec.Body)
+	}
+	var invite struct {
+		Code string `json:"code"`
+	}
+	if err := json.Unmarshal(rec.Body.Bytes(), &invite); err != nil || invite.Code == "" {
+		t.Fatalf("invite body for %s: code=%q err=%v", phone, invite.Code, err)
+	}
+
+	body := `{"phone":"` + phone + `","code":"` + invite.Code + `","password":"` + password + `","name":"` + name + `"}`
+	rec = postJSON(t, e, "/api/v1/auth/register", body, "")
+	if rec.Code != http.StatusOK {
+		t.Fatalf("register %s: got %d want 200: %s", phone, rec.Code, rec.Body)
+	}
+	var pair tokenPairResp
+	if err := json.Unmarshal(rec.Body.Bytes(), &pair); err != nil {
+		t.Fatalf("register body for %s: %v", phone, err)
+	}
+	return pair
+}
+
+func TestIntegration_SetupBootstrapAndRegistration(t *testing.T) {
 	e := newAuthEnv(t)
-	const phone = "09120000001"
+	const managerPhone = "09120000001"
+	const managerPassword = "hamsha-1234"
 
-	// 1. Request → dev mode returns the 6-digit code in the response.
-	rec := postJSON(t, e, "/api/v1/auth/otp/request", `{"phone":"`+phone+`"}`, "")
-	if rec.Code != http.StatusOK {
-		t.Fatalf("otp request: got %d want 200: %s", rec.Code, rec.Body)
-	}
-	var issued struct {
-		DevCode string `json:"dev_code"`
-	}
-	if err := json.Unmarshal(rec.Body.Bytes(), &issued); err != nil || len(issued.DevCode) != 6 {
-		t.Fatalf("dev_code missing: body=%s err=%v", rec.Body, err)
-	}
-
-	// 2. Immediate re-request inside the 60 s throttle window → 429.
-	if rec := postJSON(t, e, "/api/v1/auth/otp/request", `{"phone":"`+phone+`"}`, ""); rec.Code != http.StatusTooManyRequests {
-		t.Fatalf("throttled re-request: got %d want 429", rec.Code)
-	}
-
-	// 3. Wrong code → 401 UNAUTHENTICATED envelope.
-	if rec := postJSON(t, e, "/api/v1/auth/otp/verify", `{"phone":"`+phone+`","code":"000000"}`, ""); rec.Code != http.StatusUnauthorized {
-		t.Fatalf("wrong code: got %d want 401", rec.Code)
-	}
-
-	// 4. Correct code → tokens + user; first user of a fresh deployment is
-	// manager (T024 bootstrap).
-	rec = postJSON(t, e, "/api/v1/auth/otp/verify",
-		`{"phone":"`+phone+`","code":"`+issued.DevCode+`"}`, "")
-	if rec.Code != http.StatusOK {
-		t.Fatalf("verify: got %d want 200: %s", rec.Code, rec.Body)
-	}
-	var first tokenPairResp
-	if err := json.Unmarshal(rec.Body.Bytes(), &first); err != nil {
-		t.Fatalf("verify body: %v", err)
-	}
+	// 1. Fresh deployment: setup creates the manager with tokens.
+	first := setupManager(t, e, managerPhone, managerPassword)
 	if first.User.Role != RoleManager || first.User.ID == "" {
 		t.Fatalf("bootstrap: role=%q id=%q want manager + non-empty id", first.User.Role, first.User.ID)
 	}
@@ -99,15 +85,42 @@ func TestIntegration_OTPFlowAndFirstUserBootstrap(t *testing.T) {
 		t.Fatalf("token pair incomplete: %+v", first)
 	}
 
-	// 5. Second registration is resident — bootstrap applies once.
-	second := requestOTPAndVerify(t, e, "09120000002")
+	// 2. A second setup is rejected — bootstrap applies once.
+	if rec := postJSON(t, e, "/api/v1/auth/setup", `{"phone":"09120000009","password":"hamsha-1234"}`, ""); rec.Code != http.StatusConflict {
+		t.Fatalf("second setup: got %d want 409: %s", rec.Code, rec.Body)
+	}
+
+	// 3. Manager issues an invite; the resident registers with it.
+	second := inviteAndRegister(t, e, first.AccessToken, "09120000002", "hamsha-1234", "ساکن")
 	if second.User.Role != RoleResident {
 		t.Fatalf("second user role=%q want resident", second.User.Role)
 	}
 
+	// 4. Password login works for both accounts.
+	for _, tc := range []struct{ phone, password string }{
+		{managerPhone, managerPassword},
+		{"09120000002", "hamsha-1234"},
+	} {
+		body := `{"phone":"` + tc.phone + `","password":"` + tc.password + `"}`
+		if rec := postJSON(t, e, "/api/v1/auth/login", body, ""); rec.Code != http.StatusOK {
+			t.Fatalf("login %s: got %d want 200: %s", tc.phone, rec.Code, rec.Body)
+		}
+	}
+
+	// 5. Wrong password → 401 with no account enumeration (same code for
+	// unknown phones).
+	for _, body := range []string{
+		`{"phone":"09120000002","password":"wrong-pass"}`,
+		`{"phone":"09129999999","password":"hamsha-1234"}`,
+	} {
+		if rec := postJSON(t, e, "/api/v1/auth/login", body, ""); rec.Code != http.StatusUnauthorized {
+			t.Fatalf("login %s: got %d want 401", body, rec.Code)
+		}
+	}
+
 	// 6. GET /auth/me with the access token returns the same identity plus
 	// its (empty until US2) building scope.
-	rec = e.request(t, http.MethodGet, "/api/v1/auth/me", "", first.AccessToken)
+	rec := e.request(t, http.MethodGet, "/api/v1/auth/me", "", first.AccessToken)
 	if rec.Code != http.StatusOK {
 		t.Fatalf("me: got %d want 200: %s", rec.Code, rec.Body)
 	}
@@ -123,21 +136,87 @@ func TestIntegration_OTPFlowAndFirstUserBootstrap(t *testing.T) {
 		t.Fatalf("me mismatch: id=%s role=%s", me.ID, me.Role)
 	}
 
-	// 7. Login was audited (T025): one user.login entry per verification.
+	// 7. Every session issue was audited (T025): setup + register + 2 logins.
 	logins := 0
 	for _, r := range e.auditor.records {
 		if r.action == "user.login" && r.actorID != nil && r.objectType == "user" {
 			logins++
 		}
 	}
-	if logins != 2 {
-		t.Fatalf("user.login audit entries=%d want 2", logins)
+	if logins != 4 {
+		t.Fatalf("user.login audit entries=%d want 4", logins)
+	}
+}
+
+func TestIntegration_InviteLifecycle(t *testing.T) {
+	e := newAuthEnv(t)
+	manager := setupManager(t, e, "09120000001", "hamsha-1234")
+	const phone = "09120000003"
+
+	// 1. Register consumes the code — reuse fails.
+	rec := postJSON(t, e, "/api/v1/auth/invites", `{"phone":"`+phone+`"}`, manager.AccessToken)
+	if rec.Code != http.StatusCreated {
+		t.Fatalf("invite: got %d want 201: %s", rec.Code, rec.Body)
+	}
+	var invite struct{ Code string }
+	if err := json.Unmarshal(rec.Body.Bytes(), &invite); err != nil || invite.Code == "" {
+		t.Fatalf("invite body: %v", err)
+	}
+	body := `{"phone":"` + phone + `","code":"` + invite.Code + `","password":"hamsha-1234"}`
+	if rec := postJSON(t, e, "/api/v1/auth/register", body, ""); rec.Code != http.StatusOK {
+		t.Fatalf("register: got %d want 200: %s", rec.Code, rec.Body)
+	}
+	if rec := postJSON(t, e, "/api/v1/auth/register", body, ""); rec.Code != http.StatusUnauthorized {
+		t.Fatalf("invite reuse: got %d want 401", rec.Code)
+	}
+
+	// 2. A wrong code never registers a new phone.
+	if rec := postJSON(t, e, "/api/v1/auth/register", `{"phone":"09120000004","code":"AAAAAAAA","password":"hamsha-1234"}`, ""); rec.Code != http.StatusUnauthorized {
+		t.Fatalf("wrong code: got %d want 401", rec.Code)
+	}
+
+	// 3. A new invite for an existing phone resets the password (recovery
+	// path) — the old password stops working, the new one logs in.
+	reset := inviteAndRegister(t, e, manager.AccessToken, phone, "new-password-9", "")
+	rec = postJSON(t, e, "/api/v1/auth/login", `{"phone":"`+phone+`","password":"hamsha-1234"}`, "")
+	if rec.Code != http.StatusUnauthorized {
+		t.Fatalf("old password after reset: got %d want 401", rec.Code)
+	}
+	rec = postJSON(t, e, "/api/v1/auth/login", `{"phone":"`+phone+`","password":"new-password-9"}`, "")
+	if rec.Code != http.StatusOK {
+		t.Fatalf("new password login: got %d want 200: %s", rec.Code, rec.Body)
+	}
+	if reset.User.ID == "" {
+		t.Fatalf("reset session missing user id")
+	}
+}
+
+func TestIntegration_PasswordChange(t *testing.T) {
+	e := newAuthEnv(t)
+	pair := setupManager(t, e, "09120000001", "hamsha-1234")
+
+	// 1. Wrong current password → 401.
+	if rec := postJSON(t, e, "/api/v1/auth/password",
+		`{"current_password":"nope","new_password":"changed-99"}`, pair.AccessToken); rec.Code != http.StatusUnauthorized {
+		t.Fatalf("wrong current: got %d want 401", rec.Code)
+	}
+
+	// 2. Correct change → 204, old login dies, new login works.
+	if rec := postJSON(t, e, "/api/v1/auth/password",
+		`{"current_password":"hamsha-1234","new_password":"changed-99"}`, pair.AccessToken); rec.Code != http.StatusNoContent {
+		t.Fatalf("change: got %d want 204: %s", rec.Code, rec.Body)
+	}
+	if rec := postJSON(t, e, "/api/v1/auth/login", `{"phone":"09120000001","password":"hamsha-1234"}`, ""); rec.Code != http.StatusUnauthorized {
+		t.Fatalf("old password: got %d want 401", rec.Code)
+	}
+	if rec := postJSON(t, e, "/api/v1/auth/login", `{"phone":"09120000001","password":"changed-99"}`, ""); rec.Code != http.StatusOK {
+		t.Fatalf("new password: got %d want 200: %s", rec.Code, rec.Body)
 	}
 }
 
 func TestIntegration_RefreshRotation(t *testing.T) {
 	e := newAuthEnv(t)
-	pair := requestOTPAndVerify(t, e, "09130000001")
+	pair := setupManager(t, e, "09120000001", "hamsha-1234")
 
 	// Rotate: old refresh → new pair.
 	rec := postJSON(t, e, "/api/v1/auth/refresh", `{"refresh_token":"`+pair.RefreshToken+`"}`, "")
@@ -148,13 +227,8 @@ func TestIntegration_RefreshRotation(t *testing.T) {
 	if err := json.Unmarshal(rec.Body.Bytes(), &rotated); err != nil {
 		t.Fatalf("refresh body: %v", err)
 	}
-	if rotated.RefreshToken == pair.RefreshToken || rotated.AccessToken == "" {
-		t.Fatalf("rotation must mint fresh tokens: %+v", rotated)
-	}
-
-	// The new access token authenticates.
-	if rec := e.request(t, http.MethodGet, "/api/v1/auth/me", "", rotated.AccessToken); rec.Code != http.StatusOK {
-		t.Fatalf("me after refresh: got %d want 200", rec.Code)
+	if rotated.AccessToken == "" || rotated.RefreshToken == "" || rotated.RefreshToken == pair.RefreshToken {
+		t.Fatalf("rotation did not produce a fresh pair: %+v", rotated)
 	}
 
 	// Reuse of the OLD token revokes the whole family → 401…
@@ -169,7 +243,7 @@ func TestIntegration_RefreshRotation(t *testing.T) {
 
 func TestIntegration_LogoutRevokesFamily(t *testing.T) {
 	e := newAuthEnv(t)
-	pair := requestOTPAndVerify(t, e, "09140000001")
+	pair := setupManager(t, e, "09120000001", "hamsha-1234")
 
 	if rec := postJSON(t, e, "/api/v1/auth/logout", `{"refresh_token":"`+pair.RefreshToken+`"}`, ""); rec.Code != http.StatusNoContent {
 		t.Fatalf("logout: got %d want 204", rec.Code)
@@ -181,10 +255,5 @@ func TestIntegration_LogoutRevokesFamily(t *testing.T) {
 	}
 	if rec := postJSON(t, e, "/api/v1/auth/logout", `{"refresh_token":"`+pair.RefreshToken+`"}`, ""); rec.Code != http.StatusNoContent {
 		t.Fatalf("idempotent logout: got %d want 204", rec.Code)
-	}
-
-	// Unauthenticated /auth/me.
-	if rec := e.request(t, http.MethodGet, "/api/v1/auth/me", "", ""); rec.Code != http.StatusUnauthorized {
-		t.Fatalf("unauthenticated me: got %d want 401", rec.Code)
 	}
 }

@@ -7,11 +7,30 @@ import '../formatters/money_text.dart';
 /// stays in a single string file.
 abstract final class Validators {
   static final RegExp _mobile = RegExp(r'^09\d{9}$');
+  static final RegExp _letter = RegExp(r'\p{L}', unicode: true);
+  static final RegExp _digit = RegExp(r'\p{N}', unicode: true);
 
   /// Iranian mobile format `09xxxxxxxxx`; accepts Persian-digit input.
   static String? mobile(AppLocalizations l10n, String? value) {
     final normalized = value == null ? '' : fromPersianDigits(value.trim());
     if (!_mobile.hasMatch(normalized)) return l10n.invalidMobile;
+    return null;
+  }
+
+  /// Password policy: ≥ 8 characters with at least one letter and one digit.
+  static String? password(AppLocalizations l10n, String? value) {
+    final v = value ?? '';
+    if (v.length < 8 || !_letter.hasMatch(v) || !_digit.hasMatch(v)) {
+      return l10n.weakPassword;
+    }
+    return null;
+  }
+
+  /// Manager invite code: 8 characters of A-Z (minus ambiguous) + 2-9.
+  static String? inviteCode(AppLocalizations l10n, String? value) {
+    final normalized =
+        value == null ? '' : fromPersianDigits(value.trim()).toUpperCase();
+    if (normalized.length < 4) return l10n.invalidCode;
     return null;
   }
 

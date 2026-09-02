@@ -34,8 +34,11 @@
 
 | Method | Path | Description |
 |---|---|---|
-| POST | `/auth/otp/request` | Body `{ "phone": "0912..." }` → `204`. Rate-limited (resend 60 s). Dev mode returns code in response when `APP_ENV=dev`. |
-| POST | `/auth/otp/verify` | Body `{ "phone", "code" }` → `{ "access_token", "refresh_token", "expires_in", "user": { id, name, role, primary_building_id? } }`. Registers a new user if phone unknown. |
+| POST | `/auth/setup` | Body `{ "phone", "password", "name?" }` → `{ "access_token", "refresh_token", "expires_in", "user": { id, name, role } }`. First-user bootstrap: allowed only while zero active users exist (otherwise `409 CONFLICT`); the first account is the manager. |
+| POST | `/auth/register` | Body `{ "phone", "code", "password", "name?" }` → session body. Redeems a one-time manager-issued invite code bound to the phone: unknown phones register as residents; existing users get their password reset (recovery path). `401` on invalid/expired/consumed code. |
+| POST | `/auth/login` | Body `{ "phone", "password" }` → session body. `401` (same code) for wrong password or unknown phone — no account enumeration. |
+| POST | `/auth/password` | Bearer. Body `{ "current_password", "new_password" }` → `204`. Password policy: ≥ 8 characters with at least one letter and one digit. |
+| POST | `/auth/invites` | Bearer, manager only. Body `{ "phone" }` → `201 { "code", "expires_in_days": 7 }`. One-time invite code, shown once, redeemable for that phone only. |
 | POST | `/auth/refresh` | Body `{ "refresh_token" }` → new token pair (rotates refresh token; reuse of old token revokes the family). |
 | POST | `/auth/logout` | Revokes the refresh token family. |
 | GET | `/auth/me` | Current user + role context: manager → permitted buildings; resident → occupied units. |

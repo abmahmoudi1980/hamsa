@@ -11,7 +11,7 @@
 | R1 | Go HTTP framework choice | Resolved |
 | R2 | Go data-access approach (ORM vs query-first) | Resolved |
 | R3 | Database migrations tooling | Resolved |
-| R4 | OTP delivery over SMS (Iranian providers) | Resolved |
+| R4 | Login credential mechanism (SMS OTP → password) | Resolved (superseded) |
 | R5 | Online payment gateway integration pattern | Resolved |
 | R6 | Jalali (Persian) calendar handling | Resolved |
 | R7 | Money representation & rounding reconciliation | Resolved |
@@ -40,11 +40,10 @@
 - **Rationale**: De-facto standard, SQL-first (full control over constraints critical for financial data — CHECK constraints, unique indexes), CI-friendly, no ORM lock-in.
 - **Alternatives considered**: GORM AutoMigrate (rejected — insufficient constraint control for financial tables), Atlas (heavier than needed).
 
-## R4 — OTP SMS delivery
+## R4 — Login credential mechanism (superseded)
 
-- **Decision**: Provider-agnostic `SmsSender` interface with a Kavenegar adapter as the default implementation and a **dev-mode console/log sender** for local development and tests.
-- **Rationale**: Iranian SMS providers (Kavenegar, SMS.ir, Farapayamak) all expose simple REST verify/send APIs; the interface isolates the choice so credentials/provider can change via config without touching auth logic. OTP: 6 digits, 2-minute validity, max 3 attempts per code, resend throttle 60s, per-phone rate limit.
-- **Alternatives considered**: Direct Kavenegar SDK binding everywhere (rejected — vendor lock-in), email OTP (rejected — Iranian users are mobile-first).
+- **Original decision**: provider-agnostic `SmsSender` interface (Kavenegar adapter + dev console sender) delivering SMS OTP codes.
+- **Superseded (migration 0009)**: SMS OTP is removed from the product. Iranian SMS providers required panel-side template approval/line activation that made OTP delivery unreliable to obtain. Login is now mobile number + bcrypt password; the manager issues one-time invite codes (hashed, 7-day validity, single redemption) for resident registration and password recovery; the first account bootstraps via `POST /auth/setup`. JWT access + rotating refresh tokens (R8) are unchanged.
 
 ## R5 — Payment gateway
 

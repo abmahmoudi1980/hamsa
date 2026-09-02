@@ -31,6 +31,11 @@ class ManagerDashboardScreen extends ConsumerWidget {
         title: Text(l10n.dashboardTitle),
         actions: [
           IconButton(
+            icon: const Icon(Icons.person_add_alt_outlined),
+            tooltip: l10n.inviteTitle,
+            onPressed: () => context.push('/manager/invite'),
+          ),
+          IconButton(
             icon: const Icon(Icons.apartment),
             tooltip: l10n.buildingsTitle,
             onPressed: () => context.push('/manager/buildings'),

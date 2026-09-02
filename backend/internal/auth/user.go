@@ -16,15 +16,16 @@ const (
 
 // User is the authentication identity (migration 0001 `users`).
 type User struct {
-	ID        uuid.UUID  `gorm:"column:id;type:uuid;primaryKey"`
-	Phone     string     `gorm:"column:phone"`
-	Role      string     `gorm:"column:role"`
-	Name      string     `gorm:"column:name"`
-	FCMToken  *string    `gorm:"column:fcm_token"`
-	IsActive  bool       `gorm:"column:is_active"`
-	CreatedAt time.Time  `gorm:"column:created_at"`
-	UpdatedAt time.Time  `gorm:"column:updated_at"`
-	DeletedAt *time.Time `gorm:"column:deleted_at"`
+	ID           uuid.UUID  `gorm:"column:id;type:uuid;primaryKey"`
+	Phone        string     `gorm:"column:phone"`
+	PasswordHash *string    `gorm:"column:password_hash"`
+	Role         string     `gorm:"column:role"`
+	Name         string     `gorm:"column:name"`
+	FCMToken     *string    `gorm:"column:fcm_token"`
+	IsActive     bool       `gorm:"column:is_active"`
+	CreatedAt    time.Time  `gorm:"column:created_at"`
+	UpdatedAt    time.Time  `gorm:"column:updated_at"`
+	DeletedAt    *time.Time `gorm:"column:deleted_at"`
 }
 
 func (User) TableName() string { return "users" }
@@ -69,4 +70,12 @@ func (r *Repository) CountActive(ctx context.Context) (int64, error) {
 	var n int64
 	err := r.db.WithContext(ctx).Model(&User{}).Count(&n).Error
 	return n, err
+}
+
+// UpdatePassword persists a password change (and any name correction) on an
+// existing user.
+func (r *Repository) UpdatePassword(ctx context.Context, u *User) error {
+	return r.db.WithContext(ctx).Model(&User{}).
+		Where("id = ?", u.ID).
+		Updates(map[string]any{"password_hash": u.PasswordHash, "name": u.Name}).Error
 }

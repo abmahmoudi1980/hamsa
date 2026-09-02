@@ -22,10 +22,10 @@ final authRepositoryProvider = Provider<AuthRepository>(
   (ref) => AuthRepository(ref.watch(apiClientProvider).dio),
 );
 
-/// Verified session material returned by [AuthRepository.verifyOtp]; the
+/// Session material returned by the login/register/setup endpoints; the
 /// screen hands it to [AuthController.completeLogin] for persistence.
-class VerifyResult {
-  const VerifyResult({
+class AuthResult {
+  const AuthResult({
     required this.user,
     required this.accessToken,
     required this.refreshToken,
@@ -36,44 +36,84 @@ class VerifyResult {
   final String refreshToken;
 }
 
-/// US1 auth endpoints (contracts/api.md "Auth P0-10").
+/// Auth endpoints (phone + password; contracts/api.md "Auth P0-10").
 class AuthRepository {
   AuthRepository(this._dio);
 
   final Dio _dio;
 
-  /// `POST /auth/otp/request`. Returns the dev-mode code (dev deployments
-  /// only — production answers 204 with no body).
-  Future<String?> requestOtp(String phone) async {
-    final res = await _dio.post<dynamic>(
-      '/auth/otp/request',
-      data: {'phone': phone},
-    );
-    final data = res.data;
-    if (data is Map && data['dev_code'] != null) {
-      return data['dev_code'].toString();
-    }
-    return null;
+  /// `POST /auth/login` → token pair + user context.
+  Future<AuthResult> login({
+    required String phone,
+    required String password,
+  }) async {
+    return _session('/auth/login', {'phone': phone, 'password': password});
   }
 
-  /// `POST /auth/otp/verify` → token pair + user context.
-  Future<VerifyResult> verifyOtp({
+  /// `POST /auth/setup` — first-account bootstrap (fresh deployments only).
+  Future<AuthResult> setup({
+    required String phone,
+    required String password,
+    String? name,
+  }) async {
+    return _session('/auth/setup', {
+      'phone': phone,
+      'password': password,
+      if (name != null && name.isNotEmpty) 'name': name,
+    });
+  }
+
+  /// `POST /auth/register` — redeem a one-time invite code. Registers a new
+  /// resident or resets an existing user's password (recovery path).
+  Future<AuthResult> register({
     required String phone,
     required String code,
+    required String password,
+    String? name,
   }) async {
+    return _session('/auth/register', {
+      'phone': phone,
+      'code': code,
+      'password': password,
+      if (name != null && name.isNotEmpty) 'name': name,
+    });
+  }
+
+  /// `POST /auth/password` — change the signed-in user's password (204).
+  Future<void> changePassword({
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    await _dio.post<void>('/auth/password', data: {
+      'current_password': currentPassword,
+      'new_password': newPassword,
+    });
+  }
+
+  /// `POST /auth/invites` (manager only) → one-time invite code.
+  Future<String> createInvite(String phone) async {
     final res = await _dio.post<Map<String, dynamic>>(
-      '/auth/otp/verify',
-      data: {'phone': phone, 'code': code},
+      '/auth/invites',
+      data: {'phone': phone},
     );
-    final data = res.data;
-    final access = data?['access_token']?.toString();
-    final refresh = data?['refresh_token']?.toString();
-    final userJson = data?['user'];
+    final code = res.data?['code']?.toString();
+    if (code == null || code.isEmpty) {
+      throw ApiException(code: 'unknown');
+    }
+    return code;
+  }
+
+  /// Shared session-body parsing for login/register/setup.
+  Future<AuthResult> _session(String path, Map<String, dynamic> data) async {
+    final res = await _dio.post<Map<String, dynamic>>(path, data: data);
+    final access = res.data?['access_token']?.toString();
+    final refresh = res.data?['refresh_token']?.toString();
+    final userJson = res.data?['user'];
     if (access == null || refresh == null || userJson is! Map) {
       throw ApiException(code: 'unknown');
     }
 
-    return VerifyResult(
+    return AuthResult(
       user: UserSession.fromJson(Map<String, dynamic>.from(userJson)),
       accessToken: access,
       refreshToken: refresh,

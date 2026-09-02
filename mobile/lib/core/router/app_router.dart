@@ -4,7 +4,9 @@ import 'package:go_router/go_router.dart';
 import '../../features/auth/auth_controller.dart';
 import '../../features/auth/models/user_session.dart';
 import '../../features/auth/screens/login_screen.dart';
-import '../../features/auth/screens/otp_screen.dart';
+import '../../features/auth/screens/manager_invite_screen.dart';
+import '../../features/auth/screens/register_screen.dart';
+import '../../features/auth/screens/setup_screen.dart';
 import '../../features/buildings/screens/building_form_screen.dart';
 import '../../features/buildings/screens/building_list_screen.dart';
 import '../../features/buildings/screens/occupancy_form_screen.dart';
@@ -53,13 +55,8 @@ final routerProvider = Provider<GoRouter>((ref) {
     routes: [
       GoRoute(path: '/', builder: (_, _) => const SplashScreen()),
       GoRoute(path: '/login', builder: (_, _) => const LoginScreen()),
-      GoRoute(
-        path: '/login/otp',
-        builder: (_, state) => OtpScreen(
-          phone: state.uri.queryParameters['phone'] ?? '',
-          devCode: state.uri.queryParameters['dev'],
-        ),
-      ),
+      GoRoute(path: '/register', builder: (_, _) => const RegisterScreen()),
+      GoRoute(path: '/setup', builder: (_, _) => const SetupScreen()),
       // Manager section (US2 buildings & units; US3 people & occupancy;
       // dashboard arrives in US10).
       GoRoute(
@@ -140,6 +137,10 @@ final routerProvider = Provider<GoRouter>((ref) {
                 ],
               ),
             ],
+          ),
+          GoRoute(
+            path: 'invite',
+            builder: (_, _) => const ManagerInviteScreen(),
           ),
           GoRoute(
             path: 'periods/:buildingId',
@@ -321,15 +322,23 @@ String? _redirect(Ref ref, GoRouterState state) {
   }
 
   if (auth.status == AuthStatus.unauthenticated) {
-    return location.startsWith('/login') ? null : '/login';
+    const authPaths = ['/login', '/register', '/setup'];
+    final isAuthPath =
+        authPaths.any((p) => location == p || location.startsWith('$p/'));
+    return isAuthPath ? null : '/login';
   }
-  // Authenticated: never show splash/login — post-login (OTP verified while
-  // still on /login/otp) and app-start land each role on its own shell;
-  // keep roles out of the other role's section. Shared surfaces
-  // (/invoice/:id, /invoice/:id/pay) are reachable from both sections.
+  // Authenticated: never show splash/login — post-login and app-start land
+  // each role on its own shell; keep roles out of the other role's section.
+  // Shared surfaces (/invoice/:id, /invoice/:id/pay) are reachable from both
+  // sections.
   final isManager = auth.user?.role == UserRole.manager;
   final home = isManager ? '/manager' : '/home';
   final otherSection = isManager ? '/home' : '/manager';
-  if (location == '/' || location.startsWith('/login')) return home;
+  if (location == '/' ||
+      location.startsWith('/login') ||
+      location.startsWith('/register') ||
+      location.startsWith('/setup')) {
+    return home;
+  }
   return location.startsWith(otherSection) ? home : null;
 }

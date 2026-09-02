@@ -20,88 +20,241 @@ type LoginAuditor interface {
 	Append(ctx context.Context, actorID *uuid.UUID, action, objectType string, objectID *uuid.UUID, before, after any) error
 }
 
-// Handler serves the auth endpoints (contracts/api.md "Auth P0-10").
+// Handler serves the auth endpoints (phone+password login; one-time
+// manager-issued invite codes for registration and password reset).
 type Handler struct {
-	OTP    *OTPService
-	Tokens *TokenService
-	Users  *Repository
-	Scopes *ScopeResolver
+	Tokens  *TokenService
+	Users   *Repository
+	Scopes  *ScopeResolver
+	Invites *InviteService
 
 	// Auditor appends the user.login audit entry (FR-038) on successful
-	// verification; nil disables auditing (tests).
+	// login; nil disables auditing (tests).
 	Auditor LoginAuditor
 }
 
-// Register mounts the public auth routes plus GET /me (Bearer-authenticated)
+// Register mounts the public auth routes plus the authenticated /auth routes
 // under r, which must be bound at /auth within /api/v1.
 func Register(r *gin.RouterGroup, h *Handler) {
-	r.POST("/otp/request", h.requestOTP)
-	r.POST("/otp/verify", h.verifyOTP)
+	r.POST("/setup", h.setup)
+	r.POST("/register", h.register)
+	r.POST("/login", h.login)
 	r.POST("/refresh", h.refresh)
 	r.POST("/logout", h.logout)
 
-	me := r.Group("", Authenticate(h.Tokens, h.Users))
-	me.GET("/me", h.me)
+	authed := r.Group("", Authenticate(h.Tokens, h.Users))
+	authed.GET("/me", h.me)
+	authed.POST("/password", h.changePassword)
+	authed.POST("/invites", RequireRole(RoleManager), h.createInvite)
 }
 
-type otpRequestReq struct {
-	Phone string `json:"phone" binding:"required"`
+type credentialsReq struct {
+	Phone    string `json:"phone" binding:"required"`
+	Password string `json:"password" binding:"required"`
+	Name     string `json:"name"`
 }
 
-// requestOTP issues a fresh code (60 s resend throttle enforced by OTPService;
-// repeat requests inside the window get 429 RATE_LIMITED). In dev mode the
-// code is returned in the response so the quickstart works without a real SMS
-// provider; production answers 204 with no body.
-func (h *Handler) requestOTP(c *gin.Context) {
-	var req otpRequestReq
+// setup bootstraps a fresh deployment: when no active users exist, the first
+// caller becomes the manager. Once any user exists the endpoint is closed
+// (409) — every later account arrives through /register with an invite code.
+func (h *Handler) setup(c *gin.Context) {
+	var req credentialsReq
 	if err := c.ShouldBindJSON(&req); err != nil {
-		httpx.WriteError(c, httpx.BadRequest("شماره موبایل الزامی است.").WithDetail("phone", "required"))
+		httpx.WriteError(c, httpx.BadRequest("شماره موبایل و رمز عبور الزامی است."))
 		return
 	}
+	ctx := c.Request.Context()
 
-	code, err := h.OTP.Issue(c.Request.Context(), req.Phone)
-	if err != nil {
+	if !iranianMobile.MatchString(req.Phone) {
+		httpx.WriteError(c, ErrInvalidPhone)
+		return
+	}
+	if err := ValidatePassword(req.Password); err != nil {
 		httpx.WriteError(c, err)
 		return
 	}
-	if code != "" { // dev mode only (OTPService returns "" otherwise)
-		c.JSON(http.StatusOK, gin.H{"dev_code": code})
+
+	count, err := h.Users.CountActive(ctx)
+	if err != nil {
+		httpx.WriteError(c, httpx.Internal("خطا در بررسی حساب‌های موجود."))
+		return
+	}
+	if count > 0 {
+		httpx.WriteError(c, httpx.Conflict("حساب مدیریتی قبلاً ساخته شده است. برای ورود از صفحه ورود استفاده کنید."))
+		return
+	}
+
+	hash, err := HashPassword(req.Password)
+	if err != nil {
+		httpx.WriteError(c, httpx.ErrInternal)
+		return
+	}
+	u := &User{ID: uuid.New(), Phone: req.Phone, Role: RoleManager, Name: req.Name, IsActive: true, PasswordHash: &hash}
+	if err := h.Users.Create(ctx, u); err != nil {
+		httpx.WriteError(c, httpx.Internal("خطا در ساخت حساب مدیریتی."))
+		return
+	}
+	h.respondSession(c, u)
+}
+
+// register redeems a one-time invite code. Unknown phones become resident
+// users (invite codes are only issued for this purpose); an existing user
+// with the same phone gets their password reset — the invite is the trusted
+// channel that proves control of the phone, so it doubles as password
+// recovery.
+type registerReq struct {
+	credentialsReq
+	Code string `json:"code" binding:"required"`
+}
+
+func (h *Handler) register(c *gin.Context) {
+	var req registerReq
+	if err := c.ShouldBindJSON(&req); err != nil {
+		httpx.WriteError(c, httpx.BadRequest("شماره موبایل، کد دعوت و رمز عبور الزامی است."))
+		return
+	}
+	ctx := c.Request.Context()
+
+	if !iranianMobile.MatchString(req.Phone) {
+		httpx.WriteError(c, ErrInvalidPhone)
+		return
+	}
+	if err := ValidatePassword(req.Password); err != nil {
+		httpx.WriteError(c, err)
+		return
+	}
+	if err := h.Invites.Redeem(ctx, req.Phone, req.Code); err != nil {
+		httpx.WriteError(c, err)
+		return
+	}
+
+	hash, err := HashPassword(req.Password)
+	if err != nil {
+		httpx.WriteError(c, httpx.ErrInternal)
+		return
+	}
+
+	u, err := h.Users.FindByPhone(ctx, req.Phone)
+	switch {
+	case err == nil:
+		u.PasswordHash = &hash
+		if req.Name != "" {
+			u.Name = req.Name
+		}
+		if err := h.Users.UpdatePassword(ctx, u); err != nil {
+			httpx.WriteError(c, httpx.Internal("خطا در ذخیره رمز عبور."))
+			return
+		}
+	case errors.Is(err, gorm.ErrRecordNotFound):
+		u = &User{ID: uuid.New(), Phone: req.Phone, Role: RoleResident, Name: req.Name, IsActive: true, PasswordHash: &hash}
+		if err := h.Users.Create(ctx, u); err != nil {
+			httpx.WriteError(c, httpx.Internal("خطا در ثبت‌نام کاربر."))
+			return
+		}
+	default:
+		httpx.WriteError(c, httpx.Internal("خطا در بازیابی حساب کاربری."))
+		return
+	}
+
+	h.respondSession(c, u)
+}
+
+// login authenticates phone+password.
+func (h *Handler) login(c *gin.Context) {
+	var req credentialsReq
+	if err := c.ShouldBindJSON(&req); err != nil {
+		httpx.WriteError(c, httpx.BadRequest("شماره موبایل و رمز عبور الزامی است."))
+		return
+	}
+	ctx := c.Request.Context()
+
+	if !iranianMobile.MatchString(req.Phone) {
+		httpx.WriteError(c, ErrWrongLogin)
+		return
+	}
+
+	u, err := h.Users.FindByPhone(ctx, req.Phone)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			httpx.WriteError(c, ErrWrongLogin) // same answer for unknown phone: no account enumeration
+			return
+		}
+		httpx.WriteError(c, httpx.Internal("خطا در بازیابی حساب کاربری."))
+		return
+	}
+	if u.PasswordHash == nil || !CheckPassword(*u.PasswordHash, req.Password) {
+		httpx.WriteError(c, ErrWrongLogin)
+		return
+	}
+
+	h.respondSession(c, u)
+}
+
+type changePasswordReq struct {
+	CurrentPassword string `json:"current_password" binding:"required"`
+	NewPassword     string `json:"new_password" binding:"required"`
+}
+
+// changePassword sets a new password after verifying the current one.
+func (h *Handler) changePassword(c *gin.Context) {
+	u := CurrentUser(c)
+	if u == nil {
+		httpx.WriteError(c, httpx.Unauthorized("احراز هویت لازم است."))
+		return
+	}
+	var req changePasswordReq
+	if err := c.ShouldBindJSON(&req); err != nil {
+		httpx.WriteError(c, httpx.BadRequest("رمز عبور فعلی و رمز جدید الزامی است."))
+		return
+	}
+	if err := ValidatePassword(req.NewPassword); err != nil {
+		httpx.WriteError(c, err)
+		return
+	}
+	if u.PasswordHash == nil || !CheckPassword(*u.PasswordHash, req.CurrentPassword) {
+		httpx.WriteError(c, ErrWrongLogin)
+		return
+	}
+
+	hash, err := HashPassword(req.NewPassword)
+	if err != nil {
+		httpx.WriteError(c, httpx.ErrInternal)
+		return
+	}
+	u.PasswordHash = &hash
+	if err := h.Users.UpdatePassword(c.Request.Context(), u); err != nil {
+		httpx.WriteError(c, httpx.Internal("خطا در ذخیره رمز عبور."))
 		return
 	}
 	c.Status(http.StatusNoContent)
 }
 
-type verifyReq struct {
+type createInviteReq struct {
 	Phone string `json:"phone" binding:"required"`
-	Code  string `json:"code" binding:"required"`
 }
 
-// verifyOTP checks the code and, on success, auto-registers unknown phones
-// and returns a token pair plus the user context.
-//
-// First-user bootstrap: in a fresh deployment (no active users yet) the first
-// phone to register is granted the manager role — the product's deployment
-// story is "the manager installs the app and signs up"; every later
-// self-registration lands as resident until a manager grants buildings
-// (user_buildings, US2). Documented per T024.
-func (h *Handler) verifyOTP(c *gin.Context) {
-	var req verifyReq
+// createInvite issues a one-time invite code for a phone (manager only). The
+// plaintext code is returned exactly once; the manager passes it to the
+// resident out-of-band.
+func (h *Handler) createInvite(c *gin.Context) {
+	manager := CurrentUser(c)
+	var req createInviteReq
 	if err := c.ShouldBindJSON(&req); err != nil {
-		httpx.WriteError(c, httpx.BadRequest("شماره موبایل و کد تأیید الزامی است."))
-		return
-	}
-	ctx := c.Request.Context()
-
-	if err := h.OTP.Verify(ctx, req.Phone, req.Code); err != nil {
-		httpx.WriteError(c, err)
+		httpx.WriteError(c, httpx.BadRequest("شماره موبایل الزامی است."))
 		return
 	}
 
-	u, err := h.findOrRegisterUser(ctx, req.Phone)
+	code, err := h.Invites.Issue(c.Request.Context(), req.Phone, &manager.ID)
 	if err != nil {
 		httpx.WriteError(c, err)
 		return
 	}
+	c.JSON(http.StatusCreated, gin.H{"code": code, "expires_in_days": 7})
+}
+
+// respondSession issues a token pair and answers the standard session body.
+func (h *Handler) respondSession(c *gin.Context, u *User) {
+	ctx := c.Request.Context()
 
 	access, expiresAt, err := h.Tokens.IssueAccessToken(u.ID)
 	if err != nil {
@@ -115,11 +268,7 @@ func (h *Handler) verifyOTP(c *gin.Context) {
 	}
 
 	if h.Auditor != nil {
-		if err := h.Auditor.Append(ctx, &u.ID, "user.login", "user", &u.ID, nil, gin.H{"phone": u.Phone, "role": u.Role}); err != nil {
-			// Audit failures never block login (FR-038 keeps the trail
-			// best-effort at write time; the DB enforces append-only).
-			_ = err
-		}
+		_ = h.Auditor.Append(ctx, &u.ID, "user.login", "user", &u.ID, nil, gin.H{"phone": u.Phone, "role": u.Role})
 	}
 
 	c.JSON(http.StatusOK, gin.H{
@@ -128,32 +277,6 @@ func (h *Handler) verifyOTP(c *gin.Context) {
 		"expires_in":    int64(expiresAt.Sub(h.Tokens.clock.Now()).Seconds()),
 		"user":          userPayload(u),
 	})
-}
-
-// findOrRegisterUser loads the user for phone or creates one; a fresh
-// deployment's first user becomes manager (see verifyOTP).
-func (h *Handler) findOrRegisterUser(ctx context.Context, phone string) (*User, error) {
-	u, err := h.Users.FindByPhone(ctx, phone)
-	switch {
-	case err == nil:
-		return u, nil
-	case !errors.Is(err, gorm.ErrRecordNotFound):
-		return nil, httpx.Internal("خطا در بازیابی حساب کاربری.")
-	}
-
-	count, err := h.Users.CountActive(ctx)
-	if err != nil {
-		return nil, httpx.Internal("خطا در ثبت‌نام کاربر.")
-	}
-	role := RoleResident
-	if count == 0 {
-		role = RoleManager
-	}
-	u = &User{ID: uuid.New(), Phone: phone, Role: role, IsActive: true}
-	if err := h.Users.Create(ctx, u); err != nil {
-		return nil, httpx.Internal("خطا در ثبت‌نام کاربر.")
-	}
-	return u, nil
 }
 
 type refreshReq struct {
@@ -196,9 +319,7 @@ func (h *Handler) logout(c *gin.Context) {
 
 // me returns the current identity plus its server-resolved scope: manager →
 // permitted building ids (user_buildings), resident → occupied unit ids
-// (occupancies). The scope tables arrive with the US2/US3 migrations
-// (migration 0002/0003); until then the queries hit undefined tables, which
-// resolves to empty lists rather than an error.
+// (occupancies).
 func (h *Handler) me(c *gin.Context) {
 	u := CurrentUser(c)
 	if u == nil {

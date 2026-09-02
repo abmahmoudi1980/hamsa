@@ -17,7 +17,7 @@ This guide proves the feature works end-to-end. Implementation details live in `
 docker run -d --name hamsa-pg -e POSTGRES_PASSWORD=hamsa -e POSTGRES_DB=hamsa -p 5432:5432 postgres:16
 
 # 2. Backend (from backend/)
-cp config.example.yaml config.yaml   # APP_ENV=dev → mock SMS (OTP printed to server log), mock gateway
+cp config.example.yaml config.yaml   # APP_ENV=dev → mock payment gateway
 go run ./cmd/server                    # runs migrations on start, serves on :8080
 
 # 3. Mobile app (from mobile/)
@@ -25,13 +25,13 @@ flutter pub get
 flutter run --dart-define=API_BASE_URL=http://<host>:8080/api/v1
 ```
 
-Dev-mode conveniences: OTP codes are logged by the server (mock SMS) and also returned in the `/auth/otp/request` response; online payments are auto-verified by the mock gateway without leaving the app.
+Dev-mode conveniences: online payments are auto-verified by the mock gateway without leaving the app.
 
 **UI language check (applies to every scenario below)**: the entire app is Persian (Farsi), RTL, with Persian digits everywhere, and **every date input is a Jalali date picker** (billing period dates, payment dates, expense dates, request dates) — no English text and no Gregorian picker anywhere in the UI. Deviating from either is a validation failure, not a cosmetic issue.
 
 ## Scenario 1 — Manager sets up a building and people (P0-01, P0-02)
 
-1. Log in with any phone number → OTP from the server log → first user is granted the manager role.
+1. Bootstrap the manager with `POST /api/v1/auth/setup` (first account on a fresh deployment becomes the manager), then log in in the app with phone + password.
 2. Create building "برج هامسا" (10 units). Add unit 1 (area 80 m², floor 1) … unit 10; try to create a second unit 1 → **expect rejection "شماره واحد تکراری"**.
 3. Add person "رضا محمدی" as tenant of unit 1 with occupant count 4 (and others to reach 20 total occupants across the building).
 

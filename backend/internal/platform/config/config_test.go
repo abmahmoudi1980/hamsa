@@ -3,7 +3,6 @@ package config
 import (
 	"os"
 	"path/filepath"
-	"strings"
 	"testing"
 )
 
@@ -17,7 +16,6 @@ func writeConfig(t *testing.T, body string) string {
 	return path
 }
 
-// minimal dev config; smsir fields injected per test.
 const baseConfig = `
 app:
   env: dev
@@ -32,74 +30,31 @@ storage:
   path: "./data/files"
 `
 
-func TestLoad_SmsIrProviderRequiresTemplate(t *testing.T) {
-	t.Run("missing template_id fails", func(t *testing.T) {
-		writeConfig(t, baseConfig+`
-sms:
-  provider: smsir
-  smsir:
-    api_key: "test-key"
-`)
-		if _, err := Load(); err == nil || !strings.Contains(err.Error(), "template_id") {
-			t.Fatalf("expected template_id validation error, got %v", err)
-		}
-	})
+func TestLoad_MissingFileFails(t *testing.T) {
+	t.Setenv("HAMSA_CONFIG", filepath.Join(t.TempDir(), "absent.yaml"))
+	if _, err := Load(); err == nil {
+		t.Fatal("expected error for missing config file")
+	}
+}
 
-	t.Run("missing api_key fails", func(t *testing.T) {
-		writeConfig(t, baseConfig+`
-sms:
-  provider: smsir
-  smsir:
-    template_id: 123456
-`)
-		if _, err := Load(); err == nil || !strings.Contains(err.Error(), "api_key") {
-			t.Fatalf("expected api_key validation error, got %v", err)
-		}
-	})
+func TestLoad_EnvOverrides(t *testing.T) {
+	writeConfig(t, baseConfig)
+	t.Setenv("HAMSA_APP_ENV", "production")
+	t.Setenv("HAMSA_DB_DSN", "host=other dbname=prod sslmode=require")
+	t.Setenv("HAMSA_JWT_SECRET", "env-secret")
+	cfg, err := Load()
+	if err != nil {
+		t.Fatalf("Load: %v", err)
+	}
+	if cfg.App.Env != "production" || cfg.DB.DSN != "host=other dbname=prod sslmode=require" || cfg.Auth.JWTSecret != "env-secret" {
+		t.Fatalf("env overrides not applied: %+v", cfg)
+	}
+}
 
-	t.Run("complete smsir config loads", func(t *testing.T) {
-		writeConfig(t, baseConfig+`
-sms:
-  provider: smsir
-  smsir:
-    api_key: "test-key"
-    template_id: 123456
-    param_name: "Code"
-`)
-		cfg, err := Load()
-		if err != nil {
-			t.Fatalf("Load: %v", err)
-		}
-		if cfg.SMS.SMSIR.TemplateID != 123456 || cfg.SMS.SMSIR.ParamName != "Code" {
-			t.Fatalf("smsir settings not parsed: %+v", cfg.SMS.SMSIR)
-		}
-	})
-
-	t.Run("env overrides", func(t *testing.T) {
-		writeConfig(t, baseConfig+`
-sms:
-  provider: console
-`)
-		t.Setenv("HAMSA_SMS_PROVIDER", "smsir")
-		t.Setenv("HAMSA_SMS_SMSIR_API_KEY", "env-key")
-		t.Setenv("HAMSA_SMS_SMSIR_TEMPLATE_ID", "123456")
-		cfg, err := Load()
-		if err != nil {
-			t.Fatalf("Load: %v", err)
-		}
-		if cfg.SMS.Provider != "smsir" || cfg.SMS.SMSIR.APIKey != "env-key" || cfg.SMS.SMSIR.TemplateID != 123456 {
-			t.Fatalf("env overrides not applied: %+v", cfg.SMS)
-		}
-	})
-
-	t.Run("invalid template id env fails", func(t *testing.T) {
-		writeConfig(t, baseConfig+`
-sms:
-  provider: console
-`)
-		t.Setenv("HAMSA_SMS_SMSIR_TEMPLATE_ID", "abc")
-		if _, err := Load(); err == nil || !strings.Contains(err.Error(), "HAMSA_SMS_SMSIR_TEMPLATE_ID") {
-			t.Fatalf("expected invalid env error, got %v", err)
-		}
-	})
+func TestLoad_InvalidEnvRejected(t *testing.T) {
+	writeConfig(t, baseConfig)
+	t.Setenv("HAMSA_APP_ENV", "staging")
+	if _, err := Load(); err == nil {
+		t.Fatal("expected error for invalid app.env")
+	}
 }

@@ -27,7 +27,6 @@ import (
 	"hamsa/internal/platform/config"
 	"hamsa/internal/platform/db"
 	"hamsa/internal/platform/httpx"
-	"hamsa/internal/platform/sms"
 	"hamsa/internal/platform/storage"
 )
 
@@ -82,24 +81,10 @@ func main() {
 
 	authMW := auth.Authenticate(tokens, users)
 	auth.Register(v1.Group("/auth"), &auth.Handler{
-		OTP: auth.NewOTPService(
-			&auth.GormOTPStore{DB: gormDB},
-			sms.New(sms.Options{
-				Provider:  cfg.SMS.Provider,
-				Kavenegar: sms.KavenegarSender{APIKey: cfg.SMS.Kavenegar.APIKey, Sender: cfg.SMS.Kavenegar.Sender},
-				SmsIR: sms.SmsIRSender{
-					APIKey:     cfg.SMS.SMSIR.APIKey,
-					TemplateID: cfg.SMS.SMSIR.TemplateID,
-					ParamName:  cfg.SMS.SMSIR.ParamName,
-				},
-				Log: log,
-			}),
-			auth.RealClock{},
-			cfg.App.IsDev(),
-		),
 		Tokens:  tokens,
 		Users:   users,
 		Scopes:  auth.NewScopeResolver(gormDB),
+		Invites: auth.NewInviteService(&auth.GormInviteStore{DB: gormDB}, auth.RealClock{}),
 		Auditor: auditSvc, // user.login audit entries (FR-038, T025)
 	})
 	storage.Register(v1.Group("/files", authMW), fileStore, gormDB)

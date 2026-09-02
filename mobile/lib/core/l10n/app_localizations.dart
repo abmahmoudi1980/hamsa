@@ -127,7 +127,7 @@ abstract class AppLocalizations {
   /// No description provided for @loginSubtitle.
   ///
   /// In fa, this message translates to:
-  /// **'برای ورود، شماره موبایل خود را وارد کنید.'**
+  /// **'برای ورود، شماره موبایل و رمز عبور خود را وارد کنید.'**
   String get loginSubtitle;
 
   /// No description provided for @phoneLabel.
@@ -136,47 +136,125 @@ abstract class AppLocalizations {
   /// **'شماره موبایل'**
   String get phoneLabel;
 
-  /// No description provided for @requestOtp.
+  /// No description provided for @loginButton.
   ///
   /// In fa, this message translates to:
-  /// **'دریافت کد تأیید'**
-  String get requestOtp;
+  /// **'ورود'**
+  String get loginButton;
 
-  /// No description provided for @otpLabel.
+  /// No description provided for @passwordLabel.
   ///
   /// In fa, this message translates to:
-  /// **'کد تأیید پیامک‌شده'**
-  String get otpLabel;
+  /// **'رمز عبور'**
+  String get passwordLabel;
 
-  /// No description provided for @verifyAndLogin.
+  /// No description provided for @registerTitle.
   ///
   /// In fa, this message translates to:
-  /// **'تأیید و ورود'**
-  String get verifyAndLogin;
+  /// **'ثبت‌نام ساکن'**
+  String get registerTitle;
 
-  /// No description provided for @resendIn.
+  /// No description provided for @registerSubtitle.
   ///
   /// In fa, this message translates to:
-  /// **'ارسال مجدد کد تا {seconds} ثانیه دیگر'**
-  String resendIn(String seconds);
+  /// **'با کد دعوت مدیر ساختمان ثبت‌نام کنید.'**
+  String get registerSubtitle;
 
-  /// No description provided for @otpSentTo.
+  /// No description provided for @registerButton.
   ///
   /// In fa, this message translates to:
-  /// **'کد تأیید به شماره {phone} پیامک شد.'**
-  String otpSentTo(String phone);
+  /// **'ثبت‌نام'**
+  String get registerButton;
 
-  /// No description provided for @resendOtp.
+  /// No description provided for @gotoRegister.
   ///
   /// In fa, this message translates to:
-  /// **'ارسال مجدد کد'**
-  String get resendOtp;
+  /// **'حساب ندارید؟ ثبت‌نام با کد دعوت'**
+  String get gotoRegister;
 
-  /// No description provided for @changePhone.
+  /// No description provided for @gotoSetup.
   ///
   /// In fa, this message translates to:
-  /// **'تغییر شماره'**
-  String get changePhone;
+  /// **'راه‌اندازی اولیه ساختمان (مدیر)'**
+  String get gotoSetup;
+
+  /// No description provided for @inviteCodeLabel.
+  ///
+  /// In fa, this message translates to:
+  /// **'کد دعوت'**
+  String get inviteCodeLabel;
+
+  /// No description provided for @nameLabel.
+  ///
+  /// In fa, this message translates to:
+  /// **'نام و نام خانوادگی (اختیاری)'**
+  String get nameLabel;
+
+  /// No description provided for @setupTitle.
+  ///
+  /// In fa, this message translates to:
+  /// **'راه‌اندازی اولیه'**
+  String get setupTitle;
+
+  /// No description provided for @setupSubtitle.
+  ///
+  /// In fa, this message translates to:
+  /// **'اولین حساب مدیریت ساختمان را بسازید.'**
+  String get setupSubtitle;
+
+  /// No description provided for @setupButton.
+  ///
+  /// In fa, this message translates to:
+  /// **'ساخت حساب مدیر'**
+  String get setupButton;
+
+  /// No description provided for @confirmPasswordLabel.
+  ///
+  /// In fa, this message translates to:
+  /// **'تکرار رمز عبور'**
+  String get confirmPasswordLabel;
+
+  /// No description provided for @passwordsMismatch.
+  ///
+  /// In fa, this message translates to:
+  /// **'رمزها یکسان نیستند.'**
+  String get passwordsMismatch;
+
+  /// No description provided for @weakPassword.
+  ///
+  /// In fa, this message translates to:
+  /// **'رمز عبور باید حداقل ۸ کاراکتر و شامل حرف و عدد باشد.'**
+  String get weakPassword;
+
+  /// No description provided for @invalidInviteCode.
+  ///
+  /// In fa, this message translates to:
+  /// **'کد دعوت را وارد کنید.'**
+  String get invalidInviteCode;
+
+  /// No description provided for @inviteTitle.
+  ///
+  /// In fa, this message translates to:
+  /// **'دعوت ساکن'**
+  String get inviteTitle;
+
+  /// No description provided for @inviteDescription.
+  ///
+  /// In fa, this message translates to:
+  /// **'برای هر ساکن یک کد دعوت یکتا صادر می‌شود؛ کد را به او بدهید تا در اپ ثبت‌نام کند. هر کد ۷ روز اعتبار دارد و فقط یک‌بار قابل استفاده است.'**
+  String get inviteDescription;
+
+  /// No description provided for @getInviteCode.
+  ///
+  /// In fa, this message translates to:
+  /// **'دریافت کد دعوت'**
+  String get getInviteCode;
+
+  /// No description provided for @inviteCopied.
+  ///
+  /// In fa, this message translates to:
+  /// **'کد دعوت کپی شد'**
+  String get inviteCopied;
 
   /// No description provided for @invalidMobile.
   ///
@@ -184,11 +262,11 @@ abstract class AppLocalizations {
   /// **'شماره موبایل معتبر نیست.'**
   String get invalidMobile;
 
-  /// No description provided for @invalidOtp.
+  /// No description provided for @invalidCode.
   ///
   /// In fa, this message translates to:
-  /// **'کد تأیید را وارد کنید.'**
-  String get invalidOtp;
+  /// **'کد دعوت نامعتبر است.'**
+  String get invalidCode;
 
   /// No description provided for @errorNetwork.
   ///
@@ -1378,11 +1456,11 @@ abstract class AppLocalizations {
   /// **'مجموع هزینه‌ها'**
   String get reportTotalExpenses;
 
-  /// No description provided for @devTestCode.
+  /// No description provided for @inviteExpiresInDays.
   ///
   /// In fa, this message translates to:
-  /// **'کد آزمایشی (حالت توسعه): {code}'**
-  String devTestCode(String code);
+  /// **'اعتبار کد: {days} روز'**
+  String inviteExpiresInDays(int days);
 
   /// No description provided for @maintenanceTitle.
   ///
@@ -1738,6 +1816,282 @@ abstract class AppLocalizations {
   /// **'درخواست‌های نگهداری'**
   String get maintenanceResidentMenu;
 
+  /// No description provided for @announcementsTitle.
+  ///
+  /// In fa, this message translates to:
+  /// **'اطلاعیه‌ها'**
+  String get announcementsTitle;
+
+  /// No description provided for @myAnnouncementsTitle.
+  ///
+  /// In fa, this message translates to:
+  /// **'اطلاعیه‌های من'**
+  String get myAnnouncementsTitle;
+
+  /// No description provided for @addAnnouncement.
+  ///
+  /// In fa, this message translates to:
+  /// **'انتشار اطلاعیه'**
+  String get addAnnouncement;
+
+  /// No description provided for @editAnnouncement.
+  ///
+  /// In fa, this message translates to:
+  /// **'ویرایش اطلاعیه'**
+  String get editAnnouncement;
+
+  /// No description provided for @announcementTitleLabel.
+  ///
+  /// In fa, this message translates to:
+  /// **'عنوان اطلاعیه'**
+  String get announcementTitleLabel;
+
+  /// No description provided for @announcementTitleHint.
+  ///
+  /// In fa, this message translates to:
+  /// **'مثلاً: جلسه هیئت مدیره'**
+  String get announcementTitleHint;
+
+  /// No description provided for @announcementTitleRequired.
+  ///
+  /// In fa, this message translates to:
+  /// **'عنوان الزامی است'**
+  String get announcementTitleRequired;
+
+  /// No description provided for @announcementBodyLabel.
+  ///
+  /// In fa, this message translates to:
+  /// **'متن اطلاعیه'**
+  String get announcementBodyLabel;
+
+  /// No description provided for @announcementBodyRequired.
+  ///
+  /// In fa, this message translates to:
+  /// **'متن اطلاعیه الزامی است'**
+  String get announcementBodyRequired;
+
+  /// No description provided for @announcementAudienceLabel.
+  ///
+  /// In fa, this message translates to:
+  /// **'مخاطب'**
+  String get announcementAudienceLabel;
+
+  /// No description provided for @announcementAudienceAll.
+  ///
+  /// In fa, this message translates to:
+  /// **'همه ساکنان'**
+  String get announcementAudienceAll;
+
+  /// No description provided for @announcementAudienceBlock.
+  ///
+  /// In fa, this message translates to:
+  /// **'بلوک'**
+  String get announcementAudienceBlock;
+
+  /// No description provided for @announcementAudienceFloor.
+  ///
+  /// In fa, this message translates to:
+  /// **'طبقه'**
+  String get announcementAudienceFloor;
+
+  /// No description provided for @announcementAudienceUnit.
+  ///
+  /// In fa, this message translates to:
+  /// **'واحد مشخص'**
+  String get announcementAudienceUnit;
+
+  /// No description provided for @announcementAudienceValueLabel.
+  ///
+  /// In fa, this message translates to:
+  /// **'مقدار مخاطب'**
+  String get announcementAudienceValueLabel;
+
+  /// No description provided for @announcementAudienceValueHint.
+  ///
+  /// In fa, this message translates to:
+  /// **'مثلاً: A یا ۲ یا شماره واحد'**
+  String get announcementAudienceValueHint;
+
+  /// No description provided for @announcementPublishAtLabel.
+  ///
+  /// In fa, this message translates to:
+  /// **'تاریخ انتشار (اختیاری)'**
+  String get announcementPublishAtLabel;
+
+  /// No description provided for @announcementExpireAtLabel.
+  ///
+  /// In fa, this message translates to:
+  /// **'تاریخ انقضا (اختیاری)'**
+  String get announcementExpireAtLabel;
+
+  /// No description provided for @announcementAttachmentLabel.
+  ///
+  /// In fa, this message translates to:
+  /// **'پیوست (اختیاری)'**
+  String get announcementAttachmentLabel;
+
+  /// No description provided for @announcementSubmitSuccess.
+  ///
+  /// In fa, this message translates to:
+  /// **'اطلاعیه با موفقیت منتشر شد'**
+  String get announcementSubmitSuccess;
+
+  /// No description provided for @announcementSubmitError.
+  ///
+  /// In fa, this message translates to:
+  /// **'خطا در انتشار اطلاعیه'**
+  String get announcementSubmitError;
+
+  /// No description provided for @announcementUpdateSuccess.
+  ///
+  /// In fa, this message translates to:
+  /// **'اطلاعیه ویرایش شد'**
+  String get announcementUpdateSuccess;
+
+  /// No description provided for @announcementDeleteConfirm.
+  ///
+  /// In fa, this message translates to:
+  /// **'این اطلاعیه حذف شود؟'**
+  String get announcementDeleteConfirm;
+
+  /// No description provided for @announcementDeleted.
+  ///
+  /// In fa, this message translates to:
+  /// **'اطلاعیه حذف شد'**
+  String get announcementDeleted;
+
+  /// No description provided for @announcementLoadError.
+  ///
+  /// In fa, this message translates to:
+  /// **'خطا در دریافت اطلاعیه‌ها'**
+  String get announcementLoadError;
+
+  /// No description provided for @announcementEmptyTitle.
+  ///
+  /// In fa, this message translates to:
+  /// **'هنوز اطلاعیه‌ای منتشر نشده است'**
+  String get announcementEmptyTitle;
+
+  /// No description provided for @announcementEmptySubtitle.
+  ///
+  /// In fa, this message translates to:
+  /// **'برای اطلاع‌رسانی جدید، «انتشار اطلاعیه» را بزنید.'**
+  String get announcementEmptySubtitle;
+
+  /// No description provided for @announcementResidentEmptyTitle.
+  ///
+  /// In fa, this message translates to:
+  /// **'هنوز اطلاعیه‌ای برای شما منتشر نشده است'**
+  String get announcementResidentEmptyTitle;
+
+  /// No description provided for @announcementResidentEmptySubtitle.
+  ///
+  /// In fa, this message translates to:
+  /// **'اطلاعیه‌های جدید اینجا نمایش داده می‌شود.'**
+  String get announcementResidentEmptySubtitle;
+
+  /// No description provided for @announcementDetailTitle.
+  ///
+  /// In fa, this message translates to:
+  /// **'جزئیات اطلاعیه'**
+  String get announcementDetailTitle;
+
+  /// No description provided for @announcementUnread.
+  ///
+  /// In fa, this message translates to:
+  /// **'نخوانده'**
+  String get announcementUnread;
+
+  /// No description provided for @announcementRead.
+  ///
+  /// In fa, this message translates to:
+  /// **'خوانده‌شده'**
+  String get announcementRead;
+
+  /// No description provided for @announcementMarkRead.
+  ///
+  /// In fa, this message translates to:
+  /// **'علامت‌گذاری به‌عنوان خوانده‌شده'**
+  String get announcementMarkRead;
+
+  /// No description provided for @announcementMarkedRead.
+  ///
+  /// In fa, this message translates to:
+  /// **'به‌عنوان خوانده‌شده ثبت شد'**
+  String get announcementMarkedRead;
+
+  /// No description provided for @notificationCenterTitle.
+  ///
+  /// In fa, this message translates to:
+  /// **'مرکز اعلان‌ها'**
+  String get notificationCenterTitle;
+
+  /// No description provided for @notificationEmptyTitle.
+  ///
+  /// In fa, this message translates to:
+  /// **'اعلانی وجود ندارد'**
+  String get notificationEmptyTitle;
+
+  /// No description provided for @notificationEmptySubtitle.
+  ///
+  /// In fa, this message translates to:
+  /// **'اعلان‌های شارژ، پرداخت و اطلاعیه‌ها اینجا نمایش داده می‌شود.'**
+  String get notificationEmptySubtitle;
+
+  /// No description provided for @notificationMarkAllRead.
+  ///
+  /// In fa, this message translates to:
+  /// **'خواندن همه'**
+  String get notificationMarkAllRead;
+
+  /// No description provided for @notificationMarkedAllRead.
+  ///
+  /// In fa, this message translates to:
+  /// **'همه اعلان‌ها خوانده شد'**
+  String get notificationMarkedAllRead;
+
+  /// No description provided for @notificationTypeInvoiceIssued.
+  ///
+  /// In fa, this message translates to:
+  /// **'صدور صورتحساب'**
+  String get notificationTypeInvoiceIssued;
+
+  /// No description provided for @notificationTypeAnnouncementPublished.
+  ///
+  /// In fa, this message translates to:
+  /// **'اطلاعیه جدید'**
+  String get notificationTypeAnnouncementPublished;
+
+  /// No description provided for @notificationTypeRequestStatus.
+  ///
+  /// In fa, this message translates to:
+  /// **'تغییر وضعیت درخواست'**
+  String get notificationTypeRequestStatus;
+
+  /// No description provided for @announcementAudienceDisplayAll.
+  ///
+  /// In fa, this message translates to:
+  /// **'همه'**
+  String get announcementAudienceDisplayAll;
+
+  /// No description provided for @announcementAudienceDisplayBlock.
+  ///
+  /// In fa, this message translates to:
+  /// **'بلوک {value}'**
+  String announcementAudienceDisplayBlock(String value);
+
+  /// No description provided for @announcementAudienceDisplayFloor.
+  ///
+  /// In fa, this message translates to:
+  /// **'طبقه {value}'**
+  String announcementAudienceDisplayFloor(String value);
+
+  /// No description provided for @announcementAudienceDisplayUnit.
+  ///
+  /// In fa, this message translates to:
+  /// **'واحد {value}'**
+  String announcementAudienceDisplayUnit(String value);
+
   /// No description provided for @homeMenu.
   ///
   /// In fa, this message translates to:
@@ -1745,162 +2099,321 @@ abstract class AppLocalizations {
   String get homeMenu;
 
   /// No description provided for @navHome.
+  ///
+  /// In fa, this message translates to:
+  /// **'خانه'**
   String get navHome;
 
   /// No description provided for @navCharges.
+  ///
+  /// In fa, this message translates to:
+  /// **'شارژها'**
   String get navCharges;
 
   /// No description provided for @navPayments.
+  ///
+  /// In fa, this message translates to:
+  /// **'پرداخت‌ها'**
   String get navPayments;
 
   /// No description provided for @navMaintenance.
+  ///
+  /// In fa, this message translates to:
+  /// **'تعمیرات'**
   String get navMaintenance;
 
   /// No description provided for @navAnnouncements.
+  ///
+  /// In fa, this message translates to:
+  /// **'اطلاعیه‌ها'**
   String get navAnnouncements;
 
   /// No description provided for @navProfile.
+  ///
+  /// In fa, this message translates to:
+  /// **'پروفایل'**
   String get navProfile;
 
   /// No description provided for @homeTitle.
+  ///
+  /// In fa, this message translates to:
+  /// **'خانه'**
   String get homeTitle;
 
   /// No description provided for @homeFinancialCard.
+  ///
+  /// In fa, this message translates to:
+  /// **'وضعیت مالی'**
   String get homeFinancialCard;
 
   /// No description provided for @homePayableAmount.
+  ///
+  /// In fa, this message translates to:
+  /// **'مبلغ قابل پرداخت'**
   String get homePayableAmount;
 
   /// No description provided for @homeNoInvoice.
+  ///
+  /// In fa, this message translates to:
+  /// **'صورتحساب فعالی ندارید'**
   String get homeNoInvoice;
 
   /// No description provided for @homeLatestInvoice.
+  ///
+  /// In fa, this message translates to:
+  /// **'آخرین صورتحساب'**
   String get homeLatestInvoice;
 
   /// No description provided for @homeDueDate.
+  ///
+  /// In fa, this message translates to:
+  /// **'سررسید: {date}'**
   String homeDueDate(String date);
 
   /// No description provided for @homeRequestsCard.
+  ///
+  /// In fa, this message translates to:
+  /// **'درخواست‌های نگهداری'**
   String get homeRequestsCard;
 
   /// No description provided for @homeOpenRequests.
+  ///
+  /// In fa, this message translates to:
+  /// **'{count} درخواست باز'**
   String homeOpenRequests(int count);
 
   /// No description provided for @homeLatestRequest.
+  ///
+  /// In fa, this message translates to:
+  /// **'آخرین درخواست'**
   String get homeLatestRequest;
 
   /// No description provided for @homeNoOpenRequest.
+  ///
+  /// In fa, this message translates to:
+  /// **'درخواست بازی ثبت نشده است'**
   String get homeNoOpenRequest;
 
   /// No description provided for @homeAnnouncementsCard.
+  ///
+  /// In fa, this message translates to:
+  /// **'اطلاعیه‌ها'**
   String get homeAnnouncementsCard;
 
   /// No description provided for @homeUnreadAnnouncements.
+  ///
+  /// In fa, this message translates to:
+  /// **'{count} ناخوانده'**
   String homeUnreadAnnouncements(int count);
 
   /// No description provided for @homeViewAll.
+  ///
+  /// In fa, this message translates to:
+  /// **'مشاهده همه'**
   String get homeViewAll;
 
   /// No description provided for @homeViewCharges.
+  ///
+  /// In fa, this message translates to:
+  /// **'مشاهده شارژها'**
   String get homeViewCharges;
 
   /// No description provided for @homeViewAnnouncements.
+  ///
+  /// In fa, this message translates to:
+  /// **'مشاهده اطلاعیه‌ها'**
   String get homeViewAnnouncements;
 
   /// No description provided for @homePayInvoice.
+  ///
+  /// In fa, this message translates to:
+  /// **'پرداخت صورتحساب'**
   String get homePayInvoice;
 
   /// No description provided for @profileTitle.
+  ///
+  /// In fa, this message translates to:
+  /// **'پروفایل'**
   String get profileTitle;
 
   /// No description provided for @profilePhone.
+  ///
+  /// In fa, this message translates to:
+  /// **'شماره موبایل'**
   String get profilePhone;
 
   /// No description provided for @profileName.
+  ///
+  /// In fa, this message translates to:
+  /// **'نام و نام خانوادگی'**
   String get profileName;
 
   /// No description provided for @profileEditName.
+  ///
+  /// In fa, this message translates to:
+  /// **'ویرایش نام'**
   String get profileEditName;
 
   /// No description provided for @profileSave.
+  ///
+  /// In fa, this message translates to:
+  /// **'ذخیره'**
   String get profileSave;
 
   /// No description provided for @profileSavedOk.
+  ///
+  /// In fa, this message translates to:
+  /// **'نام شما ذخیره شد'**
   String get profileSavedOk;
 
   /// No description provided for @profileError.
+  ///
+  /// In fa, this message translates to:
+  /// **'خطا در ذخیره نام'**
   String get profileError;
 
   /// No description provided for @dashboardTitle.
+  ///
+  /// In fa, this message translates to:
+  /// **'داشبورد'**
   String get dashboardTitle;
 
   /// No description provided for @dashboardCards.
+  ///
+  /// In fa, this message translates to:
+  /// **'شاخص‌ها'**
   String get dashboardCards;
 
   /// No description provided for @dashboardUnitCount.
+  ///
+  /// In fa, this message translates to:
+  /// **'تعداد واحدها'**
   String get dashboardUnitCount;
 
   /// No description provided for @dashboardOccupiedUnits.
+  ///
+  /// In fa, this message translates to:
+  /// **'واحدهای مسکونی'**
   String get dashboardOccupiedUnits;
 
   /// No description provided for @dashboardDebtorUnits.
+  ///
+  /// In fa, this message translates to:
+  /// **'واحدهای بدهکار'**
   String get dashboardDebtorUnits;
 
   /// No description provided for @dashboardTotalDebt.
+  ///
+  /// In fa, this message translates to:
+  /// **'مجموع بدهی'**
   String get dashboardTotalDebt;
 
   /// No description provided for @dashboardMonthIncome.
+  ///
+  /// In fa, this message translates to:
+  /// **'درآمد ماه'**
   String get dashboardMonthIncome;
 
   /// No description provided for @dashboardMonthExpense.
+  ///
+  /// In fa, this message translates to:
+  /// **'هزینه ماه'**
   String get dashboardMonthExpense;
 
   /// No description provided for @dashboardOpenRequests.
+  ///
+  /// In fa, this message translates to:
+  /// **'درخواست‌های باز'**
   String get dashboardOpenRequests;
 
   /// No description provided for @dashboardPendingExpenses.
+  ///
+  /// In fa, this message translates to:
+  /// **'هزینه‌های در انتظار تأیید'**
   String get dashboardPendingExpenses;
 
   /// No description provided for @dashboardAlerts.
+  ///
+  /// In fa, this message translates to:
+  /// **'هشدارها'**
   String get dashboardAlerts;
 
   /// No description provided for @dashboardQuickActions.
+  ///
+  /// In fa, this message translates to:
+  /// **'اقدام‌های سریع'**
   String get dashboardQuickActions;
 
   /// No description provided for @dashboardAlertDebtor.
+  ///
+  /// In fa, this message translates to:
+  /// **'واحد {unit} بدهکار است'**
   String dashboardAlertDebtor(String unit);
 
   /// No description provided for @dashboardAlertPastDue.
+  ///
+  /// In fa, this message translates to:
+  /// **'صورتحساب واحد {unit} سررسید گذشته'**
   String dashboardAlertPastDue(String unit);
 
   /// No description provided for @dashboardAlertOpenRequest.
+  ///
+  /// In fa, this message translates to:
+  /// **'درخواست باز: {title}'**
   String dashboardAlertOpenRequest(String title);
 
   /// No description provided for @dashboardAlertPendingExpense.
+  ///
+  /// In fa, this message translates to:
+  /// **'هزینه در انتظار تأیید: {title}'**
   String dashboardAlertPendingExpense(String title);
 
   /// No description provided for @dashboardActionIssueCharge.
+  ///
+  /// In fa, this message translates to:
+  /// **'صدور شارژ'**
   String get dashboardActionIssueCharge;
 
   /// No description provided for @dashboardActionRecordExpense.
+  ///
+  /// In fa, this message translates to:
+  /// **'ثبت هزینه'**
   String get dashboardActionRecordExpense;
 
   /// No description provided for @dashboardActionRecordPayment.
+  ///
+  /// In fa, this message translates to:
+  /// **'ثبت پرداخت'**
   String get dashboardActionRecordPayment;
 
   /// No description provided for @dashboardActionSendAnnouncement.
+  ///
+  /// In fa, this message translates to:
+  /// **'انتشار اطلاعیه'**
   String get dashboardActionSendAnnouncement;
 
   /// No description provided for @dashboardActionOpenRequests.
+  ///
+  /// In fa, this message translates to:
+  /// **'درخواست‌ها'**
   String get dashboardActionOpenRequests;
 
   /// No description provided for @dashboardNoAlerts.
+  ///
+  /// In fa, this message translates to:
+  /// **'هشدار فعالی وجود ندارد'**
   String get dashboardNoAlerts;
 
   /// No description provided for @dashboardBuildingPicker.
+  ///
+  /// In fa, this message translates to:
+  /// **'انتخاب ساختمان'**
   String get dashboardBuildingPicker;
 
   /// No description provided for @dashboardNoBuilding.
+  ///
+  /// In fa, this message translates to:
+  /// **'ابتدا یک ساختمان ایجاد کنید.'**
   String get dashboardNoBuilding;
 }
 

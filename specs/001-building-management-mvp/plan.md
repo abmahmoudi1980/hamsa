@@ -10,7 +10,7 @@
 
 A building-management product with three pillars: (1) charge calculation and collection — a charge engine supporting six calculation methods (equal, per-occupant, per-area, fixed, specific-units, combined) that produces immutable per-unit invoices with prior debt, late fees, and credits; (2) daily operations — expenses, maintenance requests, announcements; (3) resident self-service — invoices, payments, request tracking without contacting the manager.
 
-**Technical approach** (from [research.md](research.md)): a Go (Gin + GORM + golang-migrate) REST API backed by PostgreSQL 16, with the charge engine as a pure-Go module (integer Toman, largest-remainder rounding, snapshot-based invoice immutability), OTP auth with JWT access + rotating refresh tokens, a provider-agnostic payment gateway (Zarinpal adapter), and a Flutter Android client (Riverpod + go_router + Dio) with role-based navigation (manager / resident). All dates stored Gregorian/UTC; Jalali conversion at presentation edges only.
+**Technical approach** (from [research.md](research.md)): a Go (Gin + GORM + golang-migrate) REST API backed by PostgreSQL 16, with the charge engine as a pure-Go module (integer Toman, largest-remainder rounding, snapshot-based invoice immutability), password auth (bcrypt) with manager-issued one-time invite codes plus JWT access + rotating refresh tokens, a provider-agnostic payment gateway (Zarinpal adapter), and a Flutter Android client (Riverpod + go_router + Dio) with role-based navigation (manager / resident). All dates stored Gregorian/UTC; Jalali con...
 
 ## Technical Context
 
@@ -71,7 +71,7 @@ backend/
 │   └── server/
 │       └── main.go              # entrypoint: config, DI wiring, router, migrations on start
 ├── internal/
-│   ├── auth/                    # OTP flow, JWT issue/verify, refresh rotation, login handlers
+│   ├── auth/                    # password login, invite codes, JWT issue/verify, refresh rotation, login handlers
 │   ├── building/                # buildings, units, people, occupancies, occupant-count history
 │   ├── billing/                 # billing periods, cost items, charge engine, invoices, adjustments
 │   │   └── engine/              # PURE Go charge calculation (no DB/HTTP deps) + rounding
@@ -81,7 +81,7 @@ backend/
 │   ├── announcement/            # announcements, audience targeting
 │   ├── notification/            # in-app notifications + PushNotifier interface (FCM adapter)
 │   ├── audit/                   # audit-log middleware/service
-│   ├── platform/                # config, db (gorm), httpx (error envelope, middleware), sms (SmsSender + kavenegar), storage (files)
+│   ├── platform/                # config, db (gorm), httpx (error envelope, middleware), storage (files)
 │   └── dashboard/               # manager dashboard aggregation + alerts
 ├── migrations/                  # golang-migrate SQL files (NNNN_name.up.sql / .down.sql)
 ├── go.mod
@@ -92,7 +92,7 @@ mobile/
 │   ├── main.dart
 │   ├── core/                    # theme (RTL, Persian font/digits), router (go_router), dio client + interceptors, l10n (fa — single locale), Jalali date helpers + Jalali-only date picker wrapper
 │   ├── features/
-│   │   ├── auth/                # login, OTP entry, role routing
+│   │   ├── auth/                # login, registration via invite code, role routing
 │   │   ├── buildings/           # manager: buildings, units, people, occupancy
 │   │   ├── billing/             # manager: periods, cost items, calculate, review, issue
 │   │   ├── charges/             # resident: invoices list/detail

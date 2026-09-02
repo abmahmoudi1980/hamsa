@@ -22,7 +22,7 @@ class RefreshInterceptor extends QueuedInterceptor {
         _storage = storage,
         _onSessionExpired = onSessionExpired;
 
-  static const _authPrefixes = ['/auth/refresh', '/auth/otp/'];
+  static const _authPrefixes = ['/auth/refresh'];
 
   final Dio _dio;
 

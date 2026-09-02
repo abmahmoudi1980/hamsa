@@ -19,12 +19,13 @@ users ──(1:N)── notifications / maintenance_requests (submitter) / audit
 ## Entities
 
 ### users
-Authentication identity; login is mobile number + OTP.
+Authentication identity; login is mobile number + password (bcrypt). First account is created via setup bootstrap; residents register with one-time manager-issued invite codes (migration 0009).
 
 | Field | Type | Rules |
 |---|---|---|
 | id | UUID PK | |
 | phone | VARCHAR(11) | UNIQUE, Iranian mobile format `09xxxxxxxxx` |
+| password_hash | VARCHAR(255) | NULL until the user sets a password; bcrypt |
 | role | ENUM(`manager`, `resident`) | A user may manage buildings AND reside in others → role resolved per-context via `user_buildings` (manager) and `occupancies` (resident); `role` field records primary role |
 | name | VARCHAR(120) | |
 | fcm_token | VARCHAR | NULL — used best-effort for push |
@@ -309,16 +310,17 @@ Append-only (spec §20, FR-038).
 | before_value / after_value | JSONB | required for sensitive ops (formula change, invoice issue/cancel, payment) |
 | created_at | TIMESTAMPTZ | no UPDATE/DELETE ever — enforced by DB grants + trigger |
 
-### otp_codes
+### invite_codes
+One-time manager-issued codes: registration of new residents and password recovery (migration 0009).
+
 | Field | Type | Rules |
 |---|---|---|
 | id | UUID PK | |
-| phone | VARCHAR(11) | indexed |
-| code_hash | VARCHAR(64) | hashed, never plaintext |
-| expires_at | TIMESTAMPTZ | +2 minutes |
-| attempts | INT | max 3 |
-| consumed_at | TIMESTAMPTZ | |
-| created_at | TIMESTAMPTZ | |
+| phone | VARCHAR(11) | the only phone the code redeems for; indexed (phone, created_at DESC) |
+| code_hash | VARCHAR(64) | SHA-256, never plaintext |
+| created_by | UUID FK→users | issuing manager |
+| expires_at | TIMESTAMPTZ | +7 days |
+| consumed_at | TIMESTAMPTZ | single redemption, enforced by conditional UPDATE |
 
 ### files
 Unified attachment registry (receipts, photos, announcement attachments).
@@ -331,9 +333,7 @@ Unified attachment registry (receipts, photos, announcement attachments).
 | uploaded_by / created_at | UUID / TIMESTAMPTZ | |
 
 ## Cross-Cutting Validation Rules
-
-- **Money**: BIGINT Toman everywhere; charge engine uses rational arithmetic internally, largest-remainder rounding on output (BR-09); no floats ever stored.
-- **Soft delete**: `users`, `units`, `persons`, `expenses` soft-delete; `invoices`, `payments`, `audit_logs`, `occupancies`, `otp_codes` never delete.
-- **Uniqueness**: unit number per building; invoice number globally; active OTP per phone.
+- **Soft delete**: `users`, `units`, `persons`, `expenses` soft-delete; `invoices`, `payments`, `audit_logs`, `occupancies`, `invite_codes` never delete.
+- **Uniqueness**: unit number per building; invoice number globally; one unconsumed invite redemption per code.
 - **Snapshot rule**: everything the charge engine consumes (occupant count, area, participation, balances) is copied into `cost_item_shares.inputs_snapshot` / invoice fields at calculation time — the single mechanism guaranteeing BR-03/BR-05 and the spec's reliability requirement.
 - **Audit coverage** (FR-038): unit create/edit, resident change, charge-formula (cost item) change, invoice issue, invoice cancel, payment record, expense record, maintenance status change.

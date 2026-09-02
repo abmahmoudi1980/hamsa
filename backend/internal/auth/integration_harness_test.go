@@ -102,13 +102,13 @@ func newAuthEnv(t *testing.T) *authEnv {
 	tokens := NewTokenService([]byte("test-secret-32-bytes-long!!!!!!"),
 		15*time.Minute, 30*24*time.Hour, &GormRefreshStore{DB: gormDB}, RealClock{})
 
-	otpSvc := NewOTPService(&GormOTPStore{DB: gormDB}, nil, RealClock{}, true /* dev: code returned in response */)
+	invites := NewInviteService(&GormInviteStore{DB: gormDB}, RealClock{})
 	auditor := &fakeAuditor{}
 
 	gin.SetMode(gin.TestMode)
 	router := httpx.NewRouter(slog.New(slog.NewTextHandler(io.Discard, nil)), "dev")
 	Register(router.Group("/api/v1/auth"), &Handler{
-		OTP:     otpSvc,
+		Invites: invites,
 		Tokens:  tokens,
 		Users:   users,
 		Scopes:  NewScopeResolver(gormDB),

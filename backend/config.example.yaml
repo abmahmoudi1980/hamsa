@@ -2,9 +2,8 @@
 # config.yaml is git-ignored; never commit real secrets.
 
 app:
-  # dev | production — dev enables: OTP code in API response & server log,
-  # mock payment gateway, console SMS sender, verbose logging.
-  env: dev
+  # dev enables: mock payment gateway, verbose logging. Login is
+  # phone+password; the first account is created via POST /auth/setup.
   # HTTP listen address
   addr: ":8080"
   # Base URL used to build gateway callback URLs (no trailing slash).
@@ -23,20 +22,6 @@ auth:
   access_ttl: 15m
   # Refresh token lifetime (rotating)
   refresh_ttl: 720h
-
-sms:
-  # console | kavenegar | smsir — console logs the OTP (dev); the others send real SMS
-  provider: console
-  kavenegar:
-    api_key: ""
-    sender: ""
-  smsir:
-    # SMS.ir (https://sms.ir/rest-api) verify endpoint. template_id and
-    # param_name must match the OTP template created in your SMS.ir panel
-    # (بخش ارسال سریع). Sandbox: any SMS.ir sandbox API key + template 123456.
-    api_key: ""
-    template_id: 0
-    param_name: "Code"
 
 payment:
   # mock | zarinpal — mock auto-verifies payments in dev

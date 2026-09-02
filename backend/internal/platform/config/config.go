@@ -5,7 +5,6 @@ package config
 import (
 	"fmt"
 	"os"
-	"strconv"
 	"time"
 
 	"gopkg.in/yaml.v3"
@@ -18,7 +17,6 @@ type Config struct {
 	App     App     `yaml:"app"`
 	DB      DB      `yaml:"db"`
 	Auth    Auth    `yaml:"auth"`
-	SMS     SMS     `yaml:"sms"`
 	Payment Payment `yaml:"payment"`
 	Storage Storage `yaml:"storage"`
 	Push    Push    `yaml:"push"`
@@ -45,20 +43,6 @@ type Auth struct {
 	JWTSecret  string        `yaml:"jwt_secret"`
 	AccessTTL  time.Duration `yaml:"access_ttl"`
 	RefreshTTL time.Duration `yaml:"refresh_ttl"`
-}
-
-// SMS holds the SMS provider selection and provider-specific settings.
-type SMS struct {
-	Provider  string `yaml:"provider"` // console | kavenegar | smsir
-	Kavenegar struct {
-		APIKey string `yaml:"api_key"`
-		Sender string `yaml:"sender"`
-	} `yaml:"kavenegar"`
-	SMSIR struct {
-		APIKey     string `yaml:"api_key"`
-		TemplateID int64  `yaml:"template_id"`
-		ParamName  string `yaml:"param_name"` // template parameter name without '#'
-	} `yaml:"smsir"`
 }
 
 // Payment holds the payment gateway selection and provider-specific settings.
@@ -96,7 +80,6 @@ func Load() (*Config, error) {
 			AccessTTL:  15 * time.Minute,
 			RefreshTTL: 30 * 24 * time.Hour,
 		},
-		SMS:     SMS{Provider: "console"},
 		Payment: Payment{Provider: "mock"},
 		Storage: Storage{Path: "./data/files"},
 	}
@@ -134,19 +117,6 @@ func applyEnvOverrides(cfg *Config) error {
 	if v := os.Getenv("HAMSA_JWT_SECRET"); v != "" {
 		cfg.Auth.JWTSecret = v
 	}
-	if v := os.Getenv("HAMSA_SMS_SMSIR_API_KEY"); v != "" {
-		cfg.SMS.SMSIR.APIKey = v
-	}
-	if v := os.Getenv("HAMSA_SMS_SMSIR_TEMPLATE_ID"); v != "" {
-		if id, err := strconv.ParseInt(v, 10, 64); err == nil {
-			cfg.SMS.SMSIR.TemplateID = id
-		} else {
-			return fmt.Errorf("HAMSA_SMS_SMSIR_TEMPLATE_ID must be an integer, got %q", v)
-		}
-	}
-	if v := os.Getenv("HAMSA_SMS_PROVIDER"); v != "" {
-		cfg.SMS.Provider = v
-	}
 	if v := os.Getenv("HAMSA_PAYMENT_PROVIDER"); v != "" {
 		cfg.Payment.Provider = v
 	}
@@ -171,12 +141,6 @@ func (c *Config) validate() error {
 	}
 	if c.Storage.Path == "" {
 		return fmt.Errorf("storage.path must not be empty")
-	}
-	if c.SMS.Provider == "smsir" && c.SMS.SMSIR.APIKey == "" {
-		return fmt.Errorf("sms.smsir.api_key must not be empty when provider is smsir")
-	}
-	if c.SMS.Provider == "smsir" && c.SMS.SMSIR.TemplateID == 0 {
-		return fmt.Errorf("sms.smsir.template_id must be set when provider is smsir — create the OTP template in the SMS.ir panel")
 	}
 	return nil
 }
