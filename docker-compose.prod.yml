@@ -1,0 +1,48 @@
+# Hamsa production stack — runs on the server next to the system nginx.
+# nginx serves the static website and proxies /api/ to 127.0.0.1:8080.
+# Secrets live in /opt/hamsa/.env (chmod 600, not in the repo).
+#
+# Usage on the server:
+#   docker compose -f docker-compose.prod.yml --env-file .env up -d
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: hamsa-pg
+    environment:
+      POSTGRES_USER: hamsa
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: hamsa
+    volumes:
+      - hamsa_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U hamsa -d hamsa"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  backend:
+    image: hamsa-backend:latest
+    container_name: hamsa-api
+    environment:
+      HAMSA_DB_DSN: "host=postgres port=5432 user=hamsa password=${POSTGRES_PASSWORD} dbname=hamsa sslmode=disable"
+      HAMSA_JWT_SECRET: ${JWT_SECRET}
+    ports:
+      # Loopback only — nginx is the public front.
+      - "127.0.0.1:8080:8080"
+    volumes:
+      - hamsa_files:/data/files
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:8080/healthz || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+    restart: unless-stopped
+
+volumes:
+  hamsa_pgdata:
+  hamsa_files:

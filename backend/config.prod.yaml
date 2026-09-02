@@ -1,0 +1,42 @@
+# Hamsa backend — production image config. Secrets come from environment
+# (HAMSA_JWT_SECRET, HAMSA_DB_DSN via docker-compose). No secrets here.
+app:
+  env: production
+  addr: ":8080"
+  # Public origin behind nginx; used to build payment gateway callback URLs.
+  base_url: "https://hamsa-home.ir"
+
+db:
+  # DSN is supplied via HAMSA_DB_DSN.
+  dsn: ""
+  auto_migrate: true
+
+auth:
+  # Secret is supplied via HAMSA_JWT_SECRET.
+  jwt_secret: ""
+  access_ttl: 15m
+  refresh_ttl: 720h
+
+sms:
+  # Switch to kavenegar/smsir (with HAMSA_SMS_* env vars) when API keys exist.
+  provider: console
+  kavenegar:
+    api_key: ""
+    sender: ""
+  smsir:
+    api_key: ""
+    template_id: 0
+    param_name: "Code"
+
+payment:
+  # Switch to zarinpal once merchant credentials exist.
+  provider: mock
+  zarinpal:
+    merchant_id: ""
+    sandbox: true
+
+storage:
+  path: "/data/files"
+
+push:
+  fcm_credentials_file: ""
