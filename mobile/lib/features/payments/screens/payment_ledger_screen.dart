@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:persian_datetime_picker/persian_datetime_picker.dart';
 
 import '../../../core/theme/app_theme.dart';
@@ -90,6 +91,14 @@ class _PaymentLedgerScreenState extends ConsumerState<PaymentLedgerScreen> {
     final unitList = units.valueOrNull?.units ?? const [];
     return Scaffold(
       appBar: AppBar(title: Text(l10n.ledgerTitle)),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () async {
+          await context.push('/manager/select-invoice/${widget.buildingId}');
+          await _load();
+        },
+        icon: const Icon(Icons.add),
+        label: Text(l10n.recordPayment),
+      ),
       body: Column(
         children: [
           Padding(

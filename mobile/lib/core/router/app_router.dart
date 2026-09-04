@@ -41,6 +41,7 @@ import '../../features/maintenance/screens/resident_maintenance_list_screen.dart
 import '../../features/payments/screens/payment_history_screen.dart';
 import '../../features/payments/screens/payment_ledger_screen.dart';
 import '../../features/payments/screens/record_payment_screen.dart';
+import '../../features/payments/screens/select_invoice_screen.dart';
 import '../../features/notifications/screens/notification_center_screen.dart';
 
 import '../../features/payments/screens/pay_invoice_screen.dart';
@@ -193,6 +194,12 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       // US5 payment surfaces. Manager: record manual payment on an invoice
       // and the building ledger. Resident: pay flow + payment history.
+      GoRoute(
+        path: '/manager/select-invoice/:buildingId',
+        builder: (_, state) => SelectInvoiceScreen(
+          buildingId: state.pathParameters['buildingId']!,
+        ),
+      ),
       GoRoute(
         path: '/manager/records-payment/:invoiceId',
         builder: (_, state) => RecordPaymentScreen(

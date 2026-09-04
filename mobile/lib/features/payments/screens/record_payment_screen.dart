@@ -79,6 +79,7 @@ class _RecordPaymentScreenState extends ConsumerState<RecordPaymentScreen> {
           children: [
             TextFormField(
               controller: _amountCtrl,
+              decoration: InputDecoration(labelText: l10n.paymentAmountLabel),
               keyboardType: TextInputType.number,
               textDirection: TextDirection.ltr,
               inputFormatters: const [TomanInputFormatter()],
