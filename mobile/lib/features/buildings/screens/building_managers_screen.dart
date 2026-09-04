@@ -201,7 +201,16 @@ class _BuildingManagersScreenState extends ConsumerState<BuildingManagersScreen>
                               const SizedBox(height: 10),
                           itemBuilder: (context, i) {
                             final m = managers[i];
-                            final granted = DateTime.tryParse(m.grantedAt);
+                            // Pre-0011 zero-time grants (0001-01-01) throw in
+                            // the Jalali conversion (out of computable
+                            // range) and would kill this route: treat absurd
+                            // dates as absent and render phone-only.
+                            final parsedGrant =
+                                DateTime.tryParse(m.grantedAt);
+                            final granted = parsedGrant != null &&
+                                    parsedGrant.year > 1900
+                                ? parsedGrant
+                                : null;
                             return Card(
                               child: ListTile(
                                 leading: Container(

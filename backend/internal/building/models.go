@@ -58,11 +58,12 @@ type Unit struct {
 func (Unit) TableName() string { return "units" }
 
 // UserBuilding is one row of the manager permission scope
-// (data-model.md "user_buildings").
+// (data-model.md "user_buildings"). autoCreateTime keeps GORM from writing
+// Go's zero time over the DEFAULT now() (0011 healed older zero rows).
 type UserBuilding struct {
 	UserID     uuid.UUID `gorm:"column:user_id;type:uuid;primaryKey"`
 	BuildingID uuid.UUID `gorm:"column:building_id;type:uuid;primaryKey"`
-	GrantedAt  time.Time `gorm:"column:granted_at"`
+	GrantedAt  time.Time `gorm:"column:granted_at;autoCreateTime"`
 }
 
 func (UserBuilding) TableName() string { return "user_buildings" }

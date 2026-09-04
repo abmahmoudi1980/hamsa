@@ -1269,8 +1269,7 @@ class AppLocalizationsFa extends AppLocalizations {
   String get managerAlreadyGrantedError => 'این مدیر از قبل دسترسی دارد.';
 
   @override
-  String get lastManagerError =>
-      'حداقل یک مدیر باید برای ساختمان باقی بماند.';
+  String get lastManagerError => 'حداقل یک مدیر باید برای ساختمان باقی بماند.';
 
   @override
   String get selfRemoveError =>
