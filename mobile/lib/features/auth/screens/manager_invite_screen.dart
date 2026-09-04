@@ -44,10 +44,7 @@ class _ManagerInviteScreenState extends ConsumerState<ManagerInviteScreen> {
     try {
       final issued = await ref
           .read(authRepositoryProvider)
-          .createInvite(
-            fromPersianDigits(_phoneController.text.trim()),
-            _role,
-          );
+          .createInvite(fromPersianDigits(_phoneController.text.trim()), _role);
       if (!mounted) return;
       setState(() => _issued = issued);
     } catch (e) {
@@ -103,25 +100,27 @@ class _ManagerInviteScreenState extends ConsumerState<ManagerInviteScreen> {
                       const SizedBox(height: AppTheme.spaceL),
                       TextFormField(
                         controller: _phoneController,
-                        decoration: InputDecoration(
-                          labelText: l10n.phoneLabel,
-                        ),
+                        decoration: InputDecoration(labelText: l10n.phoneLabel),
                         keyboardType: TextInputType.phone,
                         autofocus: true,
                         validator: (v) => Validators.mobile(l10n, v),
                         onFieldSubmitted: (_) => _issue(),
                       ),
                       const SizedBox(height: AppTheme.spaceL),
-                      FilledButton(
-                        onPressed: _submitting ? null : _issue,
-                        child: _submitting
-                            ? const SizedBox(
-                                width: 20,
-                                height: 20,
-                                child:
-                                    CircularProgressIndicator(strokeWidth: 2),
-                              )
-                            : Text(l10n.getInviteCode),
+                      SizedBox(
+                        width: double.infinity,
+                        child: FilledButton(
+                          onPressed: _submitting ? null : _issue,
+                          child: _submitting
+                              ? const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
+                                )
+                              : Text(l10n.getInviteCode),
+                        ),
                       ),
                       if (_issued != null) ...[
                         const SizedBox(height: AppTheme.spaceXl),
@@ -138,12 +137,12 @@ class _ManagerInviteScreenState extends ConsumerState<ManagerInviteScreen> {
                           padding: const EdgeInsets.all(AppTheme.spaceL),
                           decoration: BoxDecoration(
                             color: theme.colorScheme.surfaceContainerHighest,
-                            borderRadius:
-                                BorderRadius.circular(AppTheme.radiusLarge),
+                            borderRadius: BorderRadius.circular(
+                              AppTheme.radiusLarge,
+                            ),
                           ),
                           child: Row(
-                            mainAxisAlignment:
-                                MainAxisAlignment.spaceBetween,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Expanded(
                                 child: Text(
@@ -151,9 +150,9 @@ class _ManagerInviteScreenState extends ConsumerState<ManagerInviteScreen> {
                                   textAlign: TextAlign.center,
                                   style: theme.textTheme.headlineSmall
                                       ?.copyWith(
-                                    letterSpacing: 4,
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                                        letterSpacing: 4,
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                 ),
                               ),
                               IconButton(
@@ -164,8 +163,7 @@ class _ManagerInviteScreenState extends ConsumerState<ManagerInviteScreen> {
                                     ClipboardData(text: _issued!.code),
                                   );
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                        content: Text(l10n.inviteCopied)),
+                                    SnackBar(content: Text(l10n.inviteCopied)),
                                   );
                                 },
                               ),

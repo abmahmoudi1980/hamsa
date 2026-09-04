@@ -18,7 +18,24 @@ class ResidentAnnouncementListScreen extends ConsumerWidget {
       appBar: AppBar(title: const Text('اطلاعیه‌های من')),
       body: async.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Column(mainAxisSize: MainAxisSize.min, children: [Text('خطا: $e'), const SizedBox(height: 12), FilledButton(onPressed: () => ref.read(myAnnouncementsControllerProvider.notifier).refresh(), child: const Text('تلاش دوباره'))])),
+        error: (e, _) => Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text('خطا: $e'),
+              const SizedBox(height: 12),
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton(
+                  onPressed: () => ref
+                      .read(myAnnouncementsControllerProvider.notifier)
+                      .refresh(),
+                  child: const Text('تلاش دوباره'),
+                ),
+              ),
+            ],
+          ),
+        ),
         data: (items) {
           if (items.isEmpty) {
             return const EmptyState(
@@ -33,11 +50,19 @@ class ResidentAnnouncementListScreen extends ConsumerWidget {
               if (unread > 0)
                 Padding(
                   padding: const EdgeInsets.all(12),
-                  child: Chip(label: Text('${toPersianDigits(unread.toString())} ناخوانده', style: const TextStyle(color: Colors.white)), backgroundColor: Theme.of(context).colorScheme.primary),
+                  child: Chip(
+                    label: Text(
+                      '${toPersianDigits(unread.toString())} ناخوانده',
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                    backgroundColor: Theme.of(context).colorScheme.primary,
+                  ),
                 ),
               Expanded(
                 child: RefreshIndicator(
-                  onRefresh: () => ref.read(myAnnouncementsControllerProvider.notifier).refresh(),
+                  onRefresh: () => ref
+                      .read(myAnnouncementsControllerProvider.notifier)
+                      .refresh(),
                   child: ListView.separated(
                     padding: const EdgeInsets.all(16),
                     itemCount: items.length,
@@ -61,20 +86,53 @@ class _ResidentCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Card(
-      color: item.isRead ? null : Theme.of(context).colorScheme.surfaceContainerHighest,
+      color: item.isRead
+          ? null
+          : Theme.of(context).colorScheme.surfaceContainerHighest,
       child: ListTile(
-        title: Row(children: [
-          Expanded(child: Text(item.title, style: TextStyle(fontWeight: item.isRead ? FontWeight.normal : FontWeight.bold))),
-          if (!item.isRead) Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4), decoration: BoxDecoration(color: Theme.of(context).colorScheme.primary, borderRadius: BorderRadius.circular(12)), child: const Text('نخوانده', style: TextStyle(color: Colors.white, fontSize: 11))),
-        ]),
-        subtitle: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          const SizedBox(height: 4),
-          Text(item.body, maxLines: 2, overflow: TextOverflow.ellipsis),
-          const SizedBox(height: 4),
-          Text(item.createdAt != null ? _formatDate(item.createdAt!) : '', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey[600])),
-        ]),
+        title: Row(
+          children: [
+            Expanded(
+              child: Text(
+                item.title,
+                style: TextStyle(
+                  fontWeight: item.isRead ? FontWeight.normal : FontWeight.bold,
+                ),
+              ),
+            ),
+            if (!item.isRead)
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.primary,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Text(
+                  'نخوانده',
+                  style: TextStyle(color: Colors.white, fontSize: 11),
+                ),
+              ),
+          ],
+        ),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 4),
+            Text(item.body, maxLines: 2, overflow: TextOverflow.ellipsis),
+            const SizedBox(height: 4),
+            Text(
+              item.createdAt != null ? _formatDate(item.createdAt!) : '',
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
+            ),
+          ],
+        ),
         onTap: () async {
-          final changed = await context.push<bool>('/home/announcements/${item.id}', extra: item);
+          final changed = await context.push<bool>(
+            '/home/announcements/${item.id}',
+            extra: item,
+          );
           if (changed == true && context.mounted) {
             ref.read(myAnnouncementsControllerProvider.notifier).refresh();
           } else if (!item.isRead && context.mounted) {

@@ -45,7 +45,9 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
     final l10n = AppLocalizations.of(context);
 
     try {
-      final result = await ref.read(authRepositoryProvider).setup(
+      final result = await ref
+          .read(authRepositoryProvider)
+          .setup(
             phone: fromPersianDigits(_phoneController.text.trim()),
             password: _passwordController.text,
             name: _nameController.text.trim(),
@@ -93,9 +95,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
                       const SizedBox(height: AppTheme.spaceL),
                       TextFormField(
                         controller: _phoneController,
-                        decoration: InputDecoration(
-                          labelText: l10n.phoneLabel,
-                        ),
+                        decoration: InputDecoration(labelText: l10n.phoneLabel),
                         keyboardType: TextInputType.phone,
                         autofocus: true,
                         validator: (v) => Validators.mobile(l10n, v),
@@ -103,9 +103,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
                       const SizedBox(height: AppTheme.spaceL),
                       TextFormField(
                         controller: _nameController,
-                        decoration: InputDecoration(
-                          labelText: l10n.nameLabel,
-                        ),
+                        decoration: InputDecoration(labelText: l10n.nameLabel),
                         textInputAction: TextInputAction.next,
                       ),
                       const SizedBox(height: AppTheme.spaceL),
@@ -114,9 +112,11 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
                         decoration: InputDecoration(
                           labelText: l10n.passwordLabel,
                           suffixIcon: IconButton(
-                            icon: Icon(_obscure
-                                ? Icons.visibility_outlined
-                                : Icons.visibility_off_outlined),
+                            icon: Icon(
+                              _obscure
+                                  ? Icons.visibility_outlined
+                                  : Icons.visibility_off_outlined,
+                            ),
                             onPressed: () =>
                                 setState(() => _obscure = !_obscure),
                           ),
@@ -131,22 +131,25 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
                           labelText: l10n.confirmPasswordLabel,
                         ),
                         obscureText: _obscure,
-                        validator: (v) =>
-                            v == _passwordController.text
-                                ? null
-                                : l10n.passwordsMismatch,
+                        validator: (v) => v == _passwordController.text
+                            ? null
+                            : l10n.passwordsMismatch,
                       ),
                       const SizedBox(height: AppTheme.spaceXl),
-                      FilledButton(
-                        onPressed: _submitting ? null : _submit,
-                        child: _submitting
-                            ? const SizedBox(
-                                width: 20,
-                                height: 20,
-                                child:
-                                    CircularProgressIndicator(strokeWidth: 2),
-                              )
-                            : Text(l10n.setupButton),
+                      SizedBox(
+                        width: double.infinity,
+                        child: FilledButton(
+                          onPressed: _submitting ? null : _submit,
+                          child: _submitting
+                              ? const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
+                                )
+                              : Text(l10n.setupButton),
+                        ),
                       ),
                     ],
                   ),

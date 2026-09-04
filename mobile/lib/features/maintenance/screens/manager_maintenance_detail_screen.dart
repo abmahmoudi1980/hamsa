@@ -14,15 +14,21 @@ import '../models/maintenance.dart';
 /// T074 — manager detail: shows request fields plus controls for assignee
 /// (person picker), recorded cost, notes, status actions and close.
 class ManagerMaintenanceDetailScreen extends ConsumerStatefulWidget {
-  const ManagerMaintenanceDetailScreen({super.key, required this.buildingId, required this.requestId});
+  const ManagerMaintenanceDetailScreen({
+    super.key,
+    required this.buildingId,
+    required this.requestId,
+  });
   final String buildingId;
   final String requestId;
 
   @override
-  ConsumerState<ManagerMaintenanceDetailScreen> createState() => _ManagerMaintenanceDetailScreenState();
+  ConsumerState<ManagerMaintenanceDetailScreen> createState() =>
+      _ManagerMaintenanceDetailScreenState();
 }
 
-class _ManagerMaintenanceDetailScreenState extends ConsumerState<ManagerMaintenanceDetailScreen> {
+class _ManagerMaintenanceDetailScreenState
+    extends ConsumerState<ManagerMaintenanceDetailScreen> {
   MaintenanceRequest? _item;
   bool _loading = true;
   String? _error;
@@ -33,31 +39,31 @@ class _ManagerMaintenanceDetailScreenState extends ConsumerState<ManagerMaintena
   final _notesCtrl = TextEditingController();
 
   String _statusLabel(AppLocalizations l10n, String token) => switch (token) {
-        'new' => l10n.maintenanceStatusNew,
-        'under_review' => l10n.maintenanceStatusUnderReview,
-        'in_progress' => l10n.maintenanceStatusInProgress,
-        'done' => l10n.maintenanceStatusDone,
-        'closed' => l10n.maintenanceStatusClosed,
-        _ => token,
-      };
+    'new' => l10n.maintenanceStatusNew,
+    'under_review' => l10n.maintenanceStatusUnderReview,
+    'in_progress' => l10n.maintenanceStatusInProgress,
+    'done' => l10n.maintenanceStatusDone,
+    'closed' => l10n.maintenanceStatusClosed,
+    _ => token,
+  };
 
   String _priorityLabel(AppLocalizations l10n, String token) => switch (token) {
-        'normal' => l10n.maintenancePriorityNormal,
-        'important' => l10n.maintenancePriorityImportant,
-        'urgent' => l10n.maintenancePriorityUrgent,
-        _ => token,
-      };
+    'normal' => l10n.maintenancePriorityNormal,
+    'important' => l10n.maintenancePriorityImportant,
+    'urgent' => l10n.maintenancePriorityUrgent,
+    _ => token,
+  };
 
   String _categoryLabel(AppLocalizations l10n, String token) => switch (token) {
-        'elevator' => l10n.maintenanceCategoryElevator,
-        'utilities' => l10n.maintenanceCategoryUtilities,
-        'electrical' => l10n.maintenanceCategoryElectrical,
-        'water' => l10n.maintenanceCategoryWater,
-        'cleaning' => l10n.maintenanceCategoryCleaning,
-        'common_area' => l10n.maintenanceCategoryCommonArea,
-        'parking' => l10n.maintenanceCategoryParking,
-        _ => l10n.maintenanceCategoryOther,
-      };
+    'elevator' => l10n.maintenanceCategoryElevator,
+    'utilities' => l10n.maintenanceCategoryUtilities,
+    'electrical' => l10n.maintenanceCategoryElectrical,
+    'water' => l10n.maintenanceCategoryWater,
+    'cleaning' => l10n.maintenanceCategoryCleaning,
+    'common_area' => l10n.maintenanceCategoryCommonArea,
+    'parking' => l10n.maintenanceCategoryParking,
+    _ => l10n.maintenanceCategoryOther,
+  };
 
   @override
   void initState() {
@@ -114,10 +120,14 @@ class _ManagerMaintenanceDetailScreenState extends ConsumerState<ManagerMaintena
       );
       if (!mounted) return;
       setState(() => _item = updated);
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.maintenanceSaved)));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l10n.maintenanceSaved)));
     } on ApiException catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.serverMessage ?? l10n.maintenanceSaveError)));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.serverMessage ?? l10n.maintenanceSaveError)),
+      );
     } finally {
       if (mounted) setState(() => _saving = false);
     }
@@ -139,10 +149,14 @@ class _ManagerMaintenanceDetailScreenState extends ConsumerState<ManagerMaintena
       final updated = await repo.updateRequest(widget.requestId, status: next);
       if (!mounted) return;
       setState(() => _item = updated);
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.maintenanceStatusChangedTo(statusText))));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.maintenanceStatusChangedTo(statusText))),
+      );
     } on ApiException catch (e) {
       if (!mounted) return;
-      final msg = e.statusCode == 409 ? l10n.maintenanceStatusChangeNotAllowed : (e.serverMessage ?? l10n.maintenanceSaveError);
+      final msg = e.statusCode == 409
+          ? l10n.maintenanceStatusChangeNotAllowed
+          : (e.serverMessage ?? l10n.maintenanceSaveError);
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
     } finally {
       if (mounted) setState(() => _saving = false);
@@ -163,17 +177,27 @@ class _ManagerMaintenanceDetailScreenState extends ConsumerState<ManagerMaintena
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     if (_loading) {
-      return Scaffold(appBar: AppBar(title: Text(l10n.maintenanceDetailTitle)), body: const Center(child: CircularProgressIndicator()));
+      return Scaffold(
+        appBar: AppBar(title: Text(l10n.maintenanceDetailTitle)),
+        body: const Center(child: CircularProgressIndicator()),
+      );
     }
     if (_error != null || _item == null) {
       return Scaffold(
         appBar: AppBar(title: Text(l10n.maintenanceDetailTitle)),
         body: Center(
-            child: Column(mainAxisSize: MainAxisSize.min, children: [
-          Text(_error ?? l10n.errorNotFound),
-          const SizedBox(height: 8),
-          FilledButton(onPressed: _load, child: Text(l10n.retry))
-        ])),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(_error ?? l10n.errorNotFound),
+              const SizedBox(height: 8),
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton(onPressed: _load, child: Text(l10n.retry)),
+              ),
+            ],
+          ),
+        ),
       );
     }
     final item = _item!;
@@ -183,40 +207,69 @@ class _ManagerMaintenanceDetailScreenState extends ConsumerState<ManagerMaintena
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          Row(children: [
-            StatusChip(kind: StatusKind.maintenance, value: item.status),
-            const SizedBox(width: 8),
-            Chip(label: Text(_priorityLabel(l10n, item.priority))),
-            const SizedBox(width: 8),
-            Chip(label: Text(_categoryLabel(l10n, item.category))),
-          ]),
+          Row(
+            children: [
+              StatusChip(kind: StatusKind.maintenance, value: item.status),
+              const SizedBox(width: 8),
+              Chip(label: Text(_priorityLabel(l10n, item.priority))),
+              const SizedBox(width: 8),
+              Chip(label: Text(_categoryLabel(l10n, item.category))),
+            ],
+          ),
           const SizedBox(height: 12),
-          if (item.createdAt != null) Text(l10n.maintenanceCreatedAt(_tryJalali(item.createdAt!)), style: Theme.of(context).textTheme.bodySmall),
-          if (item.location != null && item.location!.isNotEmpty) Text(l10n.maintenanceLocation(item.location!)),
-          if (item.description != null && item.description!.isNotEmpty) ...[const SizedBox(height: 8), Text(item.description!)],
+          if (item.createdAt != null)
+            Text(
+              l10n.maintenanceCreatedAt(_tryJalali(item.createdAt!)),
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+          if (item.location != null && item.location!.isNotEmpty)
+            Text(l10n.maintenanceLocation(item.location!)),
+          if (item.description != null && item.description!.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Text(item.description!),
+          ],
           const Divider(height: 32),
           if (next.isNotEmpty) ...[
-            Text(l10n.maintenanceChangeStatus, style: Theme.of(context).textTheme.titleMedium),
+            Text(
+              l10n.maintenanceChangeStatus,
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
             const SizedBox(height: 8),
             Wrap(
               spacing: 8,
-              children: next.map((s) => FilledButton(onPressed: _saving ? null : () => _transition(s), child: Text(_statusLabel(l10n, s)))).toList(),
+              children: next
+                  .map(
+                    (s) => FilledButton(
+                      onPressed: _saving ? null : () => _transition(s),
+                      child: Text(_statusLabel(l10n, s)),
+                    ),
+                  )
+                  .toList(),
             ),
             const SizedBox(height: 16),
           ] else
             Chip(label: Text(l10n.maintenanceClosedChip)),
           const Divider(height: 32),
-          Text(l10n.maintenanceMetaTitle, style: Theme.of(context).textTheme.titleMedium),
+          Text(
+            l10n.maintenanceMetaTitle,
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
           const SizedBox(height: 8),
           TextFormField(
             initialValue: _assigneeId ?? '',
-            decoration: InputDecoration(labelText: l10n.maintenanceAssigneeLabel, hintText: l10n.maintenanceAssigneeHint),
+            decoration: InputDecoration(
+              labelText: l10n.maintenanceAssigneeLabel,
+              hintText: l10n.maintenanceAssigneeHint,
+            ),
             onChanged: (v) => _assigneeId = v.trim().isEmpty ? null : v.trim(),
           ),
           const SizedBox(height: 12),
           TextFormField(
             controller: _costCtrl,
-            decoration: InputDecoration(labelText: l10n.maintenanceCostLabel, hintText: l10n.maintenanceCostHint),
+            decoration: InputDecoration(
+              labelText: l10n.maintenanceCostLabel,
+              hintText: l10n.maintenanceCostHint,
+            ),
             keyboardType: TextInputType.number,
             inputFormatters: const [TomanInputFormatter()],
           ),
@@ -229,7 +282,13 @@ class _ManagerMaintenanceDetailScreenState extends ConsumerState<ManagerMaintena
           const SizedBox(height: 12),
           FilledButton.icon(
             onPressed: _saving ? null : _saveMeta,
-            icon: _saving ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2)) : const Icon(Icons.save),
+            icon: _saving
+                ? const SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Icon(Icons.save),
             label: Text(l10n.maintenanceSaveMeta),
           ),
           const SizedBox(height: 24),

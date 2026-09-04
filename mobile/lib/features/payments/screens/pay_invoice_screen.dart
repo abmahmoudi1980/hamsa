@@ -64,8 +64,9 @@ class _PayInvoiceScreenState extends ConsumerState<PayInvoiceScreen>
       _error = null;
     });
     try {
-      final inv =
-          await ref.read(billingRepositoryProvider).getInvoice(widget.invoiceId);
+      final inv = await ref
+          .read(billingRepositoryProvider)
+          .getInvoice(widget.invoiceId);
       if (!mounted) return;
       setState(() => _invoice = inv);
     } on ApiException catch (e) {
@@ -105,9 +106,9 @@ class _PayInvoiceScreenState extends ConsumerState<PayInvoiceScreen>
       }
     } on PlatformException {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.launchFailed)),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(l10n.launchFailed)));
       }
     } finally {
       if (mounted) setState(() => _starting = false);
@@ -122,73 +123,81 @@ class _PayInvoiceScreenState extends ConsumerState<PayInvoiceScreen>
       body: _loading && _invoice == null
           ? const Center(child: CircularProgressIndicator())
           : _error != null && _invoice == null
-              ? EmptyState(icon: Icons.error_outline, title: _error!)
-              : RefreshIndicator(
-                  onRefresh: _load,
-                  child: ListView(
-                    padding: AppTheme.pagePadding,
-                    children: [
-                      if (_invoice != null) ...[
-                        Card(
-                          child: Padding(
-                            padding: const EdgeInsets.all(AppTheme.spaceL),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
+          ? EmptyState(icon: Icons.error_outline, title: _error!)
+          : RefreshIndicator(
+              onRefresh: _load,
+              child: ListView(
+                padding: AppTheme.pagePadding,
+                children: [
+                  if (_invoice != null) ...[
+                    Card(
+                      child: Padding(
+                        padding: const EdgeInsets.all(AppTheme.spaceL),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Row(
                               children: [
-                                Row(
-                                  children: [
-                                    Text(_invoice!.invoiceNumber,
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .titleMedium),
-                                    const Spacer(),
-                                    StatusChip(
-                                        kind: StatusKind.invoice,
-                                        value: _invoice!.status),
-                                  ],
+                                Text(
+                                  _invoice!.invoiceNumber,
+                                  style: Theme.of(
+                                    context,
+                                  ).textTheme.titleMedium,
                                 ),
-                                const SizedBox(height: AppTheme.spaceM),
-                                Text(l10n.outstandingLabel,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodySmall),
-                                MoneyText(
-                                  amount: _outstanding,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .titleLarge
-                                      ?.copyWith(
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .primary),
+                                const Spacer(),
+                                StatusChip(
+                                  kind: StatusKind.invoice,
+                                  value: _invoice!.status,
                                 ),
-                                const SizedBox(height: AppTheme.spaceM),
-                                if (_outstanding > 0 &&
-                                    _invoice!.status != 'cancelled')
-                                  FilledButton(
-                                    onPressed: _starting ? null : _pay,
-                                    child: _starting
-                                        ? const SizedBox(
-                                            width: 18,
-                                            height: 18,
-                                            child: CircularProgressIndicator(
-                                                strokeWidth: 2))
-                                        : Text(l10n.payNow),
-                                  ),
                               ],
                             ),
-                          ),
+                            const SizedBox(height: AppTheme.spaceM),
+                            Text(
+                              l10n.outstandingLabel,
+                              style: Theme.of(context).textTheme.bodySmall,
+                            ),
+                            MoneyText(
+                              amount: _outstanding,
+                              style: Theme.of(context).textTheme.titleLarge
+                                  ?.copyWith(
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.primary,
+                                  ),
+                            ),
+                            const SizedBox(height: AppTheme.spaceM),
+                            if (_outstanding > 0 &&
+                                _invoice!.status != 'cancelled')
+                              SizedBox(
+                                width: double.infinity,
+                                child: FilledButton(
+                                  onPressed: _starting ? null : _pay,
+                                  child: _starting
+                                      ? const SizedBox(
+                                          width: 18,
+                                          height: 18,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                          ),
+                                        )
+                                      : Text(l10n.payNow),
+                                ),
+                              ),
+                          ],
                         ),
-                        const SizedBox(height: AppTheme.spaceL),
-                        SectionHeader(title: l10n.paymentHistoryTitle),
-                        _InvoicePayments(invoiceId: widget.invoiceId),
-                      ],
-                    ],
-                  ),
-                ),
+                      ),
+                    ),
+                    const SizedBox(height: AppTheme.spaceL),
+                    SectionHeader(title: l10n.paymentHistoryTitle),
+                    _InvoicePayments(invoiceId: widget.invoiceId),
+                  ],
+                ],
+              ),
+            ),
     );
   }
 }
+
 /// Receipt rows: this invoice's payments (newest first) from the resident
 /// history — the verified row carries the gateway tracking number.
 class _InvoicePayments extends ConsumerWidget {
@@ -213,8 +222,9 @@ class _InvoicePayments extends ConsumerWidget {
             final verified = p.status == 'verified';
             return Card(
               child: ListTile(
-                leading:
-                    Icon(verified ? Icons.check_circle : Icons.hourglass_top),
+                leading: Icon(
+                  verified ? Icons.check_circle : Icons.hourglass_top,
+                ),
                 title: Row(
                   children: [
                     MoneyText(amount: p.amount),
@@ -233,4 +243,3 @@ class _InvoicePayments extends ConsumerWidget {
     );
   }
 }
-

@@ -87,8 +87,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       height: 72,
                       decoration: BoxDecoration(
                         color: theme.colorScheme.primary,
-                        borderRadius:
-                            BorderRadius.circular(AppTheme.radiusLarge),
+                        borderRadius: BorderRadius.circular(
+                          AppTheme.radiusLarge,
+                        ),
                       ),
                       child: const Icon(
                         Icons.apartment,
@@ -138,32 +139,36 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               decoration: InputDecoration(
                                 labelText: l10n.passwordLabel,
                                 suffixIcon: IconButton(
-                                  icon: Icon(_obscure
-                                      ? Icons.visibility_outlined
-                                      : Icons.visibility_off_outlined),
+                                  icon: Icon(
+                                    _obscure
+                                        ? Icons.visibility_outlined
+                                        : Icons.visibility_off_outlined,
+                                  ),
                                   onPressed: () =>
                                       setState(() => _obscure = !_obscure),
                                 ),
                               ),
                               obscureText: _obscure,
-                              validator: (v) =>
-                                  v == null || v.isEmpty
-                                      ? l10n.requiredField
-                                      : null,
+                              validator: (v) => v == null || v.isEmpty
+                                  ? l10n.requiredField
+                                  : null,
                               onFieldSubmitted: (_) => _submit(),
                             ),
                             const SizedBox(height: AppTheme.spaceL),
-                            FilledButton(
-                              onPressed: _submitting ? null : _submit,
-                              child: _submitting
-                                  ? const SizedBox(
-                                      width: 20,
-                                      height: 20,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                      ),
-                                    )
-                                  : Text(l10n.loginButton),
+                            SizedBox(
+                              width: double.infinity,
+                              child: FilledButton(
+                                onPressed: _submitting ? null : _submit,
+                                child: _submitting
+                                    ? const SizedBox(
+                                        width: 20,
+                                        height: 20,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                        ),
+                                      )
+                                    : Text(l10n.loginButton),
+                              ),
                             ),
                             const SizedBox(height: AppTheme.spaceS),
                             TextButton(

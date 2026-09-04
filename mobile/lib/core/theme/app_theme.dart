@@ -87,7 +87,10 @@ abstract final class AppTheme {
       ),
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
-          minimumSize: const Size.fromHeight(buttonHeight),
+          // Finite min width: an infinite one (Size.fromHeight) crashes any
+          // button placed in a loose-width parent (Row/Wrap). Full-width
+          // buttons opt in via SizedBox(width: double.infinity) at call sites.
+          minimumSize: const Size(64, buttonHeight),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(radiusSmall + 2),
           ),
@@ -98,7 +101,7 @@ abstract final class AppTheme {
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          minimumSize: const Size.fromHeight(buttonHeight),
+          minimumSize: const Size(64, buttonHeight),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(radiusSmall + 2),
           ),
@@ -127,9 +130,7 @@ abstract final class AppTheme {
       chipTheme: ChipThemeData(
         backgroundColor: scheme.surfaceContainerHigh,
         side: BorderSide.none,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(999),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
         labelStyle: textTheme.labelMedium,
         padding: const EdgeInsets.symmetric(horizontal: spaceM, vertical: 2),
       ),

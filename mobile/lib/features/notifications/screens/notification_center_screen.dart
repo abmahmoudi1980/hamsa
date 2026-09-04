@@ -12,10 +12,12 @@ class NotificationCenterScreen extends ConsumerStatefulWidget {
   const NotificationCenterScreen({super.key});
 
   @override
-  ConsumerState<NotificationCenterScreen> createState() => _NotificationCenterScreenState();
+  ConsumerState<NotificationCenterScreen> createState() =>
+      _NotificationCenterScreenState();
 }
 
-class _NotificationCenterScreenState extends ConsumerState<NotificationCenterScreen> {
+class _NotificationCenterScreenState
+    extends ConsumerState<NotificationCenterScreen> {
   bool _unreadOnly = false;
 
   @override
@@ -26,7 +28,9 @@ class _NotificationCenterScreenState extends ConsumerState<NotificationCenterScr
 
   Future<void> _load() async {
     if (_unreadOnly) {
-      await ref.read(notificationsControllerProvider.notifier).refreshUnreadOnly(true);
+      await ref
+          .read(notificationsControllerProvider.notifier)
+          .refreshUnreadOnly(true);
     } else {
       await ref.read(notificationsControllerProvider.notifier).refresh();
     }
@@ -62,8 +66,13 @@ class _NotificationCenterScreenState extends ConsumerState<NotificationCenterScr
           IconButton(
             tooltip: 'خواندن همه',
             onPressed: () async {
-              await ref.read(notificationsControllerProvider.notifier).markAllRead();
-              if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('همه اعلان‌ها خوانده شد')));
+              await ref
+                  .read(notificationsControllerProvider.notifier)
+                  .markAllRead();
+              if (context.mounted)
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('همه اعلان‌ها خوانده شد')),
+                );
             },
             icon: const Icon(Icons.done_all),
           ),
@@ -73,30 +82,52 @@ class _NotificationCenterScreenState extends ConsumerState<NotificationCenterScr
         children: [
           Padding(
             padding: const EdgeInsets.all(12),
-            child: Row(children: [
-              const Text('فقط خوانده‌نشده'),
-              const SizedBox(width: 8),
-              Switch(
-                value: _unreadOnly,
-                onChanged: (v) async {
-                  setState(() => _unreadOnly = v);
-                  await _load();
-                },
-              ),
-              const Spacer(),
-              TextButton.icon(onPressed: _load, icon: const Icon(Icons.refresh), label: const Text('به‌روزرسانی')),
-            ]),
+            child: Row(
+              children: [
+                const Text('فقط خوانده‌نشده'),
+                const SizedBox(width: 8),
+                Switch(
+                  value: _unreadOnly,
+                  onChanged: (v) async {
+                    setState(() => _unreadOnly = v);
+                    await _load();
+                  },
+                ),
+                const Spacer(),
+                TextButton.icon(
+                  onPressed: _load,
+                  icon: const Icon(Icons.refresh),
+                  label: const Text('به‌روزرسانی'),
+                ),
+              ],
+            ),
           ),
           Expanded(
             child: async.when(
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (e, _) => Center(child: Column(mainAxisSize: MainAxisSize.min, children: [Text('خطا: $e'), const SizedBox(height: 12), FilledButton(onPressed: _load, child: const Text('تلاش دوباره'))])),
+              error: (e, _) => Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text('خطا: $e'),
+                    const SizedBox(height: 12),
+                    SizedBox(
+                      width: double.infinity,
+                      child: FilledButton(
+                        onPressed: _load,
+                        child: const Text('تلاش دوباره'),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
               data: (items) {
                 if (items.isEmpty) {
                   return const EmptyState(
                     icon: Icons.notifications_none,
                     title: 'اعلانی وجود ندارد',
-                    subtitle: 'اعلان‌های شارژ، پرداخت و اطلاعیه‌ها اینجا نمایش داده می‌شود.',
+                    subtitle:
+                        'اعلان‌های شارژ، پرداخت و اطلاعیه‌ها اینجا نمایش داده می‌شود.',
                   );
                 }
                 return RefreshIndicator(
@@ -105,7 +136,10 @@ class _NotificationCenterScreenState extends ConsumerState<NotificationCenterScr
                     padding: const EdgeInsets.all(16),
                     itemCount: items.length,
                     separatorBuilder: (_, __) => const SizedBox(height: 8),
-                    itemBuilder: (_, i) => _NotificationTile(item: items[i], onTap: () => _onTap(items[i])),
+                    itemBuilder: (_, i) => _NotificationTile(
+                      item: items[i],
+                      onTap: () => _onTap(items[i]),
+                    ),
                   ),
                 );
               },
@@ -125,15 +159,39 @@ class _NotificationTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      color: item.isRead ? null : Theme.of(context).colorScheme.surfaceContainerHighest,
+      color: item.isRead
+          ? null
+          : Theme.of(context).colorScheme.surfaceContainerHighest,
       child: ListTile(
-        leading: Icon(_iconFor(item.type), color: item.isRead ? Colors.grey : Theme.of(context).colorScheme.primary),
-        title: Text(item.title, style: TextStyle(fontWeight: item.isRead ? FontWeight.normal : FontWeight.bold)),
-        subtitle: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          if (item.body != null) Text(item.body!, maxLines: 2, overflow: TextOverflow.ellipsis),
-          if (item.createdAt != null) Text(_formatDate(item.createdAt!), style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey[600])),
-        ]),
-        trailing: item.isRead ? null : const Icon(Icons.circle, size: 10, color: Colors.blue),
+        leading: Icon(
+          _iconFor(item.type),
+          color: item.isRead
+              ? Colors.grey
+              : Theme.of(context).colorScheme.primary,
+        ),
+        title: Text(
+          item.title,
+          style: TextStyle(
+            fontWeight: item.isRead ? FontWeight.normal : FontWeight.bold,
+          ),
+        ),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (item.body != null)
+              Text(item.body!, maxLines: 2, overflow: TextOverflow.ellipsis),
+            if (item.createdAt != null)
+              Text(
+                _formatDate(item.createdAt!),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
+              ),
+          ],
+        ),
+        trailing: item.isRead
+            ? null
+            : const Icon(Icons.circle, size: 10, color: Colors.blue),
         onTap: onTap,
       ),
     );

@@ -50,8 +50,9 @@ class _InvoiceDetailScreenState extends ConsumerState<InvoiceDetailScreen> {
       _error = null;
     });
     try {
-      final inv =
-          await ref.read(billingRepositoryProvider).getInvoice(widget.invoiceId);
+      final inv = await ref
+          .read(billingRepositoryProvider)
+          .getInvoice(widget.invoiceId);
       setState(() => _invoice = inv);
     } on ApiException catch (e) {
       if (!mounted) return;
@@ -77,8 +78,14 @@ class _InvoiceDetailScreenState extends ConsumerState<InvoiceDetailScreen> {
             children: [
               SegmentedButton<String>(
                 segments: [
-                  ButtonSegment(value: 'credit', label: Text(l10n.adjustmentCredit)),
-                  ButtonSegment(value: 'debit', label: Text(l10n.adjustmentDebit)),
+                  ButtonSegment(
+                    value: 'credit',
+                    label: Text(l10n.adjustmentCredit),
+                  ),
+                  ButtonSegment(
+                    value: 'debit',
+                    label: Text(l10n.adjustmentDebit),
+                  ),
                 ],
                 selected: {kind},
                 onSelectionChanged: (s) => setState(() => kind = s.first),
@@ -104,7 +111,9 @@ class _InvoiceDetailScreenState extends ConsumerState<InvoiceDetailScreen> {
       return;
     }
     try {
-      await ref.read(billingRepositoryProvider).addAdjustment(
+      await ref
+          .read(billingRepositoryProvider)
+          .addAdjustment(
             widget.invoiceId,
             kind: kind,
             amount: amount,
@@ -161,16 +170,18 @@ class _InvoiceDetailScreenState extends ConsumerState<InvoiceDetailScreen> {
       return Scaffold(
         appBar: AppBar(),
         body: EmptyState(
-            icon: Icons.error_outline, title: _error ?? l10n.errorUnknown),
+          icon: Icons.error_outline,
+          title: _error ?? l10n.errorUnknown,
+        ),
       );
     }
     final inv = _invoice!;
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(inv.invoiceNumberPresent
-            ? inv.invoiceNumber
-            : l10n.invoicesTitle),
+        title: Text(
+          inv.invoiceNumberPresent ? inv.invoiceNumber : l10n.invoicesTitle,
+        ),
         actions: [
           // US5 (T060): manager records manual payments here.
           if (_isManager && _payable(inv))
@@ -226,8 +237,12 @@ class _InvoiceDetailScreenState extends ConsumerState<InvoiceDetailScreen> {
                   if (inv.creditAmount > 0)
                     _amountRow(context, l10n.creditAmount, inv.creditAmount),
                   const Divider(),
-                  _amountRow(context, l10n.finalAmount, inv.finalAmount,
-                      emphasized: true),
+                  _amountRow(
+                    context,
+                    l10n.finalAmount,
+                    inv.finalAmount,
+                    emphasized: true,
+                  ),
                   if (inv.paidAmount > 0)
                     _amountRow(context, l10n.paidAmount, inv.paidAmount),
                   if (inv.dueDate != null)
@@ -235,25 +250,30 @@ class _InvoiceDetailScreenState extends ConsumerState<InvoiceDetailScreen> {
                       context,
                       l10n.dueDateLabel,
                       formatJalaliLongDate(
-                          DateTime.tryParse(inv.dueDate!) ?? DateTime(2000)),
+                        DateTime.tryParse(inv.dueDate!) ?? DateTime(2000),
+                      ),
                     ),
                   if (inv.issueDate != null)
                     _metaRow(
                       context,
                       l10n.issueDateLabel,
                       formatJalaliLongDate(
-                          DateTime.tryParse(inv.issueDate!) ?? DateTime(2000)),
+                        DateTime.tryParse(inv.issueDate!) ?? DateTime(2000),
+                      ),
                     ),
                   // US5 (T061): resident online payment entry.
                   if (!_isManager && _payable(inv)) ...[
                     const SizedBox(height: AppTheme.spaceL),
-                    FilledButton.icon(
-                      icon: const Icon(Icons.credit_card),
-                      label: Text(l10n.payNow),
-                      onPressed: () async {
-                        await context.push('/invoice/${inv.id}/pay');
-                        await _load();
-                      },
+                    SizedBox(
+                      width: double.infinity,
+                      child: FilledButton.icon(
+                        icon: const Icon(Icons.credit_card),
+                        label: Text(l10n.payNow),
+                        onPressed: () async {
+                          await context.push('/invoice/${inv.id}/pay');
+                          await _load();
+                        },
+                      ),
                     ),
                   ],
                 ],
@@ -266,16 +286,18 @@ class _InvoiceDetailScreenState extends ConsumerState<InvoiceDetailScreen> {
             Card(
               child: Column(
                 children: inv.items
-                    .map((item) => ListTile(
-                          leading: Icon(_kindIcon(item.kind)),
-                          title: Text(item.title),
-                          subtitle: item.method != null
-                              ? Text(calcMethodLabel(l10n, item.method!))
-                              : item.kind == 'adjustment'
-                                  ? Text(l10n.itemKindAdjustment)
-                                  : null,
-                          trailing: MoneyText(amount: item.amount),
-                        ))
+                    .map(
+                      (item) => ListTile(
+                        leading: Icon(_kindIcon(item.kind)),
+                        title: Text(item.title),
+                        subtitle: item.method != null
+                            ? Text(calcMethodLabel(l10n, item.method!))
+                            : item.kind == 'adjustment'
+                            ? Text(l10n.itemKindAdjustment)
+                            : null,
+                        trailing: MoneyText(amount: item.amount),
+                      ),
+                    )
                     .toList(),
               ),
             ),
@@ -286,16 +308,22 @@ class _InvoiceDetailScreenState extends ConsumerState<InvoiceDetailScreen> {
             Card(
               child: Column(
                 children: inv.adjustments
-                    .map((a) => ListTile(
-                          leading: Icon(a.kind == 'credit'
+                    .map(
+                      (a) => ListTile(
+                        leading: Icon(
+                          a.kind == 'credit'
                               ? Icons.arrow_downward
-                              : Icons.arrow_upward),
-                          title: Text(a.kind == 'credit'
+                              : Icons.arrow_upward,
+                        ),
+                        title: Text(
+                          a.kind == 'credit'
                               ? l10n.adjustmentCredit
-                              : l10n.adjustmentDebit),
-                          subtitle: Text(a.reason),
-                          trailing: MoneyText(amount: a.amount),
-                        ))
+                              : l10n.adjustmentDebit,
+                        ),
+                        subtitle: Text(a.reason),
+                        trailing: MoneyText(amount: a.amount),
+                      ),
+                    )
                     .toList(),
               ),
             ),
@@ -312,13 +340,17 @@ class _InvoiceDetailScreenState extends ConsumerState<InvoiceDetailScreen> {
       (inv.status == 'unpaid' || inv.status == 'partial');
 
   IconData _kindIcon(String kind) => switch (kind) {
-        'late_fee' => Icons.hourglass_bottom,
-        'adjustment' => Icons.receipt_long,
-        _ => Icons.receipt_outlined,
-      };
+    'late_fee' => Icons.hourglass_bottom,
+    'adjustment' => Icons.receipt_long,
+    _ => Icons.receipt_outlined,
+  };
 
-  Widget _amountRow(BuildContext context, String label, int amount,
-      {bool emphasized = false}) {
+  Widget _amountRow(
+    BuildContext context,
+    String label,
+    int amount, {
+    bool emphasized = false,
+  }) {
     final theme = Theme.of(context);
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: AppTheme.spaceXs),
@@ -328,8 +360,9 @@ class _InvoiceDetailScreenState extends ConsumerState<InvoiceDetailScreen> {
           MoneyText(
             amount: amount,
             style: emphasized
-                ? theme.textTheme.titleLarge
-                    ?.copyWith(color: theme.colorScheme.primary)
+                ? theme.textTheme.titleLarge?.copyWith(
+                    color: theme.colorScheme.primary,
+                  )
                 : null,
           ),
         ],

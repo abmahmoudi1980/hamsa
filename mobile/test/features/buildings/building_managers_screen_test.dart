@@ -1,3 +1,4 @@
+import 'package:hamsa/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -56,9 +57,7 @@ void main() {
   testWidgets('empty list renders the empty state', (tester) async {
     await pumpManagers(
       tester,
-      StubAdapter({
-        'GET /buildings/b1/managers': (200, '{"items":[]}'),
-      }),
+      StubAdapter({'GET /buildings/b1/managers': (200, '{"items":[]}')}),
     );
 
     expect(
@@ -168,5 +167,40 @@ void main() {
       findsOneWidget,
     );
     await settleSnackbars(tester);
+  });
+
+  // Regression: AppTheme button styles previously used Size.fromHeight as
+  // minimumSize (infinite minimum width), which threw "BoxConstraints forces
+  // an infinite width" for the add-manager FilledButton sitting in the form
+  // Row — every screen test passed because it pumped the default theme.
+  testWidgets('app theme renders the add-manager form at desktop width', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(1400, 900);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          buildingsRepositoryProvider.overrideWithValue(
+            BuildingsRepository(stubDio(adapterWith({}))),
+          ),
+        ],
+        child: MaterialApp(
+          theme: AppTheme.light,
+          locale: const Locale('fa'),
+          supportedLocales: AppLocalizations.supportedLocales,
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          home: const BuildingManagersScreen(buildingId: 'b1'),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(tester.takeException(), isNull);
+    final addFinder = find.widgetWithText(FilledButton, 'افزودن مدیر');
+    expect(addFinder, findsOneWidget);
+    // Hug-content width, not the crashed infinite/stretched layout.
+    expect(tester.getSize(addFinder).width, lessThan(300));
   });
 }
