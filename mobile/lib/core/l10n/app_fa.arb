@@ -473,7 +473,7 @@
   "dashboardOpenRequests": "درخواست‌های باز",
   "dashboardPendingExpenses": "هزینه‌های در انتظار تأیید",
   "dashboardAlerts": "هشدارها",
-  "dashboardQuickActions": "اقدام‌های سریع",
+  "dashboardQuickActions": "دسترسی سریع",
   "dashboardAlertDebtor": "واحد {unit} بدهکار است",
   "@dashboardAlertDebtor": {
     "placeholders": {

@@ -168,11 +168,18 @@ Future<void> _pumpDashboard(WidgetTester tester) async {
   // Splash → session restore → redirect to the role shell.
   await tester.pumpAndSettle();
 }
-
 void main() {
   testWidgets('dashboard leads with collection hero, not a stat grid', (
     tester,
   ) async {
+    // Phone-narrow viewport: the reported bug was actions clipped
+    // off-screen, so prove every action stays inside the width here.
+    tester.view.physicalSize = const Size(1080, 1920);
+    tester.view.devicePixelRatio = 3.0;
+    addTearDown(() {
+      tester.view.resetPhysicalSize();
+      tester.view.resetDevicePixelRatio();
+    });
     await _pumpDashboard(tester);
     expect(find.byType(ManagerDashboardScreen), findsOneWidget);
 
@@ -189,9 +196,25 @@ void main() {
     expect(find.text('هزینه ماه'), findsOneWidget);
     expect(find.text('تعداد واحدها'), findsOneWidget);
     expect(find.textContaining('۱۰'), findsWidgets);
-    // Quick actions ride a horizontal strip (5 actions, no orphan cell)…
-    expect(find.text('اقدام‌های سریع'), findsOneWidget);
-    expect(find.text('صدور شارژ'), findsOneWidget);
+    // Quick access: every action visible at once, none clipped.
+    expect(find.text('دسترسی سریع'), findsOneWidget);
+    const actionLabels = [
+      'صدور شارژ',
+      'ثبت هزینه',
+      'ثبت پرداخت',
+      'انتشار اطلاعیه',
+      'درخواست‌ها',
+    ];
+    for (final label in actionLabels) {
+      final matches = find.widgetWithText(FilledButton, label);
+      expect(matches, findsWidgets, reason: label);
+      for (final element in matches.evaluate()) {
+        final box = element.renderObject! as RenderBox;
+        final rect = box.localToGlobal(Offset.zero) & box.size;
+        expect(rect.left, greaterThanOrEqualTo(0), reason: label);
+        expect(rect.right, lessThanOrEqualTo(360), reason: label);
+      }
+    }
     // …and alerts surface with their amounts.
     expect(find.text('هشدارها'), findsOneWidget);
     expect(

@@ -350,8 +350,9 @@ class _CollectionHero extends StatelessWidget {
   }
 }
 
-/// Compact horizontal action strip — any number of server-driven actions
-/// scrolls instead of leaving orphan cells in a fixed grid.
+/// Compact wrapping action chips — every server-driven action is visible at
+/// once, so nothing ever hides off-screen (the old fixed grid left orphan
+/// cells; a scroll strip hid trailing actions with no affordance).
 class _QuickActionsRow extends StatelessWidget {
   const _QuickActionsRow({required this.actions});
   final List<ManagerQuickAction> actions;
@@ -364,25 +365,20 @@ class _QuickActionsRow extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SectionHeader(title: l10n.dashboardQuickActions),
-        SizedBox(
-          height: 52,
-          child: ListView.separated(
-            scrollDirection: Axis.horizontal,
-            itemCount: actions.length,
-            separatorBuilder: (_, _) =>
-                const SizedBox(width: AppTheme.spaceS),
-            itemBuilder: (context, i) {
-              final qa = actions[i];
-              return FilledButton.tonalIcon(
+        Wrap(
+          spacing: AppTheme.spaceS,
+          runSpacing: AppTheme.spaceS,
+          children: [
+            for (final qa in actions)
+              FilledButton.tonalIcon(
                 style: FilledButton.styleFrom(
-                  minimumSize: const Size(96, 48),
+                  minimumSize: const Size(64, 48),
                 ),
                 onPressed: () => context.push(qa.path),
                 icon: Icon(_quickIcon(qa.key)),
                 label: Text(_quickLabel(l10n, qa)),
-              );
-            },
-          ),
+              ),
+          ],
         ),
       ],
     );

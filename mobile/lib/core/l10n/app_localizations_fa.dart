@@ -1182,7 +1182,7 @@ class AppLocalizationsFa extends AppLocalizations {
   String get dashboardAlerts => 'هشدارها';
 
   @override
-  String get dashboardQuickActions => 'اقدام‌های سریع';
+  String get dashboardQuickActions => 'دسترسی سریع';
 
   @override
   String dashboardAlertDebtor(String unit) {

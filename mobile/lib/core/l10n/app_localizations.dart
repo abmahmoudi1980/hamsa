@@ -2347,7 +2347,7 @@ abstract class AppLocalizations {
   /// No description provided for @dashboardQuickActions.
   ///
   /// In fa, this message translates to:
-  /// **'اقدام‌های سریع'**
+  /// **'دسترسی سریع'**
   String get dashboardQuickActions;
 
   /// No description provided for @dashboardAlertDebtor.
