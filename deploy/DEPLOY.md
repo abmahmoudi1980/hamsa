@@ -8,8 +8,9 @@ Domain: `hamsa-home.ir` → server IP, TLS via Let's Encrypt (certbot, nginx plu
 ```
 Internet ── 80  ──► nginx  (301 → https)
         ── 443 ──► nginx  TLS (Let's Encrypt)
-                    ├── static site  /var/www/hamsa  (index.html + hamsa-release.apk)
-                    └── /api/ ──► 127.0.0.1:8080 ──► docker: hamsa-api
+                    ├── hamsa-home.ir: static site /var/www/hamsa
+                    │   └── /api/ ──► 127.0.0.1:8080 ──► docker: hamsa-api
+                    └── app.hamsa-home.ir: / ──► 127.0.0.1:8080 (Flutter app)
                                                     └── docker: hamsa-pg (postgres 16)
 ```
 
@@ -30,7 +31,7 @@ Internet ── 80  ──► nginx  (301 → https)
 
 - SMS: `console` — OTP codes are written to the container log only.
 - Payment: `mock` — auto-verifies; switch to `zarinpal` with a merchant id.
-- `base_url` in the image is `https://hamsa-home.ir` (payment callbacks).
+- `base_url` in the image is `https://app.hamsa-home.ir` (payment callbacks).
 
 ## Operations (on the server)
 
@@ -66,7 +67,7 @@ The APK is built with the production API URL:
 
 ```sh
 cd mobile && flutter build apk --release \
-  --dart-define=API_BASE_URL=https://hamsa-home.ir/api/v1
+  --dart-define=API_BASE_URL=https://app.hamsa-home.ir/api/v1
 cp build/app/outputs/flutter-apk/app-release.apk website/hamsa-release.apk
 ```
 
@@ -74,8 +75,11 @@ cp build/app/outputs/flutter-apk/app-release.apk website/hamsa-release.apk
 
 - Site conf (repo copy is the source of truth): `deploy/nginx-hamsa.conf`
   → `/etc/nginx/sites-available/hamsa-home.ir` (symlinked into sites-enabled).
+  Covers `hamsa-home.ir` (static site + `/api/` proxy, kept working) and
+  `app.hamsa-home.ir` (whole-backend proxy for the Flutter app).
 - `client_max_body_size 25m` for uploads; APK cached immutable, HTML no-cache.
-- Cert renewal: `certbot.timer` (enabled); renewals use HTTP-01 on :80.
+- Certs: `hamsa-home.ir` + `app.hamsa-home.ir` (certbot nginx plugin,
+  HTTP-01). Renewal: `certbot.timer` (enabled); renewals use HTTP-01 on :80.
 
 ## Coexistence with x-ui/xray (VPN on this server)
 

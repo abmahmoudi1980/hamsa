@@ -4,7 +4,7 @@ app:
   env: production
   addr: ":8080"
   # Public origin behind nginx; used to build payment gateway callback URLs.
-  base_url: "https://hamsa-home.ir"
+  base_url: "https://app.hamsa-home.ir"
 
 db:
   # DSN is supplied via HAMSA_DB_DSN.
