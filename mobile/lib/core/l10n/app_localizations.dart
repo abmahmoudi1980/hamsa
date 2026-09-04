@@ -2302,6 +2302,12 @@ abstract class AppLocalizations {
   /// **'واحدهای بدهکار'**
   String get dashboardDebtorUnits;
 
+  /// No description provided for @dashboardDebtorCount.
+  ///
+  /// In fa, this message translates to:
+  /// **'{count} واحد بدهکار'**
+  String dashboardDebtorCount(String count);
+
   /// No description provided for @dashboardTotalDebt.
   ///
   /// In fa, this message translates to:

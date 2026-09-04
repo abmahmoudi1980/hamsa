@@ -459,6 +459,14 @@
   "dashboardUnitCount": "تعداد واحدها",
   "dashboardOccupiedUnits": "واحدهای مسکونی",
   "dashboardDebtorUnits": "واحدهای بدهکار",
+  "dashboardDebtorCount": "{count} واحد بدهکار",
+  "@dashboardDebtorCount": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
   "dashboardTotalDebt": "مجموع بدهی",
   "dashboardMonthIncome": "درآمد ماه",
   "dashboardMonthExpense": "هزینه ماه",

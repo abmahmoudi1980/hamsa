@@ -1159,6 +1159,11 @@ class AppLocalizationsFa extends AppLocalizations {
   String get dashboardDebtorUnits => 'واحدهای بدهکار';
 
   @override
+  String dashboardDebtorCount(String count) {
+    return '$count واحد بدهکار';
+  }
+
+  @override
   String get dashboardTotalDebt => 'مجموع بدهی';
 
   @override
