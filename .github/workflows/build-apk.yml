@@ -56,7 +56,7 @@ jobs:
 
       - id: version
         run: |
-          sed -n 's/^version: *//p' pubspec.yaml >> "$GITHUB_OUTPUT"
+          echo "version=$(sed -n 's/^version: *//p' pubspec.yaml)" >> "$GITHUB_OUTPUT"
 
       - run: >
           flutter build apk --release
