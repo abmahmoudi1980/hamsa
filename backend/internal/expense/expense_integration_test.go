@@ -24,6 +24,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 	"time"
@@ -36,12 +37,14 @@ import (
 	"hamsa/internal/auth"
 	"hamsa/internal/platform/db"
 	"hamsa/internal/platform/httpx"
+	"hamsa/internal/platform/storage"
 )
 
 type expEnv struct {
-	engine *gin.Engine
-	gormDB *gorm.DB
-	tokens *auth.TokenService
+	engine   *gin.Engine
+	gormDB   *gorm.DB
+	tokens   *auth.TokenService
+	fileRoot string
 }
 
 func (e *expEnv) exec(query string, args ...any) error {
@@ -92,9 +95,11 @@ func newExpenseEnv(t *testing.T) *expEnv {
 	router := httpx.NewRouter(log, "dev")
 	authMW := auth.Authenticate(tokens, auth.NewRepository(gormDB))
 	authed := router.Group("/api/v1", authMW)
+	fileRoot := t.TempDir()
+	storage.Register(authed.Group("/files"), storage.New(fileRoot, 0), gormDB)
 	Register(authed, NewService(NewRepository(gormDB)), audit.New(gormDB, log))
 
-	return &expEnv{engine: router, gormDB: gormDB, tokens: tokens}
+	return &expEnv{engine: router, gormDB: gormDB, tokens: tokens, fileRoot: fileRoot}
 }
 
 func pgReachableExp(t *testing.T) bool {
@@ -474,5 +479,72 @@ func TestFinancialReportAggregation(t *testing.T) {
 	code, rep = e.get(t, "/api/v1/buildings/"+bID.String()+"/financial-report?month=2026-06", mgrTok)
 	if code != http.StatusOK || num(rep, "total_debt") != 1_600_000 {
 		t.Fatalf("scope leak in report: %d %v", code, rep)
+	}
+}
+
+// Receipt replace/clear via PUT and authenticated GET /files/{id} (T010).
+func TestExpenseReceiptClearAndFileDownload(t *testing.T) {
+	e := newExpenseEnv(t)
+	mgrID, mgrTok := e.seedUser(t, "manager", "09120000021")
+	bID := e.seedBuilding(t, mgrID)
+	receipt := e.seedReceipt(t, mgrID)
+
+	expID := createExpenseRow(t, e, mgrTok, bID.String(), map[string]any{
+		"title": "برق لابی", "category": "electricity", "amount": 1,
+		"expense_date": "2026-06-05", "receipt_file_id": receipt.String(),
+	})
+
+	// PUT receipt_file_id: "" → explicit clear, receipt_file dropped.
+	code, resp := e.put(t, "/api/v1/expenses/"+expID, mgrTok, map[string]any{
+		"receipt_file_id": "",
+	})
+	if code != http.StatusOK || resp["receipt_file"] != nil {
+		t.Fatalf("clear receipt: %d %v", code, resp)
+	}
+
+	// Malformed receipt id → 400.
+	if code, _ = e.put(t, "/api/v1/expenses/"+expID, mgrTok, map[string]any{
+		"receipt_file_id": "not-a-uuid",
+	}); code != http.StatusBadRequest {
+		t.Fatalf("malformed receipt id: %d", code)
+	}
+
+	// Real stored file behind the seeded registry row → GET serves it.
+	rel := receipt.String() + ".jpg"
+	body := []byte("jpeg-bytes")
+	if err := os.WriteFile(filepath.Join(e.fileRoot, rel), body, 0o644); err != nil {
+		t.Fatalf("write file: %v", err)
+	}
+	if err := e.exec(`UPDATE files SET path = ? WHERE id = ?`, rel, receipt); err != nil {
+		t.Fatalf("update file path: %v", err)
+	}
+
+	req := httptest.NewRequest(http.MethodGet, "/api/v1/files/"+receipt.String(), nil)
+	req.Header.Set("Authorization", "Bearer "+mgrTok)
+	w := httptest.NewRecorder()
+	e.engine.ServeHTTP(w, req)
+	if w.Code != http.StatusOK || w.Header().Get("Content-Type") != "image/jpeg" || string(w.Body.Bytes()) != string(body) {
+		t.Fatalf("download file: %d ct=%s body=%q", w.Code, w.Header().Get("Content-Type"), w.Body.String())
+	}
+
+	// Unknown or malformed id → 404; no token → 401.
+	for _, tc := range []struct {
+		path  string
+		token string
+		want  int
+	}{
+		{"/api/v1/files/" + uuid.NewString(), mgrTok, http.StatusNotFound},
+		{"/api/v1/files/not-a-uuid", mgrTok, http.StatusNotFound},
+		{"/api/v1/files/" + receipt.String(), "", http.StatusUnauthorized},
+	} {
+		req := httptest.NewRequest(http.MethodGet, tc.path, nil)
+		if tc.token != "" {
+			req.Header.Set("Authorization", "Bearer "+tc.token)
+		}
+		w := httptest.NewRecorder()
+		e.engine.ServeHTTP(w, req)
+		if w.Code != tc.want {
+			t.Fatalf("GET %s: %d, want %d", tc.path, w.Code, tc.want)
+		}
 	}
 }

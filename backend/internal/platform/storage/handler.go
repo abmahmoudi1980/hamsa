@@ -2,6 +2,7 @@ package storage
 
 import (
 	"net/http"
+	"path/filepath"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -27,6 +28,27 @@ func (File) TableName() string { return "files" }
 // Register mounts the multipart upload route under r (already authenticated).
 func Register(r *gin.RouterGroup, svc *Service, db *gorm.DB) {
 	r.POST("", uploadHandler(svc, db))
+	r.GET("/:id", downloadHandler(svc, db))
+}
+
+// downloadHandler serves a stored file by registry id. Files carry no
+// per-file ACL — ids are unguessable capability URLs returned only to
+// authenticated clients (the upload response's `url` field implies this GET).
+func downloadHandler(svc *Service, db *gorm.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		id, err := uuid.Parse(c.Param("id"))
+		if err != nil {
+			httpx.WriteError(c, httpx.NotFound("فایل یافت نشد."))
+			return
+		}
+		var f File
+		if err := db.WithContext(c.Request.Context()).First(&f, "id = ?", id).Error; err != nil {
+			httpx.WriteError(c, httpx.NotFound("فایل یافت نشد."))
+			return
+		}
+		c.Header("Content-Type", f.ContentType)
+		c.File(filepath.Join(svc.Root, f.Path))
+	}
 }
 
 func uploadHandler(svc *Service, db *gorm.DB) gin.HandlerFunc {

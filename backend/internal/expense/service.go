@@ -27,7 +27,7 @@ type Input struct {
 	ExpenseDate    string      `json:"expense_date"`
 	Description    *string     `json:"description"`
 	PayerPersonID  *uuid.UUID  `json:"payer_person_id"`
-	ReceiptFileID  *uuid.UUID  `json:"receipt_file_id"`
+	ReceiptFileID  *string     `json:"receipt_file_id"`
 	ApprovalStatus string      `json:"approval_status"`
 }
 
@@ -192,14 +192,23 @@ func (s *Service) applyInput(ctx context.Context, e *Expense, in Input, create b
 		e.PayerPersonID = in.PayerPersonID
 	}
 	if in.ReceiptFileID != nil {
-		path, err := s.repo.ReceiptPath(ctx, *in.ReceiptFileID)
-		if err != nil {
-			if err == gorm.ErrRecordNotFound {
+		if *in.ReceiptFileID == "" {
+			// Explicit clear (update) — remove the bound receipt.
+			e.ReceiptFile = nil
+		} else {
+			fileID, err := uuid.Parse(*in.ReceiptFileID)
+			if err != nil {
 				return httpx.BadRequest("فایل رسید یافت نشد")
 			}
-			return err
+			path, err := s.repo.ReceiptPath(ctx, fileID)
+			if err != nil {
+				if err == gorm.ErrRecordNotFound {
+					return httpx.BadRequest("فایل رسید یافت نشد")
+				}
+				return err
+			}
+			e.ReceiptFile = &path
 		}
-		e.ReceiptFile = &path
 	}
 	if verr != nil {
 		return verr

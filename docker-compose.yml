@@ -17,6 +17,29 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+  server:
+    build: ./backend
+    container_name: hamsa-server
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      # Config is file-based (never env vars for secrets) — mounted below.
+      HAMSA_CONFIG: /app/config.yaml
+    volumes:
+      # git-ignored; copy backend/config.example.yaml → backend/config.yaml
+      # and set db.dsn host to `postgres` (the compose service name).
+      - ./backend/config.yaml:/app/config.yaml:ro
+      # Uploaded receipts/photos/attachments survive container replacement.
+      - hamsa_files:/data/files
+    ports:
+      - "8080:8080"
 
 volumes:
   hamsa_pgdata:
+  hamsa_files:
+
+# Migrations: the server runs pending migrations on startup (db.auto_migrate).
+# There is no automatic rollback — a failed/rolled-back deployment that needs
+# schema rollback requires manually executing the matching
+# backend/migrations/NNNN_*.down.sql against the database.

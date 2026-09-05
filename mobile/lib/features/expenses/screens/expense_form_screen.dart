@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import '../../../core/datetime/jalali.dart';
 import '../../../core/l10n/app_localizations.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/network/api_client.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../shared/formatters/money_text.dart';
 import '../../../shared/formatters/toman_input.dart';
@@ -45,6 +46,10 @@ class _ExpenseFormScreenState extends ConsumerState<ExpenseFormScreen> {
   String _approval = 'pending';
   DateTime? _expenseDate;
   XFile? _receipt;
+  /// Server-stored receipt path (`receipt_file`), edit mode only.
+  String? _receiptPath;
+  /// Existing server receipt was removed during this edit.
+  bool _receiptRemoved = false;
   bool _loading = false;
   bool _saving = false;
 
@@ -78,6 +83,7 @@ class _ExpenseFormScreenState extends ConsumerState<ExpenseFormScreen> {
         _approval = e.approvalStatus;
         _expenseDate = DateTime.parse(e.expenseDate);
         _descriptionCtrl.text = e.description ?? '';
+        _receiptPath = e.receiptFile;
       });
     } catch (_) {
       if (!mounted) return;
@@ -115,6 +121,16 @@ class _ExpenseFormScreenState extends ConsumerState<ExpenseFormScreen> {
           approvalStatus: _approval,
         );
       } else {
+        // Replace or clear the receipt; unchanged otherwise.
+        String? receiptFileId;
+        if (_receipt != null) {
+          receiptFileId = await repo.uploadReceipt(
+            path: _receipt!.path,
+            name: _receipt!.name,
+          );
+        } else if (_receiptRemoved) {
+          receiptFileId = '';
+        }
         await repo.updateExpense(
           widget.expenseId!,
           title: _titleCtrl.text.trim(),
@@ -122,6 +138,7 @@ class _ExpenseFormScreenState extends ConsumerState<ExpenseFormScreen> {
           amount: amount,
           expenseDate: isoDate(_expenseDate!),
           description: _descriptionCtrl.text.trim(),
+          receiptFileId: receiptFileId,
           approvalStatus: _approval,
         );
       }
@@ -218,6 +235,7 @@ class _ExpenseFormScreenState extends ConsumerState<ExpenseFormScreen> {
               const SizedBox(height: AppTheme.spaceM),
               TextFormField(
                 controller: _amountCtrl,
+                decoration: InputDecoration(labelText: l10n.expenseAmountLabel),
                 keyboardType: TextInputType.number,
                 textDirection: TextDirection.ltr,
                 inputFormatters: const [TomanInputFormatter()],
@@ -250,11 +268,17 @@ class _ExpenseFormScreenState extends ConsumerState<ExpenseFormScreen> {
                     InputDecoration(labelText: l10n.expenseDescriptionLabel),
               ),
               const SizedBox(height: AppTheme.spaceM),
-              // Receipt attach (create mode): uploads through POST /files on save.
-              if (widget.expenseId == null)
-                AttachmentPicker(
-                  onChanged: (f) => setState(() => _receipt = f),
-                ),
+              // Receipt attachment: server-stored image in edit mode, picker
+              // in create mode. Replace uploads a new file; remove clears.
+              AttachmentPicker(
+                existingUrl: _receiptPath == null || _receiptRemoved
+                    ? null
+                    : '$apiBaseUrl/files/${_receiptPath!.split('.').first}',
+                onChanged: (f) => setState(() {
+                  _receipt = f;
+                  _receiptRemoved = f == null && _receiptPath != null;
+                }),
+              ),
             ],
           ),
         )
