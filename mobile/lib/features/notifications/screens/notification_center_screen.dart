@@ -69,10 +69,11 @@ class _NotificationCenterScreenState
               await ref
                   .read(notificationsControllerProvider.notifier)
                   .markAllRead();
-              if (context.mounted)
+              if (context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('همه اعلان‌ها خوانده شد')),
                 );
+              }
             },
             icon: const Icon(Icons.done_all),
           ),

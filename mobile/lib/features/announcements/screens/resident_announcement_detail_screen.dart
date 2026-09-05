@@ -81,10 +81,11 @@ class _ResidentAnnouncementDetailScreenState
         Navigator.of(context).pop(true);
       }
     } catch (e) {
-      if (!silent && mounted)
+      if (!silent && mounted) {
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text('خطا: $e')));
+      }
     } finally {
       if (mounted) setState(() => _marking = false);
     }
