@@ -81,92 +81,94 @@ class UnitOccupancyScreen extends ConsumerWidget {
         icon: const Icon(Icons.add),
         label: Text(l10n.addOccupancy),
       ),
-      body: async.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) =>
-            EmptyState(icon: Icons.error_outline, title: l10n.errorUnknown),
-        data: (s) => ListView(
-          padding: AppTheme.pagePadding,
-          children: [
-            SectionHeader(title: l10n.occupancyTitle),
-            if (s.occupancies.isEmpty)
-              EmptyState(
-                title: l10n.emptyStateTitle,
-                actionLabel: l10n.addOccupancy,
-                onAction: () async {
-                  await context.push(
-                    '/manager/buildings/$buildingId/units/$unitId/occupancy/new',
-                  );
-                  ref.invalidate(occupancyControllerProvider(unitId));
-                },
-              )
-            else
-              ...s.occupancies.map(
-                (o) => Card(
-                  child: ListTile(
-                    title: Text(o.person?.fullName ?? o.personId),
-                    subtitle: Text(
-                      '${_relationshipLabel(l10n, o.relationship)}'
-                      ' • ${formatJalaliDate(DateTime.parse(o.startDate))}'
-                      '${o.endDate == null ? '' : ' — ${formatJalaliDate(DateTime.parse(o.endDate!))}'}',
-                    ),
-                    trailing: o.isActive
-                        ? Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Chip(label: Text(l10n.occupancyActive)),
-                              IconButton(
-                                icon: const Icon(Icons.event_busy),
-                                tooltip: l10n.endOccupancy,
-                                onPressed: () =>
-                                    _confirmEnd(context, ref, l10n, o),
-                              ),
-                            ],
-                          )
-                        : Chip(label: Text(l10n.occupancyEnded)),
-                  ),
-                ),
-              ),
-            const SizedBox(height: AppTheme.spaceXl),
-            SectionHeader(
-              title: l10n.occupantCountTitle,
-              action: TextButton.icon(
-                icon: const Icon(Icons.add),
-                label: Text(l10n.recordOccupantCount),
-                onPressed: () => _recordCount(context, ref, l10n),
-              ),
-            ),
-            if (s.counts.isEmpty)
-              EmptyState(
-                title: l10n.emptyStateTitle,
-                actionLabel: l10n.recordOccupantCount,
-                onAction: () => _recordCount(context, ref, l10n),
-              )
-            else
-              ...s.counts.map(
-                (c) => Card(
-                  child: ListTile(
-                    leading: Container(
-                      width: 44,
-                      height: 44,
-                      decoration: BoxDecoration(
-                        color: scheme.primary.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(
-                          AppTheme.radiusSmall,
-                        ),
+      body: SafeArea(
+        child: async.when(
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (e, _) =>
+              EmptyState(icon: Icons.error_outline, title: l10n.errorUnknown),
+          data: (s) => ListView(
+            padding: AppTheme.pagePadding,
+            children: [
+              SectionHeader(title: l10n.occupancyTitle),
+              if (s.occupancies.isEmpty)
+                EmptyState(
+                  title: l10n.emptyStateTitle,
+                  actionLabel: l10n.addOccupancy,
+                  onAction: () async {
+                    await context.push(
+                      '/manager/buildings/$buildingId/units/$unitId/occupancy/new',
+                    );
+                    ref.invalidate(occupancyControllerProvider(unitId));
+                  },
+                )
+              else
+                ...s.occupancies.map(
+                  (o) => Card(
+                    child: ListTile(
+                      title: Text(o.person?.fullName ?? o.personId),
+                      subtitle: Text(
+                        '${_relationshipLabel(l10n, o.relationship)}'
+                        ' • ${formatJalaliDate(DateTime.parse(o.startDate))}'
+                        '${o.endDate == null ? '' : ' — ${formatJalaliDate(DateTime.parse(o.endDate!))}'}',
                       ),
-                      child: const Icon(Icons.groups_outlined, size: 22),
-                    ),
-                    title: Text(toPersianDigits('${c.count}')),
-                    subtitle: Text(
-                      '${l10n.effectiveFrom}: '
-                      '${formatJalaliDate(DateTime.parse(c.effectiveFrom))}',
+                      trailing: o.isActive
+                          ? Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Chip(label: Text(l10n.occupancyActive)),
+                                IconButton(
+                                  icon: const Icon(Icons.event_busy),
+                                  tooltip: l10n.endOccupancy,
+                                  onPressed: () =>
+                                      _confirmEnd(context, ref, l10n, o),
+                                ),
+                              ],
+                            )
+                          : Chip(label: Text(l10n.occupancyEnded)),
                     ),
                   ),
                 ),
+              const SizedBox(height: AppTheme.spaceXl),
+              SectionHeader(
+                title: l10n.occupantCountTitle,
+                action: TextButton.icon(
+                  icon: const Icon(Icons.add),
+                  label: Text(l10n.recordOccupantCount),
+                  onPressed: () => _recordCount(context, ref, l10n),
+                ),
               ),
-          ],
-        ),
+              if (s.counts.isEmpty)
+                EmptyState(
+                  title: l10n.emptyStateTitle,
+                  actionLabel: l10n.recordOccupantCount,
+                  onAction: () => _recordCount(context, ref, l10n),
+                )
+              else
+                ...s.counts.map(
+                  (c) => Card(
+                    child: ListTile(
+                      leading: Container(
+                        width: 44,
+                        height: 44,
+                        decoration: BoxDecoration(
+                          color: scheme.primary.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(
+                            AppTheme.radiusSmall,
+                          ),
+                        ),
+                        child: const Icon(Icons.groups_outlined, size: 22),
+                      ),
+                      title: Text(toPersianDigits('${c.count}')),
+                      subtitle: Text(
+                        '${l10n.effectiveFrom}: '
+                        '${formatJalaliDate(DateTime.parse(c.effectiveFrom))}',
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        )
       ),
     );
   }

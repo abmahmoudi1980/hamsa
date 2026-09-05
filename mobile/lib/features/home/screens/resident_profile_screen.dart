@@ -29,45 +29,47 @@ class ResidentProfileScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.profileTitle)),
-      body: ListView(
-        padding: AppTheme.pagePadding,
-        children: [
-          ListTile(
-            leading: const Icon(Icons.badge_outlined),
-            title: Text(l10n.profileName),
-            subtitle: Text(user.name.isEmpty ? '—' : user.name),
-          ),
-          ListTile(
-            leading: const Icon(Icons.verified_user_outlined),
-            title: Text('${l10n.roleManager} / ${l10n.roleResident}'),
-            subtitle: Text(role),
-          ),
-          if (user.primaryBuildingId != null)
-            // Tile only renders when the session carries a building id
-            // (managers); the name resolves from the manager-scoped
-            // /buildings list, so the raw UUID never reaches the UI.
-            // Loading/error fall back to a dash.
+      body: SafeArea(
+        child: ListView(
+          padding: AppTheme.pagePadding,
+          children: [
             ListTile(
-              leading: const Icon(Icons.apartment),
-              title: Text(l10n.buildingsTitle),
-              subtitle: Text(
-                ref
-                        .watch(buildingsControllerProvider)
-                        .maybeWhen(
-                          data: (buildings) =>
-                              _buildingName(buildings, user.primaryBuildingId!),
-                          orElse: () => null,
-                        ) ??
-                    '—',
-              ),
+              leading: const Icon(Icons.badge_outlined),
+              title: Text(l10n.profileName),
+              subtitle: Text(user.name.isEmpty ? '—' : user.name),
             ),
-          const SizedBox(height: AppTheme.spaceXxl),
-          OutlinedButton.icon(
-            onPressed: () => ref.read(authControllerProvider.notifier).logout(),
-            icon: const Icon(Icons.logout),
-            label: Text(l10n.logout),
-          ),
-        ],
+            ListTile(
+              leading: const Icon(Icons.verified_user_outlined),
+              title: Text('${l10n.roleManager} / ${l10n.roleResident}'),
+              subtitle: Text(role),
+            ),
+            if (user.primaryBuildingId != null)
+              // Tile only renders when the session carries a building id
+              // (managers); the name resolves from the manager-scoped
+              // /buildings list, so the raw UUID never reaches the UI.
+              // Loading/error fall back to a dash.
+              ListTile(
+                leading: const Icon(Icons.apartment),
+                title: Text(l10n.buildingsTitle),
+                subtitle: Text(
+                  ref
+                          .watch(buildingsControllerProvider)
+                          .maybeWhen(
+                            data: (buildings) =>
+                                _buildingName(buildings, user.primaryBuildingId!),
+                            orElse: () => null,
+                          ) ??
+                      '—',
+                ),
+              ),
+            const SizedBox(height: AppTheme.spaceXxl),
+            OutlinedButton.icon(
+              onPressed: () => ref.read(authControllerProvider.notifier).logout(),
+              icon: const Icon(Icons.logout),
+              label: Text(l10n.logout),
+            ),
+          ],
+        )
       ),
     );
   }

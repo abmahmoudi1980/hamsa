@@ -16,64 +16,66 @@ class ResidentAnnouncementListScreen extends ConsumerWidget {
     final async = ref.watch(myAnnouncementsControllerProvider);
     return Scaffold(
       appBar: AppBar(title: const Text('اطلاعیه‌های من')),
-      body: async.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text('خطا: $e'),
-              const SizedBox(height: 12),
-              SizedBox(
-                width: double.infinity,
-                child: FilledButton(
-                  onPressed: () => ref
-                      .read(myAnnouncementsControllerProvider.notifier)
-                      .refresh(),
-                  child: const Text('تلاش دوباره'),
+      body: SafeArea(
+        child: async.when(
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (e, _) => Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text('خطا: $e'),
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  child: FilledButton(
+                    onPressed: () => ref
+                        .read(myAnnouncementsControllerProvider.notifier)
+                        .refresh(),
+                    child: const Text('تلاش دوباره'),
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-        data: (items) {
-          if (items.isEmpty) {
-            return const EmptyState(
-              icon: Icons.campaign_outlined,
-              title: 'هنوز اطلاعیه‌ای برای شما منتشر نشده است',
-              subtitle: 'اطلاعیه‌های جدید اینجا نمایش داده می‌شود.',
-            );
-          }
-          final unread = items.where((a) => !a.isRead).length;
-          return Column(
-            children: [
-              if (unread > 0)
-                Padding(
-                  padding: const EdgeInsets.all(12),
-                  child: Chip(
-                    label: Text(
-                      '${toPersianDigits(unread.toString())} ناخوانده',
-                      style: const TextStyle(color: Colors.white),
+          data: (items) {
+            if (items.isEmpty) {
+              return const EmptyState(
+                icon: Icons.campaign_outlined,
+                title: 'هنوز اطلاعیه‌ای برای شما منتشر نشده است',
+                subtitle: 'اطلاعیه‌های جدید اینجا نمایش داده می‌شود.',
+              );
+            }
+            final unread = items.where((a) => !a.isRead).length;
+            return Column(
+              children: [
+                if (unread > 0)
+                  Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Chip(
+                      label: Text(
+                        '${toPersianDigits(unread.toString())} ناخوانده',
+                        style: const TextStyle(color: Colors.white),
+                      ),
+                      backgroundColor: Theme.of(context).colorScheme.primary,
                     ),
-                    backgroundColor: Theme.of(context).colorScheme.primary,
+                  ),
+                Expanded(
+                  child: RefreshIndicator(
+                    onRefresh: () => ref
+                        .read(myAnnouncementsControllerProvider.notifier)
+                        .refresh(),
+                    child: ListView.separated(
+                      padding: const EdgeInsets.all(16),
+                      itemCount: items.length,
+                      separatorBuilder: (_, __) => const SizedBox(height: 12),
+                      itemBuilder: (_, i) => _ResidentCard(item: items[i]),
+                    ),
                   ),
                 ),
-              Expanded(
-                child: RefreshIndicator(
-                  onRefresh: () => ref
-                      .read(myAnnouncementsControllerProvider.notifier)
-                      .refresh(),
-                  child: ListView.separated(
-                    padding: const EdgeInsets.all(16),
-                    itemCount: items.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: 12),
-                    itemBuilder: (_, i) => _ResidentCard(item: items[i]),
-                  ),
-                ),
-              ),
-            ],
-          );
-        },
+              ],
+            );
+          },
+        )
       ),
     );
   }

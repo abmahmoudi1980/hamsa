@@ -70,61 +70,63 @@ class _ResidentMaintenanceFormScreenState extends ConsumerState<ResidentMaintena
     final l10n = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(title: Text(l10n.newMaintenanceTitle)),
-      body: Form(
-        key: _formKey,
-        child: ListView(
-          padding: const EdgeInsets.all(16),
-          children: [
-            TextFormField(
-              controller: _titleCtrl,
-              decoration: InputDecoration(labelText: l10n.maintenanceTitleLabel, hintText: l10n.maintenanceTitleHint),
-              validator: (v) => (v == null || v.trim().isEmpty) ? l10n.maintenanceTitleRequired : null,
-              maxLength: 150,
-            ),
-            const SizedBox(height: 12),
-            DropdownButtonFormField<String>(
-              initialValue: _category,
-              decoration: InputDecoration(labelText: l10n.maintenanceCategoryLabel),
-              items: [
-                DropdownMenuItem(value: 'elevator', child: Text(l10n.maintenanceCategoryElevator)),
-                DropdownMenuItem(value: 'utilities', child: Text(l10n.maintenanceCategoryUtilities)),
-                DropdownMenuItem(value: 'electrical', child: Text(l10n.maintenanceCategoryElectrical)),
-                DropdownMenuItem(value: 'water', child: Text(l10n.maintenanceCategoryWater)),
-                DropdownMenuItem(value: 'cleaning', child: Text(l10n.maintenanceCategoryCleaning)),
-                DropdownMenuItem(value: 'common_area', child: Text(l10n.maintenanceCategoryCommonArea)),
-                DropdownMenuItem(value: 'parking', child: Text(l10n.maintenanceCategoryParking)),
-                DropdownMenuItem(value: 'other', child: Text(l10n.maintenanceCategoryOther)),
-              ],
-              onChanged: (v) => setState(() => _category = v ?? 'other'),
-            ),
-            const SizedBox(height: 12),
-            DropdownButtonFormField<String>(
-              initialValue: _priority,
-              decoration: InputDecoration(labelText: l10n.maintenancePriorityLabel),
-              items: [
-                DropdownMenuItem(value: 'normal', child: Text(l10n.maintenancePriorityNormal)),
-                DropdownMenuItem(value: 'important', child: Text(l10n.maintenancePriorityImportant)),
-                DropdownMenuItem(value: 'urgent', child: Text(l10n.maintenancePriorityUrgent)),
-              ],
-              onChanged: (v) => setState(() => _priority = v ?? 'normal'),
-            ),
-            const SizedBox(height: 12),
-            TextFormField(
-              controller: _locationCtrl,
-              decoration: InputDecoration(labelText: l10n.maintenanceLocationLabel, hintText: l10n.maintenanceLocationHint),
-            ),
-            const SizedBox(height: 12),
-            TextFormField(
-              controller: _descCtrl,
-              decoration: InputDecoration(labelText: l10n.maintenanceDescriptionLabel),
-              maxLines: 4,
-            ),
-            const SizedBox(height: 12),
-            AttachmentPicker(
-              onChanged: (f) => setState(() => _photo = f),
-            ),
-          ],
-        ),
+      body: SafeArea(
+        child: Form(
+          key: _formKey,
+          child: ListView(
+            padding: const EdgeInsets.all(16),
+            children: [
+              TextFormField(
+                controller: _titleCtrl,
+                decoration: InputDecoration(labelText: l10n.maintenanceTitleLabel, hintText: l10n.maintenanceTitleHint),
+                validator: (v) => (v == null || v.trim().isEmpty) ? l10n.maintenanceTitleRequired : null,
+                maxLength: 150,
+              ),
+              const SizedBox(height: 12),
+              DropdownButtonFormField<String>(
+                initialValue: _category,
+                decoration: InputDecoration(labelText: l10n.maintenanceCategoryLabel),
+                items: [
+                  DropdownMenuItem(value: 'elevator', child: Text(l10n.maintenanceCategoryElevator)),
+                  DropdownMenuItem(value: 'utilities', child: Text(l10n.maintenanceCategoryUtilities)),
+                  DropdownMenuItem(value: 'electrical', child: Text(l10n.maintenanceCategoryElectrical)),
+                  DropdownMenuItem(value: 'water', child: Text(l10n.maintenanceCategoryWater)),
+                  DropdownMenuItem(value: 'cleaning', child: Text(l10n.maintenanceCategoryCleaning)),
+                  DropdownMenuItem(value: 'common_area', child: Text(l10n.maintenanceCategoryCommonArea)),
+                  DropdownMenuItem(value: 'parking', child: Text(l10n.maintenanceCategoryParking)),
+                  DropdownMenuItem(value: 'other', child: Text(l10n.maintenanceCategoryOther)),
+                ],
+                onChanged: (v) => setState(() => _category = v ?? 'other'),
+              ),
+              const SizedBox(height: 12),
+              DropdownButtonFormField<String>(
+                initialValue: _priority,
+                decoration: InputDecoration(labelText: l10n.maintenancePriorityLabel),
+                items: [
+                  DropdownMenuItem(value: 'normal', child: Text(l10n.maintenancePriorityNormal)),
+                  DropdownMenuItem(value: 'important', child: Text(l10n.maintenancePriorityImportant)),
+                  DropdownMenuItem(value: 'urgent', child: Text(l10n.maintenancePriorityUrgent)),
+                ],
+                onChanged: (v) => setState(() => _priority = v ?? 'normal'),
+              ),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: _locationCtrl,
+                decoration: InputDecoration(labelText: l10n.maintenanceLocationLabel, hintText: l10n.maintenanceLocationHint),
+              ),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: _descCtrl,
+                decoration: InputDecoration(labelText: l10n.maintenanceDescriptionLabel),
+                maxLines: 4,
+              ),
+              const SizedBox(height: 12),
+              AttachmentPicker(
+                onChanged: (f) => setState(() => _photo = f),
+              ),
+            ],
+          ),
+        )
       ),
       bottomNavigationBar: SaveBar(
         child: FilledButton(

@@ -174,7 +174,9 @@ class _ExpenseFormScreenState extends ConsumerState<ExpenseFormScreen> {
     if (_loading) {
       return Scaffold(
         appBar: AppBar(title: Text(l10n.editExpense)),
-        body: const Center(child: CircularProgressIndicator()),
+        body: const SafeArea(
+          child: Center(child: CircularProgressIndicator())
+        ),
       );
     }
     return Scaffold(
@@ -190,70 +192,72 @@ class _ExpenseFormScreenState extends ConsumerState<ExpenseFormScreen> {
             ),
         ],
       ),
-      body: Form(
-        key: _formKey,
-        child: ListView(
-          padding: AppTheme.pagePadding,
-          children: [
-            TextFormField(
-              controller: _titleCtrl,
-              decoration: InputDecoration(labelText: l10n.expenseTitleLabel),
-              validator: (v) =>
-                  (v == null || v.trim().isEmpty) ? l10n.requiredField : null,
-            ),
-            const SizedBox(height: AppTheme.spaceM),
-            DropdownButtonFormField<String>(
-              initialValue: _category,
-              decoration:
-                  InputDecoration(labelText: l10n.expenseCategoryLabel),
-              items: expenseCategoryLabels.entries
-                  .map((e) =>
-                      DropdownMenuItem(value: e.key, child: Text(e.value)))
-                  .toList(),
-              onChanged: (v) => setState(() => _category = v ?? 'other'),
-            ),
-            const SizedBox(height: AppTheme.spaceM),
-            TextFormField(
-              controller: _amountCtrl,
-              keyboardType: TextInputType.number,
-              textDirection: TextDirection.ltr,
-              inputFormatters: const [TomanInputFormatter()],
-              validator: (v) => Validators.positiveAmount(l10n, v),
-            ),
-            const SizedBox(height: AppTheme.spaceM),
-            JalaliDatePickerField(
-              initialValue: _expenseDate,
-              label: l10n.expenseDateLabel,
-              validator: (_) =>
-                  _expenseDate == null ? l10n.requiredField : null,
-              onChanged: (d) => setState(() => _expenseDate = d),
-            ),
-            const SizedBox(height: AppTheme.spaceM),
-            DropdownButtonFormField<String>(
-              initialValue: _approval,
-              decoration:
-                  InputDecoration(labelText: l10n.expenseApprovalLabel),
-              items: expenseApprovalLabels.entries
-                  .map((e) =>
-                      DropdownMenuItem(value: e.key, child: Text(e.value)))
-                  .toList(),
-              onChanged: (v) => setState(() => _approval = v ?? 'pending'),
-            ),
-            const SizedBox(height: AppTheme.spaceM),
-            TextFormField(
-              controller: _descriptionCtrl,
-              maxLines: 3,
-              decoration:
-                  InputDecoration(labelText: l10n.expenseDescriptionLabel),
-            ),
-            const SizedBox(height: AppTheme.spaceM),
-            // Receipt attach (create mode): uploads through POST /files on save.
-            if (widget.expenseId == null)
-              AttachmentPicker(
-                onChanged: (f) => setState(() => _receipt = f),
+      body: SafeArea(
+        child: Form(
+          key: _formKey,
+          child: ListView(
+            padding: AppTheme.pagePadding,
+            children: [
+              TextFormField(
+                controller: _titleCtrl,
+                decoration: InputDecoration(labelText: l10n.expenseTitleLabel),
+                validator: (v) =>
+                    (v == null || v.trim().isEmpty) ? l10n.requiredField : null,
               ),
-          ],
-        ),
+              const SizedBox(height: AppTheme.spaceM),
+              DropdownButtonFormField<String>(
+                initialValue: _category,
+                decoration:
+                    InputDecoration(labelText: l10n.expenseCategoryLabel),
+                items: expenseCategoryLabels.entries
+                    .map((e) =>
+                        DropdownMenuItem(value: e.key, child: Text(e.value)))
+                    .toList(),
+                onChanged: (v) => setState(() => _category = v ?? 'other'),
+              ),
+              const SizedBox(height: AppTheme.spaceM),
+              TextFormField(
+                controller: _amountCtrl,
+                keyboardType: TextInputType.number,
+                textDirection: TextDirection.ltr,
+                inputFormatters: const [TomanInputFormatter()],
+                validator: (v) => Validators.positiveAmount(l10n, v),
+              ),
+              const SizedBox(height: AppTheme.spaceM),
+              JalaliDatePickerField(
+                initialValue: _expenseDate,
+                label: l10n.expenseDateLabel,
+                validator: (_) =>
+                    _expenseDate == null ? l10n.requiredField : null,
+                onChanged: (d) => setState(() => _expenseDate = d),
+              ),
+              const SizedBox(height: AppTheme.spaceM),
+              DropdownButtonFormField<String>(
+                initialValue: _approval,
+                decoration:
+                    InputDecoration(labelText: l10n.expenseApprovalLabel),
+                items: expenseApprovalLabels.entries
+                    .map((e) =>
+                        DropdownMenuItem(value: e.key, child: Text(e.value)))
+                    .toList(),
+                onChanged: (v) => setState(() => _approval = v ?? 'pending'),
+              ),
+              const SizedBox(height: AppTheme.spaceM),
+              TextFormField(
+                controller: _descriptionCtrl,
+                maxLines: 3,
+                decoration:
+                    InputDecoration(labelText: l10n.expenseDescriptionLabel),
+              ),
+              const SizedBox(height: AppTheme.spaceM),
+              // Receipt attach (create mode): uploads through POST /files on save.
+              if (widget.expenseId == null)
+                AttachmentPicker(
+                  onChanged: (f) => setState(() => _receipt = f),
+                ),
+            ],
+          ),
+        )
       ),
       bottomNavigationBar: SaveBar(
         child: FilledButton(

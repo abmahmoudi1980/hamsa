@@ -90,87 +90,89 @@ class _FinancialReportScreenState extends ConsumerState<FinancialReportScreen> {
     final scheme = theme.colorScheme;
     return Scaffold(
       appBar: AppBar(title: Text(l10n.financialReport)),
-      body: _loading
-          ? const Center(child: CircularProgressIndicator())
-          : _error != null
-              ? Center(child: Text(_error!))
-              : ListView(
-                  padding: AppTheme.pagePadding,
-                  children: [
-                    // Jalali month selector — reuse of the date picker is the
-                    // only calendar entry point in the app (T018 constraint).
-                    Card(
-                      child: ListTile(
-                        leading: const Icon(Icons.calendar_month_outlined),
-                        title: Text(l10n.reportMonthLabel),
-                        subtitle: Text(
-                          _monthRef == null ? '' : _monthLabel(_monthRef!),
-                          style: theme.textTheme.titleMedium,
-                        ),
-                        // Auto-mirrored: renders as ‹ in RTL (forward = left).
-                        trailing: const Icon(Icons.chevron_right),
-                        onTap: _pickMonth,
-                      ),
-                    ),
-                    if (r != null) ...[
-                      const SizedBox(height: AppTheme.spaceL),
-                      // Hero total: net balance of the selected month.
+      body: SafeArea(
+        child: _loading
+            ? const Center(child: CircularProgressIndicator())
+            : _error != null
+                ? Center(child: Text(_error!))
+                : ListView(
+                    padding: AppTheme.pagePadding,
+                    children: [
+                      // Jalali month selector — reuse of the date picker is the
+                      // only calendar entry point in the app (T018 constraint).
                       Card(
-                        child: Padding(
-                          padding: AppTheme.pagePadding,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                l10n.reportNet,
-                                style: theme.textTheme.titleSmall,
-                              ),
-                              const SizedBox(height: AppTheme.spaceXs),
-                              MoneyText(
-                                amount: r.net,
-                                style: theme.textTheme.displaySmall?.copyWith(
-                                  color: r.net >= 0
-                                      ? scheme.primary
-                                      : scheme.error,
+                        child: ListTile(
+                          leading: const Icon(Icons.calendar_month_outlined),
+                          title: Text(l10n.reportMonthLabel),
+                          subtitle: Text(
+                            _monthRef == null ? '' : _monthLabel(_monthRef!),
+                            style: theme.textTheme.titleMedium,
+                          ),
+                          // Auto-mirrored: renders as ‹ in RTL (forward = left).
+                          trailing: const Icon(Icons.chevron_right),
+                          onTap: _pickMonth,
+                        ),
+                      ),
+                      if (r != null) ...[
+                        const SizedBox(height: AppTheme.spaceL),
+                        // Hero total: net balance of the selected month.
+                        Card(
+                          child: Padding(
+                            padding: AppTheme.pagePadding,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  l10n.reportNet,
+                                  style: theme.textTheme.titleSmall,
                                 ),
-                              ),
-                            ],
+                                const SizedBox(height: AppTheme.spaceXs),
+                                MoneyText(
+                                  amount: r.net,
+                                  style: theme.textTheme.displaySmall?.copyWith(
+                                    color: r.net >= 0
+                                        ? scheme.primary
+                                        : scheme.error,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
-                      ),
-                      const SizedBox(height: AppTheme.spaceXl),
-                      _ReportRow(
-                        title: l10n.reportMonthlyIncome,
-                        amount: r.monthlyIncome,
-                        color: scheme.primary,
-                      ),
-                      const SizedBox(height: 10),
-                      _ReportRow(
-                        title: l10n.reportMonthlyExpense,
-                        amount: r.monthlyExpense,
-                        color: scheme.error,
-                      ),
-                      const SizedBox(height: AppTheme.spaceXxl),
-                      _ReportRow(
-                        title: l10n.reportTotalDebt,
-                        amount: r.totalDebt,
-                        color: scheme.error,
-                      ),
-                      const SizedBox(height: 10),
-                      _ReportRow(
-                        title: l10n.reportTotalPayments,
-                        amount: r.totalPayments,
-                        color: scheme.primary,
-                      ),
-                      const SizedBox(height: 10),
-                      _ReportRow(
-                        title: l10n.reportTotalExpenses,
-                        amount: r.totalExpenses,
-                        color: scheme.error,
-                      ),
+                        const SizedBox(height: AppTheme.spaceXl),
+                        _ReportRow(
+                          title: l10n.reportMonthlyIncome,
+                          amount: r.monthlyIncome,
+                          color: scheme.primary,
+                        ),
+                        const SizedBox(height: 10),
+                        _ReportRow(
+                          title: l10n.reportMonthlyExpense,
+                          amount: r.monthlyExpense,
+                          color: scheme.error,
+                        ),
+                        const SizedBox(height: AppTheme.spaceXxl),
+                        _ReportRow(
+                          title: l10n.reportTotalDebt,
+                          amount: r.totalDebt,
+                          color: scheme.error,
+                        ),
+                        const SizedBox(height: 10),
+                        _ReportRow(
+                          title: l10n.reportTotalPayments,
+                          amount: r.totalPayments,
+                          color: scheme.primary,
+                        ),
+                        const SizedBox(height: 10),
+                        _ReportRow(
+                          title: l10n.reportTotalExpenses,
+                          amount: r.totalExpenses,
+                          color: scheme.error,
+                        ),
+                      ],
                     ],
-                  ],
-                ),
+                  )
+      ),
     );
   }
 }

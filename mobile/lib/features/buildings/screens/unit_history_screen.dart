@@ -20,36 +20,38 @@ class UnitHistoryScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.changeHistory)),
-      body: FutureBuilder<List<UnitHistoryEntry>>(
-        future: repo.unitHistory(unitId),
-        builder: (context, snap) {
-          if (snap.connectionState != ConnectionState.done) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          final items = snap.data ?? const [];
-          if (items.isEmpty) {
-            return EmptyState(title: l10n.noChangeHistory);
-          }
-          return ListView.separated(
-            padding: AppTheme.pagePadding,
-            itemCount: items.length,
-            separatorBuilder: (_, _) => const SizedBox(height: 10),
-            itemBuilder: (context, i) => Card(
-              child: ListTile(
-                leading: Container(
-                  width: 44,
-                  height: 44,
-                  decoration: BoxDecoration(
-                    color: scheme.primary.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
+      body: SafeArea(
+        child: FutureBuilder<List<UnitHistoryEntry>>(
+          future: repo.unitHistory(unitId),
+          builder: (context, snap) {
+            if (snap.connectionState != ConnectionState.done) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            final items = snap.data ?? const [];
+            if (items.isEmpty) {
+              return EmptyState(title: l10n.noChangeHistory);
+            }
+            return ListView.separated(
+              padding: AppTheme.pagePadding,
+              itemCount: items.length,
+              separatorBuilder: (_, _) => const SizedBox(height: 10),
+              itemBuilder: (context, i) => Card(
+                child: ListTile(
+                  leading: Container(
+                    width: 44,
+                    height: 44,
+                    decoration: BoxDecoration(
+                      color: scheme.primary.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
+                    ),
+                    child: const Icon(Icons.history, size: 22),
                   ),
-                  child: const Icon(Icons.history, size: 22),
+                  title: Text(items[i].action),
                 ),
-                title: Text(items[i].action),
               ),
-            ),
-          );
-        },
+            );
+          },
+        )
       ),
     );
   }

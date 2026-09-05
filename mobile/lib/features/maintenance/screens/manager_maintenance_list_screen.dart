@@ -81,126 +81,128 @@ class _ManagerMaintenanceListScreenState
     final l10n = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(title: Text(l10n.maintenanceTitle)),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
-            child: Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                DropdownButton<String>(
-                  value: _status.isEmpty ? null : _status,
-                  hint: Text(l10n.maintenanceFilterAllStatuses),
-                  items: [
-                    DropdownMenuItem(
-                      value: '',
-                      child: Text(l10n.maintenanceFilterAllStatuses),
-                    ),
-                    DropdownMenuItem(
-                      value: 'new',
-                      child: Text(l10n.maintenanceStatusNew),
-                    ),
-                    DropdownMenuItem(
-                      value: 'under_review',
-                      child: Text(l10n.maintenanceStatusUnderReview),
-                    ),
-                    DropdownMenuItem(
-                      value: 'in_progress',
-                      child: Text(l10n.maintenanceStatusInProgress),
-                    ),
-                    DropdownMenuItem(
-                      value: 'done',
-                      child: Text(l10n.maintenanceStatusDone),
-                    ),
-                    DropdownMenuItem(
-                      value: 'closed',
-                      child: Text(l10n.maintenanceStatusClosed),
-                    ),
-                  ],
-                  onChanged: (v) {
-                    setState(() => _status = v ?? '');
-                    _load();
-                  },
-                ),
-                DropdownButton<String>(
-                  value: _priority.isEmpty ? null : _priority,
-                  hint: Text(l10n.maintenanceFilterAllPriorities),
-                  items: [
-                    DropdownMenuItem(
-                      value: '',
-                      child: Text(l10n.maintenanceFilterAllPriorities),
-                    ),
-                    DropdownMenuItem(
-                      value: 'normal',
-                      child: Text(l10n.maintenancePriorityNormal),
-                    ),
-                    DropdownMenuItem(
-                      value: 'important',
-                      child: Text(l10n.maintenancePriorityImportant),
-                    ),
-                    DropdownMenuItem(
-                      value: 'urgent',
-                      child: Text(l10n.maintenancePriorityUrgent),
-                    ),
-                  ],
-                  onChanged: (v) {
-                    setState(() => _priority = v ?? '');
-                    _load();
-                  },
-                ),
-                DropdownButton<String>(
-                  value: _category.isEmpty ? null : _category,
-                  hint: Text(l10n.maintenanceFilterAllCategories),
-                  items: [
-                    DropdownMenuItem(
-                      value: '',
-                      child: Text(l10n.maintenanceFilterAllCategories),
-                    ),
-                    DropdownMenuItem(
-                      value: 'elevator',
-                      child: Text(l10n.maintenanceCategoryElevator),
-                    ),
-                    DropdownMenuItem(
-                      value: 'utilities',
-                      child: Text(l10n.maintenanceCategoryUtilities),
-                    ),
-                    DropdownMenuItem(
-                      value: 'electrical',
-                      child: Text(l10n.maintenanceCategoryElectrical),
-                    ),
-                    DropdownMenuItem(
-                      value: 'water',
-                      child: Text(l10n.maintenanceCategoryWater),
-                    ),
-                    DropdownMenuItem(
-                      value: 'cleaning',
-                      child: Text(l10n.maintenanceCategoryCleaning),
-                    ),
-                    DropdownMenuItem(
-                      value: 'common_area',
-                      child: Text(l10n.maintenanceCategoryCommonArea),
-                    ),
-                    DropdownMenuItem(
-                      value: 'parking',
-                      child: Text(l10n.maintenanceCategoryParking),
-                    ),
-                    DropdownMenuItem(
-                      value: 'other',
-                      child: Text(l10n.maintenanceCategoryOther),
-                    ),
-                  ],
-                  onChanged: (v) {
-                    setState(() => _category = v ?? '');
-                    _load();
-                  },
-                ),
-              ],
+      body: SafeArea(
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
+              child: Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  DropdownButton<String>(
+                    value: _status.isEmpty ? null : _status,
+                    hint: Text(l10n.maintenanceFilterAllStatuses),
+                    items: [
+                      DropdownMenuItem(
+                        value: '',
+                        child: Text(l10n.maintenanceFilterAllStatuses),
+                      ),
+                      DropdownMenuItem(
+                        value: 'new',
+                        child: Text(l10n.maintenanceStatusNew),
+                      ),
+                      DropdownMenuItem(
+                        value: 'under_review',
+                        child: Text(l10n.maintenanceStatusUnderReview),
+                      ),
+                      DropdownMenuItem(
+                        value: 'in_progress',
+                        child: Text(l10n.maintenanceStatusInProgress),
+                      ),
+                      DropdownMenuItem(
+                        value: 'done',
+                        child: Text(l10n.maintenanceStatusDone),
+                      ),
+                      DropdownMenuItem(
+                        value: 'closed',
+                        child: Text(l10n.maintenanceStatusClosed),
+                      ),
+                    ],
+                    onChanged: (v) {
+                      setState(() => _status = v ?? '');
+                      _load();
+                    },
+                  ),
+                  DropdownButton<String>(
+                    value: _priority.isEmpty ? null : _priority,
+                    hint: Text(l10n.maintenanceFilterAllPriorities),
+                    items: [
+                      DropdownMenuItem(
+                        value: '',
+                        child: Text(l10n.maintenanceFilterAllPriorities),
+                      ),
+                      DropdownMenuItem(
+                        value: 'normal',
+                        child: Text(l10n.maintenancePriorityNormal),
+                      ),
+                      DropdownMenuItem(
+                        value: 'important',
+                        child: Text(l10n.maintenancePriorityImportant),
+                      ),
+                      DropdownMenuItem(
+                        value: 'urgent',
+                        child: Text(l10n.maintenancePriorityUrgent),
+                      ),
+                    ],
+                    onChanged: (v) {
+                      setState(() => _priority = v ?? '');
+                      _load();
+                    },
+                  ),
+                  DropdownButton<String>(
+                    value: _category.isEmpty ? null : _category,
+                    hint: Text(l10n.maintenanceFilterAllCategories),
+                    items: [
+                      DropdownMenuItem(
+                        value: '',
+                        child: Text(l10n.maintenanceFilterAllCategories),
+                      ),
+                      DropdownMenuItem(
+                        value: 'elevator',
+                        child: Text(l10n.maintenanceCategoryElevator),
+                      ),
+                      DropdownMenuItem(
+                        value: 'utilities',
+                        child: Text(l10n.maintenanceCategoryUtilities),
+                      ),
+                      DropdownMenuItem(
+                        value: 'electrical',
+                        child: Text(l10n.maintenanceCategoryElectrical),
+                      ),
+                      DropdownMenuItem(
+                        value: 'water',
+                        child: Text(l10n.maintenanceCategoryWater),
+                      ),
+                      DropdownMenuItem(
+                        value: 'cleaning',
+                        child: Text(l10n.maintenanceCategoryCleaning),
+                      ),
+                      DropdownMenuItem(
+                        value: 'common_area',
+                        child: Text(l10n.maintenanceCategoryCommonArea),
+                      ),
+                      DropdownMenuItem(
+                        value: 'parking',
+                        child: Text(l10n.maintenanceCategoryParking),
+                      ),
+                      DropdownMenuItem(
+                        value: 'other',
+                        child: Text(l10n.maintenanceCategoryOther),
+                      ),
+                    ],
+                    onChanged: (v) {
+                      setState(() => _category = v ?? '');
+                      _load();
+                    },
+                  ),
+                ],
+              ),
             ),
-          ),
-          const Divider(height: 1),
-          Expanded(child: _buildBody()),
-        ],
+            const Divider(height: 1),
+            Expanded(child: _buildBody()),
+          ],
+        )
       ),
     );
   }

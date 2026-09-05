@@ -179,24 +179,28 @@ class _ManagerMaintenanceDetailScreenState
     if (_loading) {
       return Scaffold(
         appBar: AppBar(title: Text(l10n.maintenanceDetailTitle)),
-        body: const Center(child: CircularProgressIndicator()),
+        body: const SafeArea(
+          child: Center(child: CircularProgressIndicator())
+        ),
       );
     }
     if (_error != null || _item == null) {
       return Scaffold(
         appBar: AppBar(title: Text(l10n.maintenanceDetailTitle)),
-        body: Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(_error ?? l10n.errorNotFound),
-              const SizedBox(height: 8),
-              SizedBox(
-                width: double.infinity,
-                child: FilledButton(onPressed: _load, child: Text(l10n.retry)),
-              ),
-            ],
-          ),
+        body: SafeArea(
+          child: Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(_error ?? l10n.errorNotFound),
+                const SizedBox(height: 8),
+                SizedBox(
+                  width: double.infinity,
+                  child: FilledButton(onPressed: _load, child: Text(l10n.retry)),
+                ),
+              ],
+            ),
+          )
         ),
       );
     }
@@ -204,100 +208,102 @@ class _ManagerMaintenanceDetailScreenState
     final next = _nextStatuses(item.status);
     return Scaffold(
       appBar: AppBar(title: Text(item.title)),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          Row(
-            children: [
-              StatusChip(kind: StatusKind.maintenance, value: item.status),
-              const SizedBox(width: 8),
-              Chip(label: Text(_priorityLabel(l10n, item.priority))),
-              const SizedBox(width: 8),
-              Chip(label: Text(_categoryLabel(l10n, item.category))),
-            ],
-          ),
-          const SizedBox(height: 12),
-          if (item.createdAt != null)
-            Text(
-              l10n.maintenanceCreatedAt(_tryJalali(item.createdAt!)),
-              style: Theme.of(context).textTheme.bodySmall,
+      body: SafeArea(
+        child: ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
+            Row(
+              children: [
+                StatusChip(kind: StatusKind.maintenance, value: item.status),
+                const SizedBox(width: 8),
+                Chip(label: Text(_priorityLabel(l10n, item.priority))),
+                const SizedBox(width: 8),
+                Chip(label: Text(_categoryLabel(l10n, item.category))),
+              ],
             ),
-          if (item.location != null && item.location!.isNotEmpty)
-            Text(l10n.maintenanceLocation(item.location!)),
-          if (item.description != null && item.description!.isNotEmpty) ...[
-            const SizedBox(height: 8),
-            Text(item.description!),
-          ],
-          const Divider(height: 32),
-          if (next.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            if (item.createdAt != null)
+              Text(
+                l10n.maintenanceCreatedAt(_tryJalali(item.createdAt!)),
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            if (item.location != null && item.location!.isNotEmpty)
+              Text(l10n.maintenanceLocation(item.location!)),
+            if (item.description != null && item.description!.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              Text(item.description!),
+            ],
+            const Divider(height: 32),
+            if (next.isNotEmpty) ...[
+              Text(
+                l10n.maintenanceChangeStatus,
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 8,
+                children: next
+                    .map(
+                      (s) => FilledButton(
+                        onPressed: _saving ? null : () => _transition(s),
+                        child: Text(_statusLabel(l10n, s)),
+                      ),
+                    )
+                    .toList(),
+              ),
+              const SizedBox(height: 16),
+            ] else
+              Chip(label: Text(l10n.maintenanceClosedChip)),
+            const Divider(height: 32),
             Text(
-              l10n.maintenanceChangeStatus,
+              l10n.maintenanceMetaTitle,
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: 8),
-            Wrap(
-              spacing: 8,
-              children: next
-                  .map(
-                    (s) => FilledButton(
-                      onPressed: _saving ? null : () => _transition(s),
-                      child: Text(_statusLabel(l10n, s)),
-                    ),
-                  )
-                  .toList(),
+            TextFormField(
+              initialValue: _assigneeId ?? '',
+              decoration: InputDecoration(
+                labelText: l10n.maintenanceAssigneeLabel,
+                hintText: l10n.maintenanceAssigneeHint,
+              ),
+              onChanged: (v) => _assigneeId = v.trim().isEmpty ? null : v.trim(),
             ),
-            const SizedBox(height: 16),
-          ] else
-            Chip(label: Text(l10n.maintenanceClosedChip)),
-          const Divider(height: 32),
-          Text(
-            l10n.maintenanceMetaTitle,
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
-          const SizedBox(height: 8),
-          TextFormField(
-            initialValue: _assigneeId ?? '',
-            decoration: InputDecoration(
-              labelText: l10n.maintenanceAssigneeLabel,
-              hintText: l10n.maintenanceAssigneeHint,
+            const SizedBox(height: 12),
+            TextFormField(
+              controller: _costCtrl,
+              decoration: InputDecoration(
+                labelText: l10n.maintenanceCostLabel,
+                hintText: l10n.maintenanceCostHint,
+              ),
+              keyboardType: TextInputType.number,
+              inputFormatters: const [TomanInputFormatter()],
             ),
-            onChanged: (v) => _assigneeId = v.trim().isEmpty ? null : v.trim(),
-          ),
-          const SizedBox(height: 12),
-          TextFormField(
-            controller: _costCtrl,
-            decoration: InputDecoration(
-              labelText: l10n.maintenanceCostLabel,
-              hintText: l10n.maintenanceCostHint,
+            const SizedBox(height: 12),
+            TextFormField(
+              controller: _notesCtrl,
+              decoration: InputDecoration(labelText: l10n.maintenanceNotesLabel),
+              maxLines: 3,
             ),
-            keyboardType: TextInputType.number,
-            inputFormatters: const [TomanInputFormatter()],
-          ),
-          const SizedBox(height: 12),
-          TextFormField(
-            controller: _notesCtrl,
-            decoration: InputDecoration(labelText: l10n.maintenanceNotesLabel),
-            maxLines: 3,
-          ),
-          const SizedBox(height: 12),
-          FilledButton.icon(
-            onPressed: _saving ? null : _saveMeta,
-            icon: _saving
-                ? const SizedBox(
-                    width: 16,
-                    height: 16,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                : const Icon(Icons.save),
-            label: Text(l10n.maintenanceSaveMeta),
-          ),
-          const SizedBox(height: 24),
-          OutlinedButton.icon(
-            onPressed: () => context.pop(),
-            icon: const Icon(Icons.arrow_back),
-            label: Text(l10n.maintenanceBack),
-          ),
-        ],
+            const SizedBox(height: 12),
+            FilledButton.icon(
+              onPressed: _saving ? null : _saveMeta,
+              icon: _saving
+                  ? const SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(Icons.save),
+              label: Text(l10n.maintenanceSaveMeta),
+            ),
+            const SizedBox(height: 24),
+            OutlinedButton.icon(
+              onPressed: () => context.pop(),
+              icon: const Icon(Icons.arrow_back),
+              label: Text(l10n.maintenanceBack),
+            ),
+          ],
+        )
       ),
     );
   }

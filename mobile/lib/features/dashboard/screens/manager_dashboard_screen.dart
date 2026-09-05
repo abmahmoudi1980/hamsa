@@ -49,11 +49,13 @@ class ManagerDashboardScreen extends ConsumerWidget {
             ),
           ],
         ),
-        body: EmptyState(
-          icon: Icons.person_add_alt_outlined,
-          title: l10n.superadminHomeHint,
-          actionLabel: l10n.getInviteCode,
-          onAction: () => context.push('/manager/invite'),
+        body: SafeArea(
+          child: EmptyState(
+            icon: Icons.person_add_alt_outlined,
+            title: l10n.superadminHomeHint,
+            actionLabel: l10n.getInviteCode,
+            onAction: () => context.push('/manager/invite'),
+          )
         ),
       );
     }
@@ -76,27 +78,29 @@ class ManagerDashboardScreen extends ConsumerWidget {
           ),
         ],
       ),
-      body: buildingsAsync.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (_, _) => Center(
-          child: EmptyState(
-            icon: Icons.error_outline,
-            title: l10n.errorServer,
-            actionLabel: l10n.retry,
-            onAction: () => ref.invalidate(buildingsControllerProvider),
+      body: SafeArea(
+        child: buildingsAsync.when(
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (_, _) => Center(
+            child: EmptyState(
+              icon: Icons.error_outline,
+              title: l10n.errorServer,
+              actionLabel: l10n.retry,
+              onAction: () => ref.invalidate(buildingsControllerProvider),
+            ),
           ),
-        ),
-        data: (buildings) {
-          if (buildings.isEmpty) {
-            return EmptyState(
-              icon: Icons.apartment,
-              title: l10n.dashboardNoBuilding,
-              actionLabel: l10n.addBuilding,
-              onAction: () => context.push('/manager/buildings/new'),
-            );
-          }
-          return _BuildingDashboardList(buildings: buildings);
-        },
+          data: (buildings) {
+            if (buildings.isEmpty) {
+              return EmptyState(
+                icon: Icons.apartment,
+                title: l10n.dashboardNoBuilding,
+                actionLabel: l10n.addBuilding,
+                onAction: () => context.push('/manager/buildings/new'),
+              );
+            }
+            return _BuildingDashboardList(buildings: buildings);
+          },
+        )
       ),
     );
   }

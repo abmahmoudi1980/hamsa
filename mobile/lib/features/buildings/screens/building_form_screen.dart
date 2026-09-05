@@ -110,91 +110,93 @@ class _BuildingFormScreenState extends ConsumerState<BuildingFormScreen> {
           widget.existing == null ? l10n.addBuilding : l10n.editBuilding,
         ),
       ),
-      body: Form(
-        key: _formKey,
-        child: ListView(
-          padding: AppTheme.pagePadding,
-          children: [
-            TextFormField(
-              controller: _name,
-              decoration: InputDecoration(labelText: l10n.buildingName),
-              validator: (v) => v == null || v.trim().isEmpty
-                  ? l10n.requiredField
-                  : null,
-            ),
-            const SizedBox(height: AppTheme.spaceM),
-            TextFormField(
-              controller: _address,
-              decoration: InputDecoration(
-                labelText: l10n.buildingAddress,
+      body: SafeArea(
+        child: Form(
+          key: _formKey,
+          child: ListView(
+            padding: AppTheme.pagePadding,
+            children: [
+              TextFormField(
+                controller: _name,
+                decoration: InputDecoration(labelText: l10n.buildingName),
+                validator: (v) => v == null || v.trim().isEmpty
+                    ? l10n.requiredField
+                    : null,
               ),
-            ),
-            const SizedBox(height: AppTheme.spaceM),
-            Row(
-              children: [
-                Expanded(
-                  child: _NumField(
-                    controller: _blocks,
-                    label: l10n.blockCount,
-                  ),
+              const SizedBox(height: AppTheme.spaceM),
+              TextFormField(
+                controller: _address,
+                decoration: InputDecoration(
+                  labelText: l10n.buildingAddress,
                 ),
-                const SizedBox(width: AppTheme.spaceS),
-                Expanded(
-                  child: _NumField(
-                    controller: _floors,
-                    label: l10n.floorCount,
+              ),
+              const SizedBox(height: AppTheme.spaceM),
+              Row(
+                children: [
+                  Expanded(
+                    child: _NumField(
+                      controller: _blocks,
+                      label: l10n.blockCount,
+                    ),
                   ),
+                  const SizedBox(width: AppTheme.spaceS),
+                  Expanded(
+                    child: _NumField(
+                      controller: _floors,
+                      label: l10n.floorCount,
+                    ),
+                  ),
+                  const SizedBox(width: AppTheme.spaceS),
+                  Expanded(
+                    child: _NumField(
+                      controller: _units,
+                      label: l10n.unitCountLabel,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: AppTheme.spaceM),
+              TextFormField(
+                controller: _builtYear,
+                keyboardType: TextInputType.number,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                decoration: InputDecoration(labelText: l10n.builtYear),
+              ),
+              const SizedBox(height: AppTheme.spaceM),
+              TextFormField(
+                controller: _managerPhone,
+                keyboardType: TextInputType.phone,
+                decoration: InputDecoration(
+                  labelText: l10n.managerPhoneLabel,
                 ),
-                const SizedBox(width: AppTheme.spaceS),
-                Expanded(
-                  child: _NumField(
-                    controller: _units,
-                    label: l10n.unitCountLabel,
+              ),
+              const SizedBox(height: AppTheme.spaceM),
+              TextFormField(
+                controller: _emergencyPhone,
+                keyboardType: TextInputType.phone,
+                decoration: InputDecoration(
+                  labelText: l10n.emergencyPhoneLabel,
+                ),
+              ),
+              const SizedBox(height: AppTheme.spaceM),
+              TextFormField(
+                controller: _notes,
+                maxLines: 3,
+                decoration: InputDecoration(labelText: l10n.notesLabel),
+              ),
+              if (_apiError != null) ...[
+                const SizedBox(height: AppTheme.spaceM),
+                Text(
+                  _apiError!,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.error,
                   ),
+                  textAlign: TextAlign.center,
                 ),
               ],
-            ),
-            const SizedBox(height: AppTheme.spaceM),
-            TextFormField(
-              controller: _builtYear,
-              keyboardType: TextInputType.number,
-              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-              decoration: InputDecoration(labelText: l10n.builtYear),
-            ),
-            const SizedBox(height: AppTheme.spaceM),
-            TextFormField(
-              controller: _managerPhone,
-              keyboardType: TextInputType.phone,
-              decoration: InputDecoration(
-                labelText: l10n.managerPhoneLabel,
-              ),
-            ),
-            const SizedBox(height: AppTheme.spaceM),
-            TextFormField(
-              controller: _emergencyPhone,
-              keyboardType: TextInputType.phone,
-              decoration: InputDecoration(
-                labelText: l10n.emergencyPhoneLabel,
-              ),
-            ),
-            const SizedBox(height: AppTheme.spaceM),
-            TextFormField(
-              controller: _notes,
-              maxLines: 3,
-              decoration: InputDecoration(labelText: l10n.notesLabel),
-            ),
-            if (_apiError != null) ...[
-              const SizedBox(height: AppTheme.spaceM),
-              Text(
-                _apiError!,
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.error,
-                ),
-                textAlign: TextAlign.center,
-              ),
             ],
-          ],
-        ),
+          ),
+        )
       ),
       bottomNavigationBar: SaveBar(
         child: FilledButton(

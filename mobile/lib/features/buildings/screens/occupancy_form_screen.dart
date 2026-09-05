@@ -93,66 +93,68 @@ class _OccupancyFormScreenState extends ConsumerState<OccupancyFormScreen> {
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.addOccupancy)),
-      body: peopleAsync.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text(l10n.errorUnknown)),
-        data: (people) => people.isEmpty
-            ? _emptyPeople(l10n)
-            : Form(
-                child: ListView(
-                  padding: AppTheme.pagePadding,
-                  children: [
-                    DropdownButtonFormField<Person>(
-                      initialValue: _person,
-                      decoration:
-                          InputDecoration(labelText: l10n.selectPerson),
-                      items: people
-                          .map(
-                            (p) => DropdownMenuItem(
-                              value: p,
-                              child: Text(p.fullName),
-                            ),
-                          )
-                          .toList(),
-                      onChanged: (p) => setState(() => _person = p),
-                      validator: (p) => p == null ? l10n.requiredField : null,
-                    ),
-                    const SizedBox(height: AppTheme.spaceM),
-                    DropdownButtonFormField<String>(
-                      initialValue: _relationship,
-                      decoration: InputDecoration(
-                        labelText: l10n.relationshipLabel,
+      body: SafeArea(
+        child: peopleAsync.when(
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (e, _) => Center(child: Text(l10n.errorUnknown)),
+          data: (people) => people.isEmpty
+              ? _emptyPeople(l10n)
+              : Form(
+                  child: ListView(
+                    padding: AppTheme.pagePadding,
+                    children: [
+                      DropdownButtonFormField<Person>(
+                        initialValue: _person,
+                        decoration:
+                            InputDecoration(labelText: l10n.selectPerson),
+                        items: people
+                            .map(
+                              (p) => DropdownMenuItem(
+                                value: p,
+                                child: Text(p.fullName),
+                              ),
+                            )
+                            .toList(),
+                        onChanged: (p) => setState(() => _person = p),
+                        validator: (p) => p == null ? l10n.requiredField : null,
                       ),
-                      items: occupancyRelationships
-                          .map(
-                            (r) => DropdownMenuItem(
-                              value: r,
-                              child: Text(relationshipLabel(r)),
-                            ),
-                          )
-                          .toList(),
-                      onChanged: (r) =>
-                          setState(() => _relationship = r ?? 'tenant'),
-                    ),
-                    const SizedBox(height: AppTheme.spaceM),
-                    JalaliDatePickerField(
-                      label: l10n.occupancyStart,
-                      onChanged: (d) => setState(() => _startDate = d),
-                      validator: (d) => d == null ? l10n.requiredField : null,
-                    ),
-                    if (_apiError != null) ...[
                       const SizedBox(height: AppTheme.spaceM),
-                      Text(
-                        _apiError!,
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.error,
+                      DropdownButtonFormField<String>(
+                        initialValue: _relationship,
+                        decoration: InputDecoration(
+                          labelText: l10n.relationshipLabel,
                         ),
-                        textAlign: TextAlign.center,
+                        items: occupancyRelationships
+                            .map(
+                              (r) => DropdownMenuItem(
+                                value: r,
+                                child: Text(relationshipLabel(r)),
+                              ),
+                            )
+                            .toList(),
+                        onChanged: (r) =>
+                            setState(() => _relationship = r ?? 'tenant'),
                       ),
+                      const SizedBox(height: AppTheme.spaceM),
+                      JalaliDatePickerField(
+                        label: l10n.occupancyStart,
+                        onChanged: (d) => setState(() => _startDate = d),
+                        validator: (d) => d == null ? l10n.requiredField : null,
+                      ),
+                      if (_apiError != null) ...[
+                        const SizedBox(height: AppTheme.spaceM),
+                        Text(
+                          _apiError!,
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.error,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
                     ],
-                  ],
+                  ),
                 ),
-              ),
+        )
       ),
       bottomNavigationBar: canSubmit
           ? SaveBar(

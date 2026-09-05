@@ -94,9 +94,11 @@ class _ResidentShellScreenState extends ConsumerState<ResidentShellScreen> {
         setState(() => _index = 0);
       },
       child: Scaffold(
-        body: IndexedStack(
-          index: _index,
-          children: [for (final t in tabs) t.body],
+        body: SafeArea(
+          child: IndexedStack(
+            index: _index,
+            children: [for (final t in tabs) t.body],
+          )
         ),
         bottomNavigationBar: NavigationBar(
           selectedIndex: _index,
@@ -145,11 +147,13 @@ class _RedirectShortcut extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text(title)),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          MenuCard(icon: icon, title: title, subtitle: subtitle, onTap: onTap),
-        ],
+      body: SafeArea(
+        child: ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
+            MenuCard(icon: icon, title: title, subtitle: subtitle, onTap: onTap),
+          ],
+        )
       ),
     );
   }

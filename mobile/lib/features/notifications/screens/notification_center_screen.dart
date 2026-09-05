@@ -79,74 +79,76 @@ class _NotificationCenterScreenState
           ),
         ],
       ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(12),
-            child: Row(
-              children: [
-                const Text('فقط خوانده‌نشده'),
-                const SizedBox(width: 8),
-                Switch(
-                  value: _unreadOnly,
-                  onChanged: (v) async {
-                    setState(() => _unreadOnly = v);
-                    await _load();
-                  },
-                ),
-                const Spacer(),
-                TextButton.icon(
-                  onPressed: _load,
-                  icon: const Icon(Icons.refresh),
-                  label: const Text('به‌روزرسانی'),
-                ),
-              ],
+      body: SafeArea(
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(12),
+              child: Row(
+                children: [
+                  const Text('فقط خوانده‌نشده'),
+                  const SizedBox(width: 8),
+                  Switch(
+                    value: _unreadOnly,
+                    onChanged: (v) async {
+                      setState(() => _unreadOnly = v);
+                      await _load();
+                    },
+                  ),
+                  const Spacer(),
+                  TextButton.icon(
+                    onPressed: _load,
+                    icon: const Icon(Icons.refresh),
+                    label: const Text('به‌روزرسانی'),
+                  ),
+                ],
+              ),
             ),
-          ),
-          Expanded(
-            child: async.when(
-              loading: () => const Center(child: CircularProgressIndicator()),
-              error: (e, _) => Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text('خطا: $e'),
-                    const SizedBox(height: 12),
-                    SizedBox(
-                      width: double.infinity,
-                      child: FilledButton(
-                        onPressed: _load,
-                        child: const Text('تلاش دوباره'),
+            Expanded(
+              child: async.when(
+                loading: () => const Center(child: CircularProgressIndicator()),
+                error: (e, _) => Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text('خطا: $e'),
+                      const SizedBox(height: 12),
+                      SizedBox(
+                        width: double.infinity,
+                        child: FilledButton(
+                          onPressed: _load,
+                          child: const Text('تلاش دوباره'),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                data: (items) {
+                  if (items.isEmpty) {
+                    return const EmptyState(
+                      icon: Icons.notifications_none,
+                      title: 'اعلانی وجود ندارد',
+                      subtitle:
+                          'اعلان‌های شارژ، پرداخت و اطلاعیه‌ها اینجا نمایش داده می‌شود.',
+                    );
+                  }
+                  return RefreshIndicator(
+                    onRefresh: _load,
+                    child: ListView.separated(
+                      padding: const EdgeInsets.all(16),
+                      itemCount: items.length,
+                      separatorBuilder: (_, __) => const SizedBox(height: 8),
+                      itemBuilder: (_, i) => _NotificationTile(
+                        item: items[i],
+                        onTap: () => _onTap(items[i]),
                       ),
                     ),
-                  ],
-                ),
-              ),
-              data: (items) {
-                if (items.isEmpty) {
-                  return const EmptyState(
-                    icon: Icons.notifications_none,
-                    title: 'اعلانی وجود ندارد',
-                    subtitle:
-                        'اعلان‌های شارژ، پرداخت و اطلاعیه‌ها اینجا نمایش داده می‌شود.',
                   );
-                }
-                return RefreshIndicator(
-                  onRefresh: _load,
-                  child: ListView.separated(
-                    padding: const EdgeInsets.all(16),
-                    itemCount: items.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: 8),
-                    itemBuilder: (_, i) => _NotificationTile(
-                      item: items[i],
-                      onTap: () => _onTap(items[i]),
-                    ),
-                  ),
-                );
-              },
+                },
+              ),
             ),
-          ),
-        ],
+          ],
+        )
       ),
     );
   }

@@ -99,67 +99,69 @@ class _PaymentLedgerScreenState extends ConsumerState<PaymentLedgerScreen> {
         icon: const Icon(Icons.add),
         label: Text(l10n.recordPayment),
       ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppTheme.spaceXl,
-              vertical: AppTheme.spaceS,
-            ),
-            child: Wrap(
-              spacing: AppTheme.spaceS,
-              runSpacing: AppTheme.spaceS,
-              alignment: WrapAlignment.end,
-              children: [
-                DropdownButton<String>(
-                  value: _method,
-                  hint: Text(l10n.filterMethodLabel),
-                  items: [
-                    DropdownMenuItem(value: '', child: Text(l10n.filterAll)),
-                    ...paymentMethodLabels.entries.map(
-                      (e) => DropdownMenuItem(value: e.key, child: Text(e.value)),
-                    ),
-                  ],
-                  onChanged: (v) {
-                    setState(() => _method = v ?? '');
-                    _load();
-                  },
-                ),
-                DropdownButton<String>(
-                  value: _unitId,
-                  hint: Text(l10n.unitsTitle),
-                  items: [
-                    DropdownMenuItem(value: null, child: Text(l10n.filterAll)),
-                    ...unitList.map(
-                      (u) => DropdownMenuItem(
-                        value: u.id,
-                        child: Text(toPersianDigits(u.number)),
+      body: SafeArea(
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppTheme.spaceXl,
+                vertical: AppTheme.spaceS,
+              ),
+              child: Wrap(
+                spacing: AppTheme.spaceS,
+                runSpacing: AppTheme.spaceS,
+                alignment: WrapAlignment.end,
+                children: [
+                  DropdownButton<String>(
+                    value: _method,
+                    hint: Text(l10n.filterMethodLabel),
+                    items: [
+                      DropdownMenuItem(value: '', child: Text(l10n.filterAll)),
+                      ...paymentMethodLabels.entries.map(
+                        (e) => DropdownMenuItem(value: e.key, child: Text(e.value)),
                       ),
-                    ),
-                  ],
-                  onChanged: (v) {
-                    setState(() => _unitId = v);
-                    _load();
-                  },
-                ),
-                ActionChip(
-                  label: Text(_from == null
-                      ? l10n.filterFromDate
-                      : formatJalaliDate(_from!)),
-                  onPressed: () => _pickDate(isFrom: true),
-                ),
-                ActionChip(
-                  label: Text(_to == null
-                      ? l10n.filterToDate
-                      : formatJalaliDate(_to!)),
-                  onPressed: () => _pickDate(isFrom: false),
-                ),
-              ],
+                    ],
+                    onChanged: (v) {
+                      setState(() => _method = v ?? '');
+                      _load();
+                    },
+                  ),
+                  DropdownButton<String>(
+                    value: _unitId,
+                    hint: Text(l10n.unitsTitle),
+                    items: [
+                      DropdownMenuItem(value: null, child: Text(l10n.filterAll)),
+                      ...unitList.map(
+                        (u) => DropdownMenuItem(
+                          value: u.id,
+                          child: Text(toPersianDigits(u.number)),
+                        ),
+                      ),
+                    ],
+                    onChanged: (v) {
+                      setState(() => _unitId = v);
+                      _load();
+                    },
+                  ),
+                  ActionChip(
+                    label: Text(_from == null
+                        ? l10n.filterFromDate
+                        : formatJalaliDate(_from!)),
+                    onPressed: () => _pickDate(isFrom: true),
+                  ),
+                  ActionChip(
+                    label: Text(_to == null
+                        ? l10n.filterToDate
+                        : formatJalaliDate(_to!)),
+                    onPressed: () => _pickDate(isFrom: false),
+                  ),
+                ],
+              ),
             ),
-          ),
-          const Divider(height: 1),
-          Expanded(child: _buildBody(l10n)),
-        ],
+            const Divider(height: 1),
+            Expanded(child: _buildBody(l10n)),
+          ],
+        )
       ),
     );
   }

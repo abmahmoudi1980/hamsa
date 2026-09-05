@@ -109,104 +109,106 @@ class _ResidentAnnouncementDetailScreenState
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('جزئیات اطلاعیه')),
-      body: _loading
-          ? const Center(child: CircularProgressIndicator())
-          : _error != null
-          ? Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(_error!),
-                  const SizedBox(height: 12),
-                  SizedBox(
-                    width: double.infinity,
-                    child: FilledButton(
-                      onPressed: _load,
-                      child: const Text('تلاش دوباره'),
-                    ),
-                  ),
-                ],
-              ),
-            )
-          : _item == null
-          ? const Center(child: Text('اطلاعیه یافت نشد'))
-          : ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                Row(
+      body: SafeArea(
+        child: _loading
+            ? const Center(child: CircularProgressIndicator())
+            : _error != null
+            ? Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Expanded(
-                      child: Text(
-                        _item!.title,
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
+                    Text(_error!),
+                    const SizedBox(height: 12),
+                    SizedBox(
+                      width: double.infinity,
+                      child: FilledButton(
+                        onPressed: _load,
+                        child: const Text('تلاش دوباره'),
                       ),
-                    ),
-                    Chip(
-                      label: Text(
-                        _item!.isRead ? 'خوانده‌شده' : 'نخوانده',
-                        style: TextStyle(
-                          color: _item!.isRead
-                              ? Colors.grey[700]
-                              : Colors.white,
-                        ),
-                      ),
-                      backgroundColor: _item!.isRead
-                          ? Colors.grey[300]
-                          : Theme.of(context).colorScheme.primary,
                     ),
                   ],
                 ),
-                const SizedBox(height: 8),
-                _AudienceLabel(
-                  audienceType: _item!.audienceType,
-                  audienceValue: _item!.audienceValue,
-                ),
-                const SizedBox(height: 12),
-                if (_item!.createdAt != null)
-                  Text(
-                    'تاریخ: ${_formatDate(_item!.createdAt!)}',
-                    style: Theme.of(context).textTheme.bodySmall,
+              )
+            : _item == null
+            ? const Center(child: Text('اطلاعیه یافت نشد'))
+            : ListView(
+                padding: const EdgeInsets.all(16),
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          _item!.title,
+                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      Chip(
+                        label: Text(
+                          _item!.isRead ? 'خوانده‌شده' : 'نخوانده',
+                          style: TextStyle(
+                            color: _item!.isRead
+                                ? Colors.grey[700]
+                                : Colors.white,
+                          ),
+                        ),
+                        backgroundColor: _item!.isRead
+                            ? Colors.grey[300]
+                            : Theme.of(context).colorScheme.primary,
+                      ),
+                    ],
                   ),
-                if (_item!.publishAt != null)
-                  Text(
-                    'انتشار: ${_formatDate(_item!.publishAt!)}',
-                    style: Theme.of(context).textTheme.bodySmall,
+                  const SizedBox(height: 8),
+                  _AudienceLabel(
+                    audienceType: _item!.audienceType,
+                    audienceValue: _item!.audienceValue,
                   ),
-                if (_item!.expireAt != null)
-                  Text(
-                    'انقضا: ${_formatDate(_item!.expireAt!)}',
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                const Divider(height: 24),
-                Text(_item!.body, style: Theme.of(context).textTheme.bodyLarge),
-                if (_item!.attachmentFile != null) ...[
-                  const SizedBox(height: 16),
-                  OutlinedButton.icon(
-                    onPressed: () {},
-                    icon: const Icon(Icons.attach_file),
-                    label: const Text('مشاهده پیوست'),
-                  ),
+                  const SizedBox(height: 12),
+                  if (_item!.createdAt != null)
+                    Text(
+                      'تاریخ: ${_formatDate(_item!.createdAt!)}',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  if (_item!.publishAt != null)
+                    Text(
+                      'انتشار: ${_formatDate(_item!.publishAt!)}',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  if (_item!.expireAt != null)
+                    Text(
+                      'انقضا: ${_formatDate(_item!.expireAt!)}',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  const Divider(height: 24),
+                  Text(_item!.body, style: Theme.of(context).textTheme.bodyLarge),
+                  if (_item!.attachmentFile != null) ...[
+                    const SizedBox(height: 16),
+                    OutlinedButton.icon(
+                      onPressed: () {},
+                      icon: const Icon(Icons.attach_file),
+                      label: const Text('مشاهده پیوست'),
+                    ),
+                  ],
+                  const SizedBox(height: 24),
+                  if (!_item!.isRead)
+                    FilledButton.icon(
+                      onPressed: _marking ? null : () => _markRead(),
+                      icon: _marking
+                          ? const SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
+                            )
+                          : const Icon(Icons.check),
+                      label: const Text('علامت‌گذاری به‌عنوان خوانده‌شده'),
+                    ),
                 ],
-                const SizedBox(height: 24),
-                if (!_item!.isRead)
-                  FilledButton.icon(
-                    onPressed: _marking ? null : () => _markRead(),
-                    icon: _marking
-                        ? const SizedBox(
-                            width: 16,
-                            height: 16,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Colors.white,
-                            ),
-                          )
-                        : const Icon(Icons.check),
-                    label: const Text('علامت‌گذاری به‌عنوان خوانده‌شده'),
-                  ),
-              ],
-            ),
+              )
+      ),
     );
   }
 }

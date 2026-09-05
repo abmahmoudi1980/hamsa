@@ -56,195 +56,197 @@ class PeriodDetailScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.previewTitle)),
-      body: previewAsync.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => EmptyState(
-          icon: Icons.error_outline,
-          title: e is ApiException
-              ? (e.serverMessage ?? l10n.errorServer)
-              : l10n.errorUnknown,
-        ),
-        data: (ps) {
-          final period = ps.preview.period;
-          final canEdit = period.status == 'draft';
-          final canCalculate = period.status == 'draft' || period.status == 'calculated';
-          final canIssue = period.status == 'calculated';
-          final canReopen = period.status == 'calculated';
-          final canClose = period.status == 'issued';
-          return ListView(
-            padding: AppTheme.pagePadding,
-            children: [
-              // --- period header -------------------------------------------
-              Card(
-                child: ListTile(
-                  title: Text(period.title),
-                  subtitle: Text(
-                    '${formatJalaliDate(DateTime.tryParse(period.startDate) ?? DateTime(2000))}'
-                    ' — ${formatJalaliDate(DateTime.tryParse(period.endDate) ?? DateTime(2000))}'
-                    ' • ${l10n.periodDue}: ${formatJalaliDate(DateTime.tryParse(period.dueDate) ?? DateTime(2000))}',
+      body: SafeArea(
+        child: previewAsync.when(
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (e, _) => EmptyState(
+            icon: Icons.error_outline,
+            title: e is ApiException
+                ? (e.serverMessage ?? l10n.errorServer)
+                : l10n.errorUnknown,
+          ),
+          data: (ps) {
+            final period = ps.preview.period;
+            final canEdit = period.status == 'draft';
+            final canCalculate = period.status == 'draft' || period.status == 'calculated';
+            final canIssue = period.status == 'calculated';
+            final canReopen = period.status == 'calculated';
+            final canClose = period.status == 'issued';
+            return ListView(
+              padding: AppTheme.pagePadding,
+              children: [
+                // --- period header -------------------------------------------
+                Card(
+                  child: ListTile(
+                    title: Text(period.title),
+                    subtitle: Text(
+                      '${formatJalaliDate(DateTime.tryParse(period.startDate) ?? DateTime(2000))}'
+                      ' — ${formatJalaliDate(DateTime.tryParse(period.endDate) ?? DateTime(2000))}'
+                      ' • ${l10n.periodDue}: ${formatJalaliDate(DateTime.tryParse(period.dueDate) ?? DateTime(2000))}',
+                    ),
+                    trailing: StatusChip(kind: StatusKind.period, value: period.status),
                   ),
-                  trailing: StatusChip(kind: StatusKind.period, value: period.status),
                 ),
-              ),
-              const SizedBox(height: AppTheme.spaceM),
-              Wrap(
-                spacing: AppTheme.spaceS,
-                runSpacing: AppTheme.spaceS,
-                children: [
-                  if (canCalculate)
-                    FilledButton.icon(
-                      onPressed: ps.busy
-                          ? null
-                          : () async {
-                              try {
+                const SizedBox(height: AppTheme.spaceM),
+                Wrap(
+                  spacing: AppTheme.spaceS,
+                  runSpacing: AppTheme.spaceS,
+                  children: [
+                    if (canCalculate)
+                      FilledButton.icon(
+                        onPressed: ps.busy
+                            ? null
+                            : () async {
+                                try {
+                                  await ref
+                                      .read(previewControllerProvider(periodId)
+                                          .notifier)
+                                      .calculate();
+                                } on ApiException catch (e) {
+                                  if (context.mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(content: Text(
+                                          e.serverMessage ?? l10n.errorServer)),
+                                    );
+                                  }
+                                }
+                              },
+                        icon: const Icon(Icons.calculate_outlined),
+                        label: Text(period.status == 'calculated'
+                            ? l10n.recalculate
+                            : l10n.calculate),
+                      ),
+                    if (canIssue)
+                      FilledButton.icon(
+                        onPressed: ps.busy
+                            ? null
+                            : () => _confirm(context, ref,
+                                title: l10n.issue,
+                                message: l10n.issueConfirm,
+                                action: () async {
                                 await ref
-                                    .read(previewControllerProvider(periodId)
-                                        .notifier)
-                                    .calculate();
-                              } on ApiException catch (e) {
+                                    .read(previewControllerProvider(periodId).notifier)
+                                    .issue();
                                 if (context.mounted) {
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(content: Text(
-                                        e.serverMessage ?? l10n.errorServer)),
-                                  );
+                                      SnackBar(content: Text(l10n.issuedOk)));
                                 }
-                              }
-                            },
-                      icon: const Icon(Icons.calculate_outlined),
-                      label: Text(period.status == 'calculated'
-                          ? l10n.recalculate
-                          : l10n.calculate),
-                    ),
-                  if (canIssue)
-                    FilledButton.icon(
-                      onPressed: ps.busy
-                          ? null
-                          : () => _confirm(context, ref,
-                              title: l10n.issue,
-                              message: l10n.issueConfirm,
-                              action: () async {
-                              await ref
-                                  .read(previewControllerProvider(periodId).notifier)
-                                  .issue();
-                              if (context.mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(content: Text(l10n.issuedOk)));
-                              }
-                            }),
-                      icon: const Icon(Icons.publish_outlined),
-                      label: Text(l10n.issue),
-                    ),
-                  if (canReopen)
-                    OutlinedButton.icon(
-                      onPressed: ps.busy
-                          ? null
-                          : () => _confirm(context, ref,
-                              title: l10n.reopen,
-                              message: l10n.reopenConfirm,
-                              action: () => ref
-                                  .read(previewControllerProvider(periodId).notifier)
-                                  .reopen()),
-                      icon: const Icon(Icons.undo),
-                      label: Text(l10n.reopen),
-                    ),
-                  if (canClose)
-                    OutlinedButton.icon(
-                      onPressed: ps.busy
-                          ? null
-                          : () => _confirm(context, ref,
-                              title: l10n.closePeriod,
-                              message: l10n.closeConfirm,
-                              action: () => ref
-                                  .read(previewControllerProvider(periodId).notifier)
-                                  .close()),
-                      icon: const Icon(Icons.lock_outline),
-                      label: Text(l10n.closePeriod),
-                    ),
-                ],
-              ),
-              const SizedBox(height: AppTheme.spaceL),
+                              }),
+                        icon: const Icon(Icons.publish_outlined),
+                        label: Text(l10n.issue),
+                      ),
+                    if (canReopen)
+                      OutlinedButton.icon(
+                        onPressed: ps.busy
+                            ? null
+                            : () => _confirm(context, ref,
+                                title: l10n.reopen,
+                                message: l10n.reopenConfirm,
+                                action: () => ref
+                                    .read(previewControllerProvider(periodId).notifier)
+                                    .reopen()),
+                        icon: const Icon(Icons.undo),
+                        label: Text(l10n.reopen),
+                      ),
+                    if (canClose)
+                      OutlinedButton.icon(
+                        onPressed: ps.busy
+                            ? null
+                            : () => _confirm(context, ref,
+                                title: l10n.closePeriod,
+                                message: l10n.closeConfirm,
+                                action: () => ref
+                                    .read(previewControllerProvider(periodId).notifier)
+                                    .close()),
+                        icon: const Icon(Icons.lock_outline),
+                        label: Text(l10n.closePeriod),
+                      ),
+                  ],
+                ),
+                const SizedBox(height: AppTheme.spaceL),
 
-              // --- cost items (editable only in draft) ----------------------
-              SectionHeader(
-                title: l10n.costItemsTitle,
-                action: canEdit
-                    ? TextButton.icon(
-                        onPressed: () => context.push(
-                          '/manager/periods/$buildingId/$periodId/cost-items/new',
-                        ),
-                        icon: const Icon(Icons.add),
-                        label: Text(l10n.addCostItem),
-                      )
-                    : null,
-              ),
-              ...ps.preview.items.map(
-                (item) => Card(
-                  child: ListTile(
-                    title: Text(item.title),
-                    subtitle: Text(calcMethodLabel(l10n, item.method)),
-                    trailing: MoneyText(
-                      amount: item.totalUsed,
-                      style: Theme.of(context).textTheme.titleMedium,
+                // --- cost items (editable only in draft) ----------------------
+                SectionHeader(
+                  title: l10n.costItemsTitle,
+                  action: canEdit
+                      ? TextButton.icon(
+                          onPressed: () => context.push(
+                            '/manager/periods/$buildingId/$periodId/cost-items/new',
+                          ),
+                          icon: const Icon(Icons.add),
+                          label: Text(l10n.addCostItem),
+                        )
+                      : null,
+                ),
+                ...ps.preview.items.map(
+                  (item) => Card(
+                    child: ListTile(
+                      title: Text(item.title),
+                      subtitle: Text(calcMethodLabel(l10n, item.method)),
+                      trailing: MoneyText(
+                        amount: item.totalUsed,
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      onTap: canEdit
+                          ? () => context.push(
+                              '/manager/periods/$buildingId/$periodId/cost-items/${item.id}',
+                              extra: item.costItem)
+                          : null,
                     ),
-                    onTap: canEdit
-                        ? () => context.push(
-                            '/manager/periods/$buildingId/$periodId/cost-items/${item.id}',
-                            extra: item.costItem)
-                        : null,
                   ),
                 ),
-              ),
-              const SizedBox(height: AppTheme.spaceL),
+                const SizedBox(height: AppTheme.spaceL),
 
-              // --- reviewable breakdown (BR-08) ------------------------------
-              if (!ps.preview.reconciled)
-                Card(
-                  color: Theme.of(context).colorScheme.errorContainer,
-                  child: Padding(
-                    padding: const EdgeInsets.all(AppTheme.spaceM),
-                    child: Text(l10n.reconciliationBad),
-                  ),
-                ),
-              ...ps.preview.items.map(
-                (item) => _PreviewItemCard(item: item),
-              ),
-              const SizedBox(height: AppTheme.spaceL),
-
-              // --- resulting invoices ----------------------------------------
-              SectionHeader(title: l10n.invoicesTitle),
-              ...ps.preview.invoices.map(
-                (inv) => Card(
-                  child: ListTile(
-                    title: Text(inv.unitNumber.isEmpty
-                        ? inv.unitId
-                        : '${l10n.unitNumber} ${toPersianDigits(inv.unitNumber)}'),
-                    // Issued invoices carry BLD-YYYY-NNNN; drafts keep a
-                    // DRAFT- placeholder worth hiding (no number yet).
-                    subtitle: Text(inv.invoiceNumber.startsWith('DRAFT-')
-                        ? ''
-                        : inv.invoiceNumber),
-                    trailing: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        MoneyText(
-                          amount: inv.finalAmount,
-                          style: Theme.of(context).textTheme.titleMedium,
-                        ),
-                        // The chip is taller than the subtitle slot — stacking
-                        // it under the amount keeps it fully visible.
-                        if (inv.status != 'unpaid')
-                          StatusChip(
-                              kind: StatusKind.invoice, value: inv.status),
-                      ],
+                // --- reviewable breakdown (BR-08) ------------------------------
+                if (!ps.preview.reconciled)
+                  Card(
+                    color: Theme.of(context).colorScheme.errorContainer,
+                    child: Padding(
+                      padding: const EdgeInsets.all(AppTheme.spaceM),
+                      child: Text(l10n.reconciliationBad),
                     ),
-                    onTap: () => context.push('/invoice/${inv.id}'),
+                  ),
+                ...ps.preview.items.map(
+                  (item) => _PreviewItemCard(item: item),
+                ),
+                const SizedBox(height: AppTheme.spaceL),
+
+                // --- resulting invoices ----------------------------------------
+                SectionHeader(title: l10n.invoicesTitle),
+                ...ps.preview.invoices.map(
+                  (inv) => Card(
+                    child: ListTile(
+                      title: Text(inv.unitNumber.isEmpty
+                          ? inv.unitId
+                          : '${l10n.unitNumber} ${toPersianDigits(inv.unitNumber)}'),
+                      // Issued invoices carry BLD-YYYY-NNNN; drafts keep a
+                      // DRAFT- placeholder worth hiding (no number yet).
+                      subtitle: Text(inv.invoiceNumber.startsWith('DRAFT-')
+                          ? ''
+                          : inv.invoiceNumber),
+                      trailing: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          MoneyText(
+                            amount: inv.finalAmount,
+                            style: Theme.of(context).textTheme.titleMedium,
+                          ),
+                          // The chip is taller than the subtitle slot — stacking
+                          // it under the amount keeps it fully visible.
+                          if (inv.status != 'unpaid')
+                            StatusChip(
+                                kind: StatusKind.invoice, value: inv.status),
+                        ],
+                      ),
+                      onTap: () => context.push('/invoice/${inv.id}'),
+                    ),
                   ),
                 ),
-              ),
-            ],
-          );
-        },
+              ],
+            );
+          },
+        )
       ),
     );
   }

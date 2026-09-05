@@ -72,34 +72,36 @@ class _RecordPaymentScreenState extends ConsumerState<RecordPaymentScreen> {
     final l10n = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(title: Text(l10n.recordPayment)),
-      body: Form(
-        key: _formKey,
-        child: ListView(
-          padding: AppTheme.pagePadding,
-          children: [
-            TextFormField(
-              controller: _amountCtrl,
-              decoration: InputDecoration(labelText: l10n.paymentAmountLabel),
-              keyboardType: TextInputType.number,
-              textDirection: TextDirection.ltr,
-              inputFormatters: const [TomanInputFormatter()],
-              validator: (v) => Validators.positiveAmount(l10n, v),
-            ),
-            const SizedBox(height: AppTheme.spaceM),
-            JalaliDatePickerField(
-              initialValue: _paidAt,
-              label: l10n.paymentDateLabel,
-              validator: (_) => _paidAt == null ? l10n.requiredField : null,
-              onChanged: (d) => setState(() => _paidAt = d),
-            ),
-            const SizedBox(height: AppTheme.spaceM),
-            TextFormField(
-              controller: _trackingCtrl,
-              decoration:
-                  InputDecoration(labelText: l10n.trackingNumberLabel),
-            ),
-          ],
-        ),
+      body: SafeArea(
+        child: Form(
+          key: _formKey,
+          child: ListView(
+            padding: AppTheme.pagePadding,
+            children: [
+              TextFormField(
+                controller: _amountCtrl,
+                decoration: InputDecoration(labelText: l10n.paymentAmountLabel),
+                keyboardType: TextInputType.number,
+                textDirection: TextDirection.ltr,
+                inputFormatters: const [TomanInputFormatter()],
+                validator: (v) => Validators.positiveAmount(l10n, v),
+              ),
+              const SizedBox(height: AppTheme.spaceM),
+              JalaliDatePickerField(
+                initialValue: _paidAt,
+                label: l10n.paymentDateLabel,
+                validator: (_) => _paidAt == null ? l10n.requiredField : null,
+                onChanged: (d) => setState(() => _paidAt = d),
+              ),
+              const SizedBox(height: AppTheme.spaceM),
+              TextFormField(
+                controller: _trackingCtrl,
+                decoration:
+                    InputDecoration(labelText: l10n.trackingNumberLabel),
+              ),
+            ],
+          ),
+        )
       ),
       bottomNavigationBar: SaveBar(
         child: FilledButton(

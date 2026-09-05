@@ -102,83 +102,85 @@ class _PeriodFormScreenState extends ConsumerState<PeriodFormScreen> {
       appBar: AppBar(
         title: Text(widget.existing == null ? l10n.addPeriod : l10n.editPeriod),
       ),
-      body: Form(
-        key: _formKey,
-        child: ListView(
-          padding: AppTheme.pagePadding,
-          children: [
-            TextFormField(
-              controller: _title,
-              decoration:
-                  InputDecoration(labelText: l10n.periodTitleLabel),
-              validator: (v) =>
-                  (v == null || v.trim().isEmpty) ? l10n.requiredField : null,
-            ),
-            const SizedBox(height: AppTheme.spaceM),
-            JalaliDatePickerField(
-              label: l10n.periodStart,
-              initialValue: _start,
-              onChanged: (d) {
-                setState(() {
-                  _start = d;
-                  if (_end != null && _end!.isBefore(d)) _end = d;
-                  if (_due != null && _due!.isBefore(d)) _due = d;
-                });
-              },
-              validator: (_) => null,
-            ),
-            const SizedBox(height: AppTheme.spaceM),
-            JalaliDatePickerField(
-              label: l10n.periodEnd,
-              initialValue: _end,
-              firstDate: _start,
-              onChanged: (d) => setState(() {
-                _end = d;
-                if (_due != null && _due!.isBefore(d)) _due = d;
-              }),
-            ),
-            const SizedBox(height: AppTheme.spaceM),
-            JalaliDatePickerField(
-              label: l10n.periodDue,
-              initialValue: _due,
-              firstDate: _end,
-              onChanged: (d) => setState(() => _due = d),
-            ),
-            const SizedBox(height: AppTheme.spaceM),
-            DropdownButtonFormField<String>(
-              initialValue: _lateFeeType,
-              decoration: InputDecoration(labelText: l10n.lateFeeType),
-              items: feeTypes.entries
-                  .map((e) =>
-                      DropdownMenuItem(value: e.key, child: Text(e.value)))
-                  .toList(),
-              onChanged: (v) => setState(() => _lateFeeType = v ?? 'none'),
-            ),
-            if (_lateFeeType != 'none') ...[
-              const SizedBox(height: AppTheme.spaceM),
+      body: SafeArea(
+        child: Form(
+          key: _formKey,
+          child: ListView(
+            padding: AppTheme.pagePadding,
+            children: [
               TextFormField(
-                controller: _lateFeeValue,
+                controller: _title,
                 decoration:
-                    InputDecoration(labelText: l10n.lateFeeValue),
-                keyboardType: TextInputType.number,
-                validator: (v) {
-                  final n = double.tryParse(fromPersianDigits(v ?? ''));
-                  if (n == null || n <= 0) return l10n.invalidAmount;
-                  return null;
-                },
+                    InputDecoration(labelText: l10n.periodTitleLabel),
+                validator: (v) =>
+                    (v == null || v.trim().isEmpty) ? l10n.requiredField : null,
               ),
-            ],
-            if (_apiError != null) ...[
               const SizedBox(height: AppTheme.spaceM),
-              Text(
-                _apiError!,
-                style: TextStyle(
-                    color: Theme.of(context).colorScheme.error),
-                textAlign: TextAlign.center,
+              JalaliDatePickerField(
+                label: l10n.periodStart,
+                initialValue: _start,
+                onChanged: (d) {
+                  setState(() {
+                    _start = d;
+                    if (_end != null && _end!.isBefore(d)) _end = d;
+                    if (_due != null && _due!.isBefore(d)) _due = d;
+                  });
+                },
+                validator: (_) => null,
               ),
+              const SizedBox(height: AppTheme.spaceM),
+              JalaliDatePickerField(
+                label: l10n.periodEnd,
+                initialValue: _end,
+                firstDate: _start,
+                onChanged: (d) => setState(() {
+                  _end = d;
+                  if (_due != null && _due!.isBefore(d)) _due = d;
+                }),
+              ),
+              const SizedBox(height: AppTheme.spaceM),
+              JalaliDatePickerField(
+                label: l10n.periodDue,
+                initialValue: _due,
+                firstDate: _end,
+                onChanged: (d) => setState(() => _due = d),
+              ),
+              const SizedBox(height: AppTheme.spaceM),
+              DropdownButtonFormField<String>(
+                initialValue: _lateFeeType,
+                decoration: InputDecoration(labelText: l10n.lateFeeType),
+                items: feeTypes.entries
+                    .map((e) =>
+                        DropdownMenuItem(value: e.key, child: Text(e.value)))
+                    .toList(),
+                onChanged: (v) => setState(() => _lateFeeType = v ?? 'none'),
+              ),
+              if (_lateFeeType != 'none') ...[
+                const SizedBox(height: AppTheme.spaceM),
+                TextFormField(
+                  controller: _lateFeeValue,
+                  decoration:
+                      InputDecoration(labelText: l10n.lateFeeValue),
+                  keyboardType: TextInputType.number,
+                  validator: (v) {
+                    final n = double.tryParse(fromPersianDigits(v ?? ''));
+                    if (n == null || n <= 0) return l10n.invalidAmount;
+                    return null;
+                  },
+                ),
+              ],
+              if (_apiError != null) ...[
+                const SizedBox(height: AppTheme.spaceM),
+                Text(
+                  _apiError!,
+                  style: TextStyle(
+                      color: Theme.of(context).colorScheme.error),
+                  textAlign: TextAlign.center,
+                ),
+              ],
             ],
-          ],
-        ),
+          ),
+        )
       ),
       bottomNavigationBar: SaveBar(
         child: FilledButton(

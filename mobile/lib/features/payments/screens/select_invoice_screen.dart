@@ -71,7 +71,9 @@ class _SelectInvoiceScreenState extends ConsumerState<SelectInvoiceScreen> {
     final l10n = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(title: Text(l10n.recordPayment)),
-      body: _body(l10n),
+      body: SafeArea(
+        child: _body(l10n)
+      ),
     );
   }
 

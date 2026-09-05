@@ -32,64 +32,66 @@ class PersonListScreen extends ConsumerWidget {
         icon: const Icon(Icons.add),
         label: Text(l10n.addPerson),
       ),
-      body: async.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) =>
-            EmptyState(icon: Icons.error_outline, title: l10n.errorUnknown),
-        data: (people) => people.isEmpty
-            ? EmptyState(
-                title: l10n.emptyStateTitle,
-                actionLabel: l10n.addPerson,
-                onAction: () async {
-                  await context.push(
-                    '/manager/buildings/$buildingId/people/new',
-                  );
-                  if (context.mounted) {
-                    ref.invalidate(peopleControllerProvider(buildingId));
-                  }
-                },
-              )
-            : ListView.separated(
-                padding: AppTheme.pagePadding,
-                itemCount: people.length,
-                separatorBuilder: (_, _) => const SizedBox(height: 10),
-                itemBuilder: (context, i) {
-                  final p = people[i];
-                  return Card(
-                    child: ListTile(
-                      leading: Container(
-                        width: 44,
-                        height: 44,
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          color: scheme.primary.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(
-                            AppTheme.radiusSmall,
+      body: SafeArea(
+        child: async.when(
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (e, _) =>
+              EmptyState(icon: Icons.error_outline, title: l10n.errorUnknown),
+          data: (people) => people.isEmpty
+              ? EmptyState(
+                  title: l10n.emptyStateTitle,
+                  actionLabel: l10n.addPerson,
+                  onAction: () async {
+                    await context.push(
+                      '/manager/buildings/$buildingId/people/new',
+                    );
+                    if (context.mounted) {
+                      ref.invalidate(peopleControllerProvider(buildingId));
+                    }
+                  },
+                )
+              : ListView.separated(
+                  padding: AppTheme.pagePadding,
+                  itemCount: people.length,
+                  separatorBuilder: (_, _) => const SizedBox(height: 10),
+                  itemBuilder: (context, i) {
+                    final p = people[i];
+                    return Card(
+                      child: ListTile(
+                        leading: Container(
+                          width: 44,
+                          height: 44,
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                            color: scheme.primary.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(
+                              AppTheme.radiusSmall,
+                            ),
+                          ),
+                          child: Text(
+                            p.fullName.isEmpty ? '?' : p.fullName.substring(0, 1),
+                            style: Theme.of(context).textTheme.titleSmall,
                           ),
                         ),
-                        child: Text(
-                          p.fullName.isEmpty ? '?' : p.fullName.substring(0, 1),
-                          style: Theme.of(context).textTheme.titleSmall,
+                        title: Text(p.fullName),
+                        subtitle: Text(
+                          [
+                            if (p.phone != null && p.phone!.isNotEmpty) p.phone!,
+                            if (p.nationalId != null && p.nationalId!.isNotEmpty)
+                              p.nationalId!,
+                          ].join(' • '),
                         ),
+                        onTap: () async {
+                          await context.push(
+                            '/manager/buildings/$buildingId/people/${p.id}',
+                          );
+                          ref.invalidate(peopleControllerProvider(buildingId));
+                        },
                       ),
-                      title: Text(p.fullName),
-                      subtitle: Text(
-                        [
-                          if (p.phone != null && p.phone!.isNotEmpty) p.phone!,
-                          if (p.nationalId != null && p.nationalId!.isNotEmpty)
-                            p.nationalId!,
-                        ].join(' • '),
-                      ),
-                      onTap: () async {
-                        await context.push(
-                          '/manager/buildings/$buildingId/people/${p.id}',
-                        );
-                        ref.invalidate(peopleControllerProvider(buildingId));
-                      },
-                    ),
-                  );
-                },
-              ),
+                    );
+                  },
+                ),
+        )
       ),
     );
   }

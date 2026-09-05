@@ -21,46 +21,48 @@ class ChargesListScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.myCharges)),
-      body: async.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) =>
-            EmptyState(icon: Icons.error_outline, title: l10n.errorServer),
-        data: (invoices) => invoices.isEmpty
-            ? EmptyState(title: l10n.myCharges, subtitle: l10n.emptyStateSubtitle)
-            : RefreshIndicator(
-                onRefresh: () async =>
-                    ref.invalidate(myInvoicesControllerProvider),
-                child: ListView.separated(
-                  padding: AppTheme.pagePadding,
-                  itemCount: invoices.length,
-                  separatorBuilder: (_, _) => const SizedBox(height: 10),
-                  itemBuilder: (context, i) {
-                    final inv = invoices[i];
-                    return Card(
-                      child: ListTile(
-                        title: Text(inv.periodTitle.isEmpty
-                            ? inv.invoiceNumber
-                            : inv.periodTitle),
-                        subtitle: inv.unitNumber.isEmpty
-                            ? null
-                            : Text('${l10n.unitNumber} ${inv.unitNumber}'),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            StatusChip(
-                                kind: StatusKind.invoice, value: inv.status),
-                            const SizedBox(width: AppTheme.spaceS),
-                            MoneyText(
-                                amount: inv.finalAmount,
-                                showCurrencySuffix: false),
-                          ],
+      body: SafeArea(
+        child: async.when(
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (e, _) =>
+              EmptyState(icon: Icons.error_outline, title: l10n.errorServer),
+          data: (invoices) => invoices.isEmpty
+              ? EmptyState(title: l10n.myCharges, subtitle: l10n.emptyStateSubtitle)
+              : RefreshIndicator(
+                  onRefresh: () async =>
+                      ref.invalidate(myInvoicesControllerProvider),
+                  child: ListView.separated(
+                    padding: AppTheme.pagePadding,
+                    itemCount: invoices.length,
+                    separatorBuilder: (_, _) => const SizedBox(height: 10),
+                    itemBuilder: (context, i) {
+                      final inv = invoices[i];
+                      return Card(
+                        child: ListTile(
+                          title: Text(inv.periodTitle.isEmpty
+                              ? inv.invoiceNumber
+                              : inv.periodTitle),
+                          subtitle: inv.unitNumber.isEmpty
+                              ? null
+                              : Text('${l10n.unitNumber} ${inv.unitNumber}'),
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              StatusChip(
+                                  kind: StatusKind.invoice, value: inv.status),
+                              const SizedBox(width: AppTheme.spaceS),
+                              MoneyText(
+                                  amount: inv.finalAmount,
+                                  showCurrencySuffix: false),
+                            ],
+                          ),
+                          onTap: () => context.push('/invoice/${inv.id}'),
                         ),
-                        onTap: () => context.push('/invoice/${inv.id}'),
-                      ),
-                    );
-                  },
+                      );
+                    },
+                  ),
                 ),
-              ),
+        )
       ),
     );
   }

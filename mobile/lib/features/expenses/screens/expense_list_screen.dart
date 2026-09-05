@@ -84,54 +84,56 @@ class _ExpenseListScreenState extends ConsumerState<ExpenseListScreen> {
         icon: const Icon(Icons.add),
         label: Text(l10n.addExpense),
       ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppTheme.spaceXl,
-              vertical: AppTheme.spaceS,
+      body: SafeArea(
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppTheme.spaceXl,
+                vertical: AppTheme.spaceS,
+              ),
+              child: Wrap(
+                spacing: AppTheme.spaceS,
+                runSpacing: AppTheme.spaceS,
+                alignment: WrapAlignment.end,
+                children: [
+                  DropdownButton<String>(
+                    isDense: true,
+                    value: _category.isEmpty ? null : _category,
+                    hint: Text(l10n.filterCategoryLabel),
+                    items: [
+                      DropdownMenuItem(value: '', child: Text(l10n.filterAll)),
+                      ...expenseCategoryLabels.entries.map(
+                        (e) => DropdownMenuItem(value: e.key, child: Text(e.value)),
+                      ),
+                    ],
+                    onChanged: (v) {
+                      setState(() => _category = v ?? '');
+                      _load();
+                    },
+                  ),
+                  DropdownButton<String>(
+                    isDense: true,
+                    value: _approval.isEmpty ? null : _approval,
+                    hint: Text(l10n.filterApprovalLabel),
+                    items: [
+                      DropdownMenuItem(value: '', child: Text(l10n.filterAll)),
+                      ...expenseApprovalLabels.entries.map(
+                        (e) => DropdownMenuItem(value: e.key, child: Text(e.value)),
+                      ),
+                    ],
+                    onChanged: (v) {
+                      setState(() => _approval = v ?? '');
+                      _load();
+                    },
+                  ),
+                ],
+              ),
             ),
-            child: Wrap(
-              spacing: AppTheme.spaceS,
-              runSpacing: AppTheme.spaceS,
-              alignment: WrapAlignment.end,
-              children: [
-                DropdownButton<String>(
-                  isDense: true,
-                  value: _category.isEmpty ? null : _category,
-                  hint: Text(l10n.filterCategoryLabel),
-                  items: [
-                    DropdownMenuItem(value: '', child: Text(l10n.filterAll)),
-                    ...expenseCategoryLabels.entries.map(
-                      (e) => DropdownMenuItem(value: e.key, child: Text(e.value)),
-                    ),
-                  ],
-                  onChanged: (v) {
-                    setState(() => _category = v ?? '');
-                    _load();
-                  },
-                ),
-                DropdownButton<String>(
-                  isDense: true,
-                  value: _approval.isEmpty ? null : _approval,
-                  hint: Text(l10n.filterApprovalLabel),
-                  items: [
-                    DropdownMenuItem(value: '', child: Text(l10n.filterAll)),
-                    ...expenseApprovalLabels.entries.map(
-                      (e) => DropdownMenuItem(value: e.key, child: Text(e.value)),
-                    ),
-                  ],
-                  onChanged: (v) {
-                    setState(() => _approval = v ?? '');
-                    _load();
-                  },
-                ),
-              ],
-            ),
-          ),
-          const Divider(height: 1),
-          Expanded(child: _buildBody(l10n)),
-        ],
+            const Divider(height: 1),
+            Expanded(child: _buildBody(l10n)),
+          ],
+        )
       ),
     );
   }

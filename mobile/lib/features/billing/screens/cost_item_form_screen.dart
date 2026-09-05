@@ -120,163 +120,165 @@ class _CostItemFormScreenState extends ConsumerState<CostItemFormScreen> {
             ? l10n.addCostItem
             : l10n.editCostItem),
       ),
-      body: Form(
-        key: _formKey,
-        child: ListView(
-          padding: AppTheme.pagePadding,
-          children: [
-            TextFormField(
-              controller: _title,
-              decoration: InputDecoration(labelText: l10n.costItemTitle),
-              validator: (v) =>
-                  (v == null || v.trim().isEmpty) ? l10n.requiredField : null,
-            ),
-            const SizedBox(height: AppTheme.spaceM),
-            if (showAmount)
+      body: SafeArea(
+        child: Form(
+          key: _formKey,
+          child: ListView(
+            padding: AppTheme.pagePadding,
+            children: [
               TextFormField(
-                controller: _amount,
-                decoration:
-                    InputDecoration(labelText: l10n.costItemAmount),
-                keyboardType: TextInputType.number,
-                textDirection: TextDirection.ltr,
-                inputFormatters: const [TomanInputFormatter()],
-                validator: (v) {
-                  final n = parseToman(v ?? '');
-                  if (n == null || n <= 0) return l10n.invalidAmount;
-                  return null;
-                },
+                controller: _title,
+                decoration: InputDecoration(labelText: l10n.costItemTitle),
+                validator: (v) =>
+                    (v == null || v.trim().isEmpty) ? l10n.requiredField : null,
               ),
-            if (showFixed) ...[
               const SizedBox(height: AppTheme.spaceM),
-              TextFormField(
-                controller: _fixedPerUnit,
-                decoration: InputDecoration(labelText: l10n.fixedPerUnit),
-                keyboardType: TextInputType.number,
-                textDirection: TextDirection.ltr,
-                inputFormatters: const [TomanInputFormatter()],
-                validator: (v) {
-                  final n = parseToman(v ?? '');
-                  if (n == null || n <= 0) return l10n.invalidAmount;
-                  return null;
-                },
-              ),
-            ],
-            const SizedBox(height: AppTheme.spaceM),
-            DropdownButtonFormField<String>(
-              initialValue: _method,
-              decoration: InputDecoration(labelText: l10n.calcMethod),
-              items: calcMethods
-                  .map((m) => DropdownMenuItem(
-                        value: m,
-                        child: Text(calcMethodLabel(l10n, m)),
-                      ))
-                  .toList(),
-              onChanged: (v) => setState(() => _method = v ?? 'equal'),
-            ),
-            if (_method != 'specific_units') ...[
-              const SizedBox(height: AppTheme.spaceS),
-              SwitchListTile(
-                title: Text(l10n.includeVacant),
-                value: _includeVacant,
-                onChanged: (v) => setState(() => _includeVacant = v),
-                contentPadding: EdgeInsets.zero,
-              ),
-            ],
-            if (showUnits) ...[
-              const SizedBox(height: AppTheme.spaceS),
-              SectionHeader(title: l10n.selectUnits),
-              unitsAsync.when(
-                loading: () => const Padding(
-                  padding: EdgeInsets.all(AppTheme.spaceL),
-                  child: Center(child: CircularProgressIndicator()),
+              if (showAmount)
+                TextFormField(
+                  controller: _amount,
+                  decoration:
+                      InputDecoration(labelText: l10n.costItemAmount),
+                  keyboardType: TextInputType.number,
+                  textDirection: TextDirection.ltr,
+                  inputFormatters: const [TomanInputFormatter()],
+                  validator: (v) {
+                    final n = parseToman(v ?? '');
+                    if (n == null || n <= 0) return l10n.invalidAmount;
+                    return null;
+                  },
                 ),
-                error: (e, _) => Text(l10n.errorServer),
-                data: (state) => Column(
-                  children: state.units
-                      .map<Widget>((Unit u) => CheckboxListTile(
-                            title: Text('${l10n.unitNumber} ${u.number}'),
-                            value: _unitIds.contains(u.id),
-                            onChanged: (on) => setState(() {
-                              on == true
-                                  ? _unitIds.add(u.id)
-                                  : _unitIds.remove(u.id);
-                            }),
-                            contentPadding: EdgeInsets.zero,
-                          ))
-                      .toList(),
+              if (showFixed) ...[
+                const SizedBox(height: AppTheme.spaceM),
+                TextFormField(
+                  controller: _fixedPerUnit,
+                  decoration: InputDecoration(labelText: l10n.fixedPerUnit),
+                  keyboardType: TextInputType.number,
+                  textDirection: TextDirection.ltr,
+                  inputFormatters: const [TomanInputFormatter()],
+                  validator: (v) {
+                    final n = parseToman(v ?? '');
+                    if (n == null || n <= 0) return l10n.invalidAmount;
+                    return null;
+                  },
                 ),
+              ],
+              const SizedBox(height: AppTheme.spaceM),
+              DropdownButtonFormField<String>(
+                initialValue: _method,
+                decoration: InputDecoration(labelText: l10n.calcMethod),
+                items: calcMethods
+                    .map((m) => DropdownMenuItem(
+                          value: m,
+                          child: Text(calcMethodLabel(l10n, m)),
+                        ))
+                    .toList(),
+                onChanged: (v) => setState(() => _method = v ?? 'equal'),
               ),
-            ],
-            if (showWeights) ...[
-              const SizedBox(height: AppTheme.spaceS),
-              SectionHeader(
-                title: l10n.comboWeights,
-                action: Text('${toPersianDigits('$_weightSum')} / ۱۰۰'),
-              ),
-              ..._weights.asMap().entries.map((entry) {
-                final i = entry.key;
-                final w = entry.value;
-                return Row(
-                  children: [
-                    Expanded(
-                      child: DropdownButtonFormField<String>(
-                        initialValue: w.method,
-                        items: calcMethods
-                            .where((m) => m != 'combined')
-                            .map((m) => DropdownMenuItem(
-                                  value: m,
-                                  child: Text(calcMethodLabel(l10n, m)),
-                                ))
-                            .toList(),
-                        onChanged: (v) => setState(() =>
+              if (_method != 'specific_units') ...[
+                const SizedBox(height: AppTheme.spaceS),
+                SwitchListTile(
+                  title: Text(l10n.includeVacant),
+                  value: _includeVacant,
+                  onChanged: (v) => setState(() => _includeVacant = v),
+                  contentPadding: EdgeInsets.zero,
+                ),
+              ],
+              if (showUnits) ...[
+                const SizedBox(height: AppTheme.spaceS),
+                SectionHeader(title: l10n.selectUnits),
+                unitsAsync.when(
+                  loading: () => const Padding(
+                    padding: EdgeInsets.all(AppTheme.spaceL),
+                    child: Center(child: CircularProgressIndicator()),
+                  ),
+                  error: (e, _) => Text(l10n.errorServer),
+                  data: (state) => Column(
+                    children: state.units
+                        .map<Widget>((Unit u) => CheckboxListTile(
+                              title: Text('${l10n.unitNumber} ${u.number}'),
+                              value: _unitIds.contains(u.id),
+                              onChanged: (on) => setState(() {
+                                on == true
+                                    ? _unitIds.add(u.id)
+                                    : _unitIds.remove(u.id);
+                              }),
+                              contentPadding: EdgeInsets.zero,
+                            ))
+                        .toList(),
+                  ),
+                ),
+              ],
+              if (showWeights) ...[
+                const SizedBox(height: AppTheme.spaceS),
+                SectionHeader(
+                  title: l10n.comboWeights,
+                  action: Text('${toPersianDigits('$_weightSum')} / ۱۰۰'),
+                ),
+                ..._weights.asMap().entries.map((entry) {
+                  final i = entry.key;
+                  final w = entry.value;
+                  return Row(
+                    children: [
+                      Expanded(
+                        child: DropdownButtonFormField<String>(
+                          initialValue: w.method,
+                          items: calcMethods
+                              .where((m) => m != 'combined')
+                              .map((m) => DropdownMenuItem(
+                                    value: m,
+                                    child: Text(calcMethodLabel(l10n, m)),
+                                  ))
+                              .toList(),
+                          onChanged: (v) => setState(() =>
+                              _weights[i] = ComboWeight(
+                                  method: v ?? 'equal',
+                                  weight: _weights[i].weight)),
+                        ),
+                      ),
+                      const SizedBox(width: AppTheme.spaceS),
+                      SizedBox(
+                        width: 88,
+                        child: TextFormField(
+                          initialValue: '${w.weight}',
+                          keyboardType: TextInputType.number,
+                          decoration:
+                              const InputDecoration(hintText: '۰–۱۰۰'),
+                          onChanged: (v) => setState(() {
                             _weights[i] = ComboWeight(
-                                method: v ?? 'equal',
-                                weight: _weights[i].weight)),
+                              method: _weights[i].method,
+                              weight:
+                                  int.tryParse(fromPersianDigits(v)) ?? 0,
+                            );
+                          }),
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: AppTheme.spaceS),
-                    SizedBox(
-                      width: 88,
-                      child: TextFormField(
-                        initialValue: '${w.weight}',
-                        keyboardType: TextInputType.number,
-                        decoration:
-                            const InputDecoration(hintText: '۰–۱۰۰'),
-                        onChanged: (v) => setState(() {
-                          _weights[i] = ComboWeight(
-                            method: _weights[i].method,
-                            weight:
-                                int.tryParse(fromPersianDigits(v)) ?? 0,
-                          );
-                        }),
+                      IconButton(
+                        icon: const Icon(Icons.remove_circle_outline),
+                        onPressed: () =>
+                            setState(() => _weights.removeAt(i)),
                       ),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.remove_circle_outline),
-                      onPressed: () =>
-                          setState(() => _weights.removeAt(i)),
-                    ),
-                  ],
-                );
-              }),
-              TextButton.icon(
-                onPressed: () => setState(() => _weights =
-                    [..._weights, ComboWeight(method: 'equal', weight: 0)]),
-                icon: const Icon(Icons.add),
-                label: Text(l10n.addWeight),
-              ),
+                    ],
+                  );
+                }),
+                TextButton.icon(
+                  onPressed: () => setState(() => _weights =
+                      [..._weights, ComboWeight(method: 'equal', weight: 0)]),
+                  icon: const Icon(Icons.add),
+                  label: Text(l10n.addWeight),
+                ),
+              ],
+              if (_apiError != null) ...[
+                const SizedBox(height: AppTheme.spaceM),
+                Text(
+                  _apiError!,
+                  style:
+                      TextStyle(color: Theme.of(context).colorScheme.error),
+                  textAlign: TextAlign.center,
+                ),
+              ],
             ],
-            if (_apiError != null) ...[
-              const SizedBox(height: AppTheme.spaceM),
-              Text(
-                _apiError!,
-                style:
-                    TextStyle(color: Theme.of(context).colorScheme.error),
-                textAlign: TextAlign.center,
-              ),
-            ],
-          ],
-        ),
+          ),
+        )
       ),
       bottomNavigationBar: SaveBar(
         child: FilledButton(

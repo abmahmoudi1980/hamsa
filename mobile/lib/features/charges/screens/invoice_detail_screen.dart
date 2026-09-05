@@ -163,15 +163,19 @@ class _InvoiceDetailScreenState extends ConsumerState<InvoiceDetailScreen> {
     if (_loading) {
       return Scaffold(
         appBar: AppBar(),
-        body: const Center(child: CircularProgressIndicator()),
+        body: const SafeArea(
+          child: Center(child: CircularProgressIndicator())
+        ),
       );
     }
     if (_error != null || _invoice == null) {
       return Scaffold(
         appBar: AppBar(),
-        body: EmptyState(
-          icon: Icons.error_outline,
-          title: _error ?? l10n.errorUnknown,
+        body: SafeArea(
+          child: EmptyState(
+            icon: Icons.error_outline,
+            title: _error ?? l10n.errorUnknown,
+          )
         ),
       );
     }
@@ -207,128 +211,130 @@ class _InvoiceDetailScreenState extends ConsumerState<InvoiceDetailScreen> {
           ],
         ],
       ),
-      body: ListView(
-        padding: AppTheme.pagePadding,
-        children: [
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(AppTheme.spaceL),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Row(
-                    children: [
-                      if (inv.unitNumber.isNotEmpty)
-                        Expanded(
-                          child: Text(
-                            '${l10n.unitNumber} ${inv.unitNumber}',
-                            style: Theme.of(context).textTheme.titleMedium,
+      body: SafeArea(
+        child: ListView(
+          padding: AppTheme.pagePadding,
+          children: [
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(AppTheme.spaceL),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Row(
+                      children: [
+                        if (inv.unitNumber.isNotEmpty)
+                          Expanded(
+                            child: Text(
+                              '${l10n.unitNumber} ${inv.unitNumber}',
+                              style: Theme.of(context).textTheme.titleMedium,
+                            ),
                           ),
+                        StatusChip(kind: StatusKind.invoice, value: inv.status),
+                      ],
+                    ),
+                    const SizedBox(height: AppTheme.spaceM),
+                    _amountRow(context, l10n.baseAmount, inv.baseAmount),
+                    if (inv.priorDebt > 0)
+                      _amountRow(context, l10n.priorDebt, inv.priorDebt),
+                    if (inv.lateFeeAmount > 0)
+                      _amountRow(context, l10n.lateFeeAmount, inv.lateFeeAmount),
+                    if (inv.creditAmount > 0)
+                      _amountRow(context, l10n.creditAmount, inv.creditAmount),
+                    const Divider(),
+                    _amountRow(
+                      context,
+                      l10n.finalAmount,
+                      inv.finalAmount,
+                      emphasized: true,
+                    ),
+                    if (inv.paidAmount > 0)
+                      _amountRow(context, l10n.paidAmount, inv.paidAmount),
+                    if (inv.dueDate != null)
+                      _metaRow(
+                        context,
+                        l10n.dueDateLabel,
+                        formatJalaliLongDate(
+                          DateTime.tryParse(inv.dueDate!) ?? DateTime(2000),
                         ),
-                      StatusChip(kind: StatusKind.invoice, value: inv.status),
+                      ),
+                    if (inv.issueDate != null)
+                      _metaRow(
+                        context,
+                        l10n.issueDateLabel,
+                        formatJalaliLongDate(
+                          DateTime.tryParse(inv.issueDate!) ?? DateTime(2000),
+                        ),
+                      ),
+                    // US5 (T061): resident online payment entry.
+                    if (!_isManager && _payable(inv)) ...[
+                      const SizedBox(height: AppTheme.spaceL),
+                      SizedBox(
+                        width: double.infinity,
+                        child: FilledButton.icon(
+                          icon: const Icon(Icons.credit_card),
+                          label: Text(l10n.payNow),
+                          onPressed: () async {
+                            await context.push('/invoice/${inv.id}/pay');
+                            await _load();
+                          },
+                        ),
+                      ),
                     ],
-                  ),
-                  const SizedBox(height: AppTheme.spaceM),
-                  _amountRow(context, l10n.baseAmount, inv.baseAmount),
-                  if (inv.priorDebt > 0)
-                    _amountRow(context, l10n.priorDebt, inv.priorDebt),
-                  if (inv.lateFeeAmount > 0)
-                    _amountRow(context, l10n.lateFeeAmount, inv.lateFeeAmount),
-                  if (inv.creditAmount > 0)
-                    _amountRow(context, l10n.creditAmount, inv.creditAmount),
-                  const Divider(),
-                  _amountRow(
-                    context,
-                    l10n.finalAmount,
-                    inv.finalAmount,
-                    emphasized: true,
-                  ),
-                  if (inv.paidAmount > 0)
-                    _amountRow(context, l10n.paidAmount, inv.paidAmount),
-                  if (inv.dueDate != null)
-                    _metaRow(
-                      context,
-                      l10n.dueDateLabel,
-                      formatJalaliLongDate(
-                        DateTime.tryParse(inv.dueDate!) ?? DateTime(2000),
-                      ),
-                    ),
-                  if (inv.issueDate != null)
-                    _metaRow(
-                      context,
-                      l10n.issueDateLabel,
-                      formatJalaliLongDate(
-                        DateTime.tryParse(inv.issueDate!) ?? DateTime(2000),
-                      ),
-                    ),
-                  // US5 (T061): resident online payment entry.
-                  if (!_isManager && _payable(inv)) ...[
-                    const SizedBox(height: AppTheme.spaceL),
-                    SizedBox(
-                      width: double.infinity,
-                      child: FilledButton.icon(
-                        icon: const Icon(Icons.credit_card),
-                        label: Text(l10n.payNow),
-                        onPressed: () async {
-                          await context.push('/invoice/${inv.id}/pay');
-                          await _load();
-                        },
-                      ),
-                    ),
                   ],
-                ],
+                ),
               ),
             ),
-          ),
-          if (inv.items.isNotEmpty) ...[
-            const SizedBox(height: AppTheme.spaceXl),
-            SectionHeader(title: l10n.costItemsTitle),
-            Card(
-              child: Column(
-                children: inv.items
-                    .map(
-                      (item) => ListTile(
-                        leading: Icon(_kindIcon(item.kind)),
-                        title: Text(item.title),
-                        subtitle: item.method != null
-                            ? Text(calcMethodLabel(l10n, item.method!))
-                            : item.kind == 'adjustment'
-                            ? Text(l10n.itemKindAdjustment)
-                            : null,
-                        trailing: MoneyText(amount: item.amount),
-                      ),
-                    )
-                    .toList(),
-              ),
-            ),
-          ],
-          if (inv.adjustments.isNotEmpty) ...[
-            const SizedBox(height: AppTheme.spaceXl),
-            SectionHeader(title: l10n.addAdjustment),
-            Card(
-              child: Column(
-                children: inv.adjustments
-                    .map(
-                      (a) => ListTile(
-                        leading: Icon(
-                          a.kind == 'credit'
-                              ? Icons.arrow_downward
-                              : Icons.arrow_upward,
+            if (inv.items.isNotEmpty) ...[
+              const SizedBox(height: AppTheme.spaceXl),
+              SectionHeader(title: l10n.costItemsTitle),
+              Card(
+                child: Column(
+                  children: inv.items
+                      .map(
+                        (item) => ListTile(
+                          leading: Icon(_kindIcon(item.kind)),
+                          title: Text(item.title),
+                          subtitle: item.method != null
+                              ? Text(calcMethodLabel(l10n, item.method!))
+                              : item.kind == 'adjustment'
+                              ? Text(l10n.itemKindAdjustment)
+                              : null,
+                          trailing: MoneyText(amount: item.amount),
                         ),
-                        title: Text(
-                          a.kind == 'credit'
-                              ? l10n.adjustmentCredit
-                              : l10n.adjustmentDebit,
-                        ),
-                        subtitle: Text(a.reason),
-                        trailing: MoneyText(amount: a.amount),
-                      ),
-                    )
-                    .toList(),
+                      )
+                      .toList(),
+                ),
               ),
-            ),
+            ],
+            if (inv.adjustments.isNotEmpty) ...[
+              const SizedBox(height: AppTheme.spaceXl),
+              SectionHeader(title: l10n.addAdjustment),
+              Card(
+                child: Column(
+                  children: inv.adjustments
+                      .map(
+                        (a) => ListTile(
+                          leading: Icon(
+                            a.kind == 'credit'
+                                ? Icons.arrow_downward
+                                : Icons.arrow_upward,
+                          ),
+                          title: Text(
+                            a.kind == 'credit'
+                                ? l10n.adjustmentCredit
+                                : l10n.adjustmentDebit,
+                          ),
+                          subtitle: Text(a.reason),
+                          trailing: MoneyText(amount: a.amount),
+                        ),
+                      )
+                      .toList(),
+                ),
+              ),
+            ],
           ],
-        ],
+        )
       ),
     );
   }

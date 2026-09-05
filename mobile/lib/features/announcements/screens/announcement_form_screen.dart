@@ -114,71 +114,73 @@ class _AnnouncementFormScreenState extends ConsumerState<AnnouncementFormScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text(_editing ? 'ویرایش اطلاعیه' : 'انتشار اطلاعیه')),
-      body: Form(
-        key: _formKey,
-        child: ListView(
-          padding: const EdgeInsets.all(16),
-          children: [
-            TextFormField(
-              controller: _titleCtrl,
-              decoration: const InputDecoration(labelText: 'عنوان اطلاعیه', hintText: 'مثلاً: جلسه هیئت مدیره'),
-              validator: (v) => (v == null || v.trim().isEmpty) ? 'عنوان الزامی است' : null,
-            ),
-            const SizedBox(height: 12),
-            TextFormField(
-              controller: _bodyCtrl,
-              decoration: const InputDecoration(labelText: 'متن اطلاعیه'),
-              maxLines: 5,
-              validator: (v) => (v == null || v.trim().isEmpty) ? 'متن الزامی است' : null,
-            ),
-            const SizedBox(height: 12),
-            DropdownButtonFormField<String>(
-              initialValue: _audienceType,
-              decoration: const InputDecoration(labelText: 'مخاطب'),
-              items: const [
-                DropdownMenuItem(value: 'all', child: Text('همه ساکنان')),
-                DropdownMenuItem(value: 'block', child: Text('بلوک')),
-                DropdownMenuItem(value: 'floor', child: Text('طبقه')),
-                DropdownMenuItem(value: 'unit', child: Text('واحد مشخص')),
-              ],
-              onChanged: (v) => setState(() => _audienceType = v ?? 'all'),
-            ),
-            if (_audienceType != 'all') ...[
+      body: SafeArea(
+        child: Form(
+          key: _formKey,
+          child: ListView(
+            padding: const EdgeInsets.all(16),
+            children: [
               TextFormField(
-                controller: _audienceValueCtrl,
-                decoration: InputDecoration(
-                  labelText: 'مقدار مخاطب',
-                  hintText: _audienceType == 'block' ? 'مثلاً: A' : _audienceType == 'floor' ? 'مثلاً: ۲' : 'شناسه واحد (UUID)',
+                controller: _titleCtrl,
+                decoration: const InputDecoration(labelText: 'عنوان اطلاعیه', hintText: 'مثلاً: جلسه هیئت مدیره'),
+                validator: (v) => (v == null || v.trim().isEmpty) ? 'عنوان الزامی است' : null,
+              ),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: _bodyCtrl,
+                decoration: const InputDecoration(labelText: 'متن اطلاعیه'),
+                maxLines: 5,
+                validator: (v) => (v == null || v.trim().isEmpty) ? 'متن الزامی است' : null,
+              ),
+              const SizedBox(height: 12),
+              DropdownButtonFormField<String>(
+                initialValue: _audienceType,
+                decoration: const InputDecoration(labelText: 'مخاطب'),
+                items: const [
+                  DropdownMenuItem(value: 'all', child: Text('همه ساکنان')),
+                  DropdownMenuItem(value: 'block', child: Text('بلوک')),
+                  DropdownMenuItem(value: 'floor', child: Text('طبقه')),
+                  DropdownMenuItem(value: 'unit', child: Text('واحد مشخص')),
+                ],
+                onChanged: (v) => setState(() => _audienceType = v ?? 'all'),
+              ),
+              if (_audienceType != 'all') ...[
+                TextFormField(
+                  controller: _audienceValueCtrl,
+                  decoration: InputDecoration(
+                    labelText: 'مقدار مخاطب',
+                    hintText: _audienceType == 'block' ? 'مثلاً: A' : _audienceType == 'floor' ? 'مثلاً: ۲' : 'شناسه واحد (UUID)',
+                  ),
+                  validator: (v) => _audienceType != 'all' && (v == null || v.trim().isEmpty) ? 'مقدار الزامی است' : null,
                 ),
-                validator: (v) => _audienceType != 'all' && (v == null || v.trim().isEmpty) ? 'مقدار الزامی است' : null,
+              ],
+              const SizedBox(height: 12),
+              JalaliDatePickerField(
+                label: 'تاریخ انتشار (اختیاری)',
+                initialValue: _publishAt,
+                onChanged: (d) => setState(() => _publishAt = d),
+              ),
+              const SizedBox(height: 12),
+              JalaliDatePickerField(
+                label: 'تاریخ انقضا (اختیاری)',
+                initialValue: _expireAt,
+                onChanged: (d) => setState(() => _expireAt = d),
+              ),
+              const SizedBox(height: 12),
+              AttachmentPicker(
+                initial: _pickedFile,
+                onChanged: (file) => setState(() => _pickedFile = file),
+              ),
+              const SizedBox(height: 24),
+              FilledButton(
+                onPressed: _submitting ? null : _submit,
+                child: _submitting
+                    ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
+                    : Text(_editing ? 'ذخیره تغییرات' : 'انتشار'),
               ),
             ],
-            const SizedBox(height: 12),
-            JalaliDatePickerField(
-              label: 'تاریخ انتشار (اختیاری)',
-              initialValue: _publishAt,
-              onChanged: (d) => setState(() => _publishAt = d),
-            ),
-            const SizedBox(height: 12),
-            JalaliDatePickerField(
-              label: 'تاریخ انقضا (اختیاری)',
-              initialValue: _expireAt,
-              onChanged: (d) => setState(() => _expireAt = d),
-            ),
-            const SizedBox(height: 12),
-            AttachmentPicker(
-              initial: _pickedFile,
-              onChanged: (file) => setState(() => _pickedFile = file),
-            ),
-            const SizedBox(height: 24),
-            FilledButton(
-              onPressed: _submitting ? null : _submit,
-              child: _submitting
-                  ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
-                  : Text(_editing ? 'ذخیره تغییرات' : 'انتشار'),
-            ),
-          ],
-        ),
+          ),
+        )
       ),
     );
   }

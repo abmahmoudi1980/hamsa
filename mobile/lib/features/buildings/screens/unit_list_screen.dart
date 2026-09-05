@@ -71,124 +71,126 @@ class _UnitListScreenState extends ConsumerState<UnitListScreen> {
         icon: const Icon(Icons.add),
         label: Text(l10n.addUnit),
       ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(
-              AppTheme.spaceM,
-              AppTheme.spaceS,
-              AppTheme.spaceM,
-              0,
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _search,
-                    decoration: InputDecoration(
-                      hintText: l10n.searchUnits,
-                      prefixIcon: const Icon(Icons.search),
+      body: SafeArea(
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                AppTheme.spaceM,
+                AppTheme.spaceS,
+                AppTheme.spaceM,
+                0,
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _search,
+                      decoration: InputDecoration(
+                        hintText: l10n.searchUnits,
+                        prefixIcon: const Icon(Icons.search),
+                      ),
+                      onSubmitted: (_) =>
+                          _apply(ref, _filter(ref).copyWith(q: _search.text)),
                     ),
-                    onSubmitted: (_) =>
-                        _apply(ref, _filter(ref).copyWith(q: _search.text)),
                   ),
-                ),
-                const SizedBox(width: AppTheme.spaceS),
-                DropdownButton<String>(
-                  value: status.isEmpty ? null : status,
-                  hint: Text(l10n.allStatuses),
-                  items: [
-                    DropdownMenuItem(
-                      value: 'active',
-                      child: Text(l10n.statusActive),
+                  const SizedBox(width: AppTheme.spaceS),
+                  DropdownButton<String>(
+                    value: status.isEmpty ? null : status,
+                    hint: Text(l10n.allStatuses),
+                    items: [
+                      DropdownMenuItem(
+                        value: 'active',
+                        child: Text(l10n.statusActive),
+                      ),
+                      DropdownMenuItem(
+                        value: 'vacant',
+                        child: Text(l10n.statusVacant),
+                      ),
+                      DropdownMenuItem(
+                        value: 'occupied',
+                        child: Text(l10n.statusOccupied),
+                      ),
+                      DropdownMenuItem(
+                        value: 'inactive',
+                        child: Text(l10n.statusInactive),
+                      ),
+                    ],
+                    onChanged: (v) => _apply(
+                      ref,
+                      UnitsFilter(status: v ?? '', q: _search.text),
                     ),
-                    DropdownMenuItem(
-                      value: 'vacant',
-                      child: Text(l10n.statusVacant),
-                    ),
-                    DropdownMenuItem(
-                      value: 'occupied',
-                      child: Text(l10n.statusOccupied),
-                    ),
-                    DropdownMenuItem(
-                      value: 'inactive',
-                      child: Text(l10n.statusInactive),
-                    ),
-                  ],
-                  onChanged: (v) => _apply(
-                    ref,
-                    UnitsFilter(status: v ?? '', q: _search.text),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          Expanded(
-            child: async.when(
-              loading: () => const Center(child: CircularProgressIndicator()),
-              error: (e, _) =>
-                  EmptyState(icon: Icons.error_outline, title: l10n.errorUnknown),
-              data: (s) => s.units.isEmpty
-                  ? EmptyState(
-                      title: l10n.emptyStateTitle,
-                      actionLabel: l10n.addUnit,
-                      onAction: () async {
-                        await context.push(
-                          '/manager/buildings/${widget.buildingId}/units/new',
-                        );
-                        if (mounted) {
-                          ref.invalidate(
-                            unitsControllerProvider(widget.buildingId),
+            Expanded(
+              child: async.when(
+                loading: () => const Center(child: CircularProgressIndicator()),
+                error: (e, _) =>
+                    EmptyState(icon: Icons.error_outline, title: l10n.errorUnknown),
+                data: (s) => s.units.isEmpty
+                    ? EmptyState(
+                        title: l10n.emptyStateTitle,
+                        actionLabel: l10n.addUnit,
+                        onAction: () async {
+                          await context.push(
+                            '/manager/buildings/${widget.buildingId}/units/new',
                           );
-                        }
-                      },
-                    )
-                  : ListView.separated(
-                      padding: AppTheme.pagePadding,
-                      itemCount: s.units.length,
-                      separatorBuilder: (_, _) => const SizedBox(height: 10),
-                      itemBuilder: (context, i) {
-                        final u = s.units[i];
-                        return Card(
-                          child: ListTile(
-                            leading: Container(
-                              width: 44,
-                              height: 44,
-                              alignment: Alignment.center,
-                              decoration: BoxDecoration(
-                                color: scheme.primary.withValues(alpha: 0.1),
-                                borderRadius: BorderRadius.circular(
-                                  AppTheme.radiusSmall,
+                          if (mounted) {
+                            ref.invalidate(
+                              unitsControllerProvider(widget.buildingId),
+                            );
+                          }
+                        },
+                      )
+                    : ListView.separated(
+                        padding: AppTheme.pagePadding,
+                        itemCount: s.units.length,
+                        separatorBuilder: (_, _) => const SizedBox(height: 10),
+                        itemBuilder: (context, i) {
+                          final u = s.units[i];
+                          return Card(
+                            child: ListTile(
+                              leading: Container(
+                                width: 44,
+                                height: 44,
+                                alignment: Alignment.center,
+                                decoration: BoxDecoration(
+                                  color: scheme.primary.withValues(alpha: 0.1),
+                                  borderRadius: BorderRadius.circular(
+                                    AppTheme.radiusSmall,
+                                  ),
+                                ),
+                                child: Text(
+                                  u.number,
+                                  style: Theme.of(context).textTheme.titleSmall,
                                 ),
                               ),
-                              child: Text(
-                                u.number,
-                                style: Theme.of(context).textTheme.titleSmall,
+                              title: Text(
+                                '${l10n.unitFloor} ${u.floor}'
+                                '${(u.block == null || u.block!.isEmpty) ? '' : ' • ${u.block}'}',
                               ),
+                              subtitle: Text('${u.areaM2} ${l10n.areaM2}'),
+                              trailing: Chip(
+                                label: Text(_statusLabel(l10n, u.status)),
+                              ),
+                              onTap: () async {
+                                await context.push(
+                                  '/manager/buildings/${widget.buildingId}/units/${u.id}',
+                                );
+                                ref.invalidate(
+                                  unitsControllerProvider(widget.buildingId),
+                                );
+                              },
                             ),
-                            title: Text(
-                              '${l10n.unitFloor} ${u.floor}'
-                              '${(u.block == null || u.block!.isEmpty) ? '' : ' • ${u.block}'}',
-                            ),
-                            subtitle: Text('${u.areaM2} ${l10n.areaM2}'),
-                            trailing: Chip(
-                              label: Text(_statusLabel(l10n, u.status)),
-                            ),
-                            onTap: () async {
-                              await context.push(
-                                '/manager/buildings/${widget.buildingId}/units/${u.id}',
-                              );
-                              ref.invalidate(
-                                unitsControllerProvider(widget.buildingId),
-                              );
-                            },
-                          ),
-                        );
-                      },
-                    ),
+                          );
+                        },
+                      ),
+              ),
             ),
-          ),
-        ],
+          ],
+        )
       ),
     );
   }

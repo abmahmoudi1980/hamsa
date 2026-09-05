@@ -25,39 +25,41 @@ class ManagerAnnouncementListScreen extends ConsumerWidget {
         icon: const Icon(Icons.add),
         label: const Text('انتشار اطلاعیه'),
       ),
-      body: async.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => _ErrorView(
-          error: '$e',
-          onRetry: () => ref
-              .read(
-                buildingAnnouncementsControllerProvider(buildingId).notifier,
-              )
-              .refresh(),
-        ),
-        data: (items) {
-          if (items.isEmpty) {
-            return const EmptyState(
-              icon: Icons.campaign_outlined,
-              title: 'هنوز اطلاعیه‌ای منتشر نشده است',
-              subtitle: 'برای اطلاع‌رسانی جدید، «انتشار اطلاعیه» را بزنید.',
-            );
-          }
-          return RefreshIndicator(
-            onRefresh: () => ref
+      body: SafeArea(
+        child: async.when(
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (e, _) => _ErrorView(
+            error: '$e',
+            onRetry: () => ref
                 .read(
                   buildingAnnouncementsControllerProvider(buildingId).notifier,
                 )
                 .refresh(),
-            child: ListView.separated(
-              padding: const EdgeInsets.all(16),
-              itemCount: items.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 12),
-              itemBuilder: (_, i) =>
-                  _AnnouncementCard(item: items[i], buildingId: buildingId),
-            ),
-          );
-        },
+          ),
+          data: (items) {
+            if (items.isEmpty) {
+              return const EmptyState(
+                icon: Icons.campaign_outlined,
+                title: 'هنوز اطلاعیه‌ای منتشر نشده است',
+                subtitle: 'برای اطلاع‌رسانی جدید، «انتشار اطلاعیه» را بزنید.',
+              );
+            }
+            return RefreshIndicator(
+              onRefresh: () => ref
+                  .read(
+                    buildingAnnouncementsControllerProvider(buildingId).notifier,
+                  )
+                  .refresh(),
+              child: ListView.separated(
+                padding: const EdgeInsets.all(16),
+                itemCount: items.length,
+                separatorBuilder: (_, __) => const SizedBox(height: 12),
+                itemBuilder: (_, i) =>
+                    _AnnouncementCard(item: items[i], buildingId: buildingId),
+              ),
+            );
+          },
+        )
       ),
     );
   }

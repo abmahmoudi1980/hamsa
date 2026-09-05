@@ -128,56 +128,58 @@ class _PersonFormScreenState extends ConsumerState<PersonFormScreen> {
     }
     return Scaffold(
       appBar: AppBar(title: Text(isEdit ? l10n.editPerson : l10n.addPerson)),
-      body: Form(
-        key: _formKey,
-        child: ListView(
-          padding: AppTheme.pagePadding,
-          children: [
-            TextFormField(
-              controller: _name,
-              decoration: InputDecoration(labelText: l10n.personName),
-              validator: (v) =>
-                  v == null || v.trim().isEmpty ? l10n.requiredField : null,
-            ),
-            const SizedBox(height: AppTheme.spaceM),
-            TextFormField(
-              controller: _phone,
-              keyboardType: TextInputType.phone,
-              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-              maxLength: 11,
-              decoration: InputDecoration(
-                labelText: l10n.personPhone,
-                counterText: '',
+      body: SafeArea(
+        child: Form(
+          key: _formKey,
+          child: ListView(
+            padding: AppTheme.pagePadding,
+            children: [
+              TextFormField(
+                controller: _name,
+                decoration: InputDecoration(labelText: l10n.personName),
+                validator: (v) =>
+                    v == null || v.trim().isEmpty ? l10n.requiredField : null,
               ),
-            ),
-            const SizedBox(height: AppTheme.spaceM),
-            TextFormField(
-              controller: _nationalId,
-              keyboardType: TextInputType.number,
-              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-              maxLength: 10,
-              decoration: InputDecoration(
-                labelText: l10n.personNationalId,
-                counterText: '',
-              ),
-              validator: (v) {
-                final t = v?.trim() ?? '';
-                if (t.isNotEmpty && t.length != 10) {
-                  return l10n.invalidNationalId;
-                }
-                return null;
-              },
-            ),
-            if (_apiError != null) ...[
               const SizedBox(height: AppTheme.spaceM),
-              Text(
-                _apiError!,
-                style: TextStyle(color: Theme.of(context).colorScheme.error),
-                textAlign: TextAlign.center,
+              TextFormField(
+                controller: _phone,
+                keyboardType: TextInputType.phone,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                maxLength: 11,
+                decoration: InputDecoration(
+                  labelText: l10n.personPhone,
+                  counterText: '',
+                ),
               ),
+              const SizedBox(height: AppTheme.spaceM),
+              TextFormField(
+                controller: _nationalId,
+                keyboardType: TextInputType.number,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                maxLength: 10,
+                decoration: InputDecoration(
+                  labelText: l10n.personNationalId,
+                  counterText: '',
+                ),
+                validator: (v) {
+                  final t = v?.trim() ?? '';
+                  if (t.isNotEmpty && t.length != 10) {
+                    return l10n.invalidNationalId;
+                  }
+                  return null;
+                },
+              ),
+              if (_apiError != null) ...[
+                const SizedBox(height: AppTheme.spaceM),
+                Text(
+                  _apiError!,
+                  style: TextStyle(color: Theme.of(context).colorScheme.error),
+                  textAlign: TextAlign.center,
+                ),
+              ],
             ],
-          ],
-        ),
+          ),
+        )
       ),
       bottomNavigationBar: SaveBar(
         child: FilledButton(

@@ -147,9 +147,11 @@ class _UnitFormScreenState extends ConsumerState<UnitFormScreen> {
         );
         return Scaffold(
           appBar: appBar,
-          body: loading
-              ? const Center(child: CircularProgressIndicator())
-              : _form(context, l10n),
+          body: SafeArea(
+            child: loading
+                ? const Center(child: CircularProgressIndicator())
+                : _form(context, l10n)
+          ),
           bottomNavigationBar: loading
               ? null
               : SaveBar(

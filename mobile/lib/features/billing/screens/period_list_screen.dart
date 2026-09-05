@@ -31,55 +31,57 @@ class PeriodListScreen extends ConsumerWidget {
         icon: const Icon(Icons.add),
         label: Text(l10n.addPeriod),
       ),
-      body: async.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => EmptyState(
-          icon: Icons.error_outline,
-          title: _msg(l10n, e),
-        ),
-        data: (periods) => periods.isEmpty
-            ? EmptyState(
-                title: l10n.billingTitle,
-                subtitle: l10n.emptyStateSubtitle,
-                actionLabel: l10n.addPeriod,
-                onAction: () => context.push('/manager/periods/$buildingId/new'),
-              )
-            : RefreshIndicator(
-                onRefresh: () async =>
-                    ref.invalidate(periodsControllerProvider(buildingId)),
-                child: ListView.separated(
-                  padding: AppTheme.pagePadding,
-                  itemCount: periods.length,
-                  separatorBuilder: (_, _) => const SizedBox(height: 10),
-                  itemBuilder: (context, i) {
-                    final p = periods[i];
-                    return Card(
-                      child: ListTile(
-                        leading: Container(
-                          width: 44,
-                          height: 44,
-                          decoration: BoxDecoration(
-                            color: scheme.primary.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(
-                              AppTheme.radiusSmall,
+      body: SafeArea(
+        child: async.when(
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (e, _) => EmptyState(
+            icon: Icons.error_outline,
+            title: _msg(l10n, e),
+          ),
+          data: (periods) => periods.isEmpty
+              ? EmptyState(
+                  title: l10n.billingTitle,
+                  subtitle: l10n.emptyStateSubtitle,
+                  actionLabel: l10n.addPeriod,
+                  onAction: () => context.push('/manager/periods/$buildingId/new'),
+                )
+              : RefreshIndicator(
+                  onRefresh: () async =>
+                      ref.invalidate(periodsControllerProvider(buildingId)),
+                  child: ListView.separated(
+                    padding: AppTheme.pagePadding,
+                    itemCount: periods.length,
+                    separatorBuilder: (_, _) => const SizedBox(height: 10),
+                    itemBuilder: (context, i) {
+                      final p = periods[i];
+                      return Card(
+                        child: ListTile(
+                          leading: Container(
+                            width: 44,
+                            height: 44,
+                            decoration: BoxDecoration(
+                              color: scheme.primary.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(
+                                AppTheme.radiusSmall,
+                              ),
                             ),
+                            child: const Icon(Icons.event_note_outlined, size: 22),
                           ),
-                          child: const Icon(Icons.event_note_outlined, size: 22),
+                          title: Text(p.title),
+                          subtitle: Text(
+                            '${formatJalaliDate(_parseIso(p.startDate))}'
+                            ' — ${formatJalaliDate(_parseIso(p.endDate))}',
+                          ),
+                          trailing:
+                              StatusChip(kind: StatusKind.period, value: p.status),
+                          onTap: () => context
+                              .push('/manager/periods/$buildingId/${p.id}'),
                         ),
-                        title: Text(p.title),
-                        subtitle: Text(
-                          '${formatJalaliDate(_parseIso(p.startDate))}'
-                          ' — ${formatJalaliDate(_parseIso(p.endDate))}',
-                        ),
-                        trailing:
-                            StatusChip(kind: StatusKind.period, value: p.status),
-                        onTap: () => context
-                            .push('/manager/periods/$buildingId/${p.id}'),
-                      ),
-                    );
-                  },
+                      );
+                    },
+                  ),
                 ),
-              ),
+        )
       ),
     );
   }

@@ -25,40 +25,42 @@ class ResidentHomeScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.homeTitle)),
-      body: async.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (_, _) => Center(
-          child: EmptyState(icon: Icons.error_outline, title: l10n.errorServer),
-        ),
-        data: (home) => RefreshIndicator(
-          onRefresh: () =>
-              ref.read(residentHomeControllerProvider.notifier).refresh(),
-          child: ListView(
-            padding: AppTheme.pagePadding,
-            children: [
-              _FinancialCard(home: home),
-              const SizedBox(height: AppTheme.spaceL),
-              _RequestsCard(home: home),
-              const SizedBox(height: AppTheme.spaceL),
-              _AnnouncementsCard(home: home),
-              const SizedBox(height: AppTheme.spaceXxl),
-              // Quick menu entries — the US9 spec lists these alongside the
-              // home summary so residents reach charges/payments/maintenance
-              // without re-navigating through the bottom nav.
-              MenuCard(
-                icon: Icons.receipt_long,
-                title: l10n.myCharges,
-                onTap: () => context.push('/home/charges'),
-              ),
-              const SizedBox(height: AppTheme.spaceM),
-              MenuCard(
-                icon: Icons.payments_outlined,
-                title: l10n.paymentHistoryTitle,
-                onTap: () => context.push('/home/payments'),
-              ),
-            ],
+      body: SafeArea(
+        child: async.when(
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (_, _) => Center(
+            child: EmptyState(icon: Icons.error_outline, title: l10n.errorServer),
           ),
-        ),
+          data: (home) => RefreshIndicator(
+            onRefresh: () =>
+                ref.read(residentHomeControllerProvider.notifier).refresh(),
+            child: ListView(
+              padding: AppTheme.pagePadding,
+              children: [
+                _FinancialCard(home: home),
+                const SizedBox(height: AppTheme.spaceL),
+                _RequestsCard(home: home),
+                const SizedBox(height: AppTheme.spaceL),
+                _AnnouncementsCard(home: home),
+                const SizedBox(height: AppTheme.spaceXxl),
+                // Quick menu entries — the US9 spec lists these alongside the
+                // home summary so residents reach charges/payments/maintenance
+                // without re-navigating through the bottom nav.
+                MenuCard(
+                  icon: Icons.receipt_long,
+                  title: l10n.myCharges,
+                  onTap: () => context.push('/home/charges'),
+                ),
+                const SizedBox(height: AppTheme.spaceM),
+                MenuCard(
+                  icon: Icons.payments_outlined,
+                  title: l10n.paymentHistoryTitle,
+                  onTap: () => context.push('/home/payments'),
+                ),
+              ],
+            ),
+          ),
+        )
       ),
     );
   }

@@ -26,26 +26,28 @@ class ResidentMaintenanceListScreen extends ConsumerWidget {
         icon: const Icon(Icons.add),
         label: Text(l10n.addMaintenanceRequest),
       ),
-      body: async.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text(l10n.maintenanceLoadError)),
-        data: (items) {
-          if (items.isEmpty) {
-            return EmptyState(
-              title: l10n.maintenanceEmptyTitle,
-              subtitle: l10n.maintenanceEmptySubtitle,
+      body: SafeArea(
+        child: async.when(
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (e, _) => Center(child: Text(l10n.maintenanceLoadError)),
+          data: (items) {
+            if (items.isEmpty) {
+              return EmptyState(
+                title: l10n.maintenanceEmptyTitle,
+                subtitle: l10n.maintenanceEmptySubtitle,
+              );
+            }
+            return RefreshIndicator(
+              onRefresh: () => ref.read(myMaintenanceControllerProvider.notifier).refresh(),
+              child: ListView.separated(
+                padding: const EdgeInsets.all(12),
+                itemCount: items.length,
+                separatorBuilder: (_, __) => const SizedBox(height: 8),
+                itemBuilder: (_, i) => _Card(item: items[i]),
+              ),
             );
-          }
-          return RefreshIndicator(
-            onRefresh: () => ref.read(myMaintenanceControllerProvider.notifier).refresh(),
-            child: ListView.separated(
-              padding: const EdgeInsets.all(12),
-              itemCount: items.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 8),
-              itemBuilder: (_, i) => _Card(item: items[i]),
-            ),
-          );
-        },
+          },
+        )
       ),
     );
   }
