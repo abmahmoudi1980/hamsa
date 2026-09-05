@@ -63,73 +63,118 @@ class BuildingListScreen extends ConsumerWidget {
                   separatorBuilder: (_, _) => const SizedBox(height: 10),
                   itemBuilder: (context, i) {
                     final b = buildings[i];
+                    // Name + address own the first line (single-line each,
+                    // ellipsized); the four narrow IconButtons used to live
+                    // in ListTile.trailing and starved the title down to
+                    // one character per line on phones — so the actions get
+                    // their own row below instead.
                     return Card(
-                      child: ListTile(
-                        leading: Container(
-                          width: 44,
-                          height: 44,
-                          decoration: BoxDecoration(
-                            color: scheme.primary.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(
-                              AppTheme.radiusSmall,
-                            ),
-                          ),
-                          child: const Icon(
-                            Icons.apartment_outlined,
-                            size: 22,
-                          ),
+                      child: InkWell(
+                        onTap: () => context.push(
+                          '/manager/buildings/${b.id}/units',
                         ),
-                        title: Text(b.name),
-                        subtitle: Text(
-                          '${toPersianDigits('${b.unitCount}')} ${l10n.unitLabel}'
-                          '${b.address == null || b.address!.isEmpty ? '' : ' • ${b.address}'}',
-                        ),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            // US5 (T030): per-building managers entry point.
-                            IconButton(
-                              icon: const Icon(Icons.engineering_outlined),
-                              tooltip: l10n.buildingManagersTitle,
-                              onPressed: () => context.push(
-                                '/manager/buildings/${b.id}/managers',
+                        borderRadius: BorderRadius.circular(AppTheme.radius),
+                        child: Padding(
+                          padding: const EdgeInsets.all(AppTheme.spaceL),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Container(
+                                    width: 44,
+                                    height: 44,
+                                    decoration: BoxDecoration(
+                                      color: scheme.primary.withValues(
+                                        alpha: 0.1,
+                                      ),
+                                      borderRadius: BorderRadius.circular(
+                                        AppTheme.radiusSmall,
+                                      ),
+                                    ),
+                                    child: const Icon(
+                                      Icons.apartment_outlined,
+                                      size: 22,
+                                    ),
+                                  ),
+                                  const SizedBox(width: AppTheme.spaceM),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          b.name,
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: Theme.of(
+                                            context,
+                                          ).textTheme.titleMedium,
+                                        ),
+                                        const SizedBox(height: 2),
+                                        Text(
+                                          '${toPersianDigits('${b.unitCount}')} ${l10n.unitLabel}'
+                                          '${b.address == null || b.address!.isEmpty ? '' : ' • ${b.address}'}',
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: Theme.of(
+                                            context,
+                                          ).textTheme.bodySmall,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(width: AppTheme.spaceS),
+                                  Icon(
+                                    // Auto-mirrored: renders as ‹ in RTL (forward = left).
+                                    // Marks the whole-row tap (→ units).
+                                    Icons.chevron_right,
+                                    size: 20,
+                                    color: scheme.onSurfaceVariant,
+                                  ),
+                                ],
                               ),
-                            ),
-                            IconButton(
-                              icon: const Icon(Icons.group_outlined),
-                              tooltip: l10n.peopleTitle,
-                              onPressed: () =>
-                                  context.push('/manager/buildings/${b.id}/people'),
-                            ),
-                            // US4 (T050): billing periods entry point.
-                            IconButton(
-                              icon: const Icon(Icons.receipt_long),
-                              tooltip: l10n.billingTitle,
-                              onPressed: () =>
-                                  context.push('/manager/periods/${b.id}'),
-                            ),
-                            // US6 (T066): expenses & financial report entry.
-                            IconButton(
-                              icon: const Icon(Icons.receipt),
-                              tooltip: l10n.expensesTitle,
-                              onPressed: () =>
-                                  context.push('/manager/expenses/${b.id}'),
-                            ),
-                            // Chevron marks the whole-row tap (→ units); keep
-                            // it outermost so it never sits between actions.
-                            Padding(
-                              padding: const EdgeInsetsDirectional.only(end: 4),
-                              child: Icon(
-                                // Auto-mirrored: renders as ‹ in RTL (forward = left).
-                                Icons.chevron_right,
-                                size: 20,
-                                color: scheme.onSurfaceVariant,
+                              const SizedBox(height: AppTheme.spaceS),
+                              Row(
+                                children: [
+                                  // US5 (T030): per-building managers entry point.
+                                  IconButton(
+                                    icon: const Icon(
+                                      Icons.engineering_outlined,
+                                    ),
+                                    tooltip: l10n.buildingManagersTitle,
+                                    onPressed: () => context.push(
+                                      '/manager/buildings/${b.id}/managers',
+                                    ),
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(Icons.group_outlined),
+                                    tooltip: l10n.peopleTitle,
+                                    onPressed: () => context.push(
+                                      '/manager/buildings/${b.id}/people',
+                                    ),
+                                  ),
+                                  // US4 (T050): billing periods entry point.
+                                  IconButton(
+                                    icon: const Icon(Icons.receipt_long),
+                                    tooltip: l10n.billingTitle,
+                                    onPressed: () => context.push(
+                                      '/manager/periods/${b.id}',
+                                    ),
+                                  ),
+                                  // US6 (T066): expenses & financial report entry.
+                                  IconButton(
+                                    icon: const Icon(Icons.receipt),
+                                    tooltip: l10n.expensesTitle,
+                                    onPressed: () => context.push(
+                                      '/manager/expenses/${b.id}',
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                        onTap: () =>
-                            context.push('/manager/buildings/${b.id}/units'),
                       ),
                     );
                   },

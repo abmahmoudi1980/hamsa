@@ -2422,6 +2422,72 @@ abstract class AppLocalizations {
   /// **'ابتدا یک ساختمان ایجاد کنید.'**
   String get dashboardNoBuilding;
 
+  /// No description provided for @dashboardSwitchBuilding.
+  ///
+  /// In fa, this message translates to:
+  /// **'تغییر ساختمان'**
+  String get dashboardSwitchBuilding;
+
+  /// No description provided for @dashboardSettledUnits.
+  ///
+  /// In fa, this message translates to:
+  /// **'{paid} از {total} واحد تسویه'**
+  String dashboardSettledUnits(String paid, String total);
+
+  /// No description provided for @dashboardAllUnitsSettled.
+  ///
+  /// In fa, this message translates to:
+  /// **'همه واحدها تسویه‌اند'**
+  String get dashboardAllUnitsSettled;
+
+  /// No description provided for @dashboardFinanceTitle.
+  ///
+  /// In fa, this message translates to:
+  /// **'درآمد و هزینه ماه'**
+  String get dashboardFinanceTitle;
+
+  /// No description provided for @dashboardMonthFinance.
+  ///
+  /// In fa, this message translates to:
+  /// **'درآمد و هزینه {month}'**
+  String dashboardMonthFinance(String month);
+
+  /// No description provided for @dashboardIncome.
+  ///
+  /// In fa, this message translates to:
+  /// **'درآمد'**
+  String get dashboardIncome;
+
+  /// No description provided for @dashboardExpense.
+  ///
+  /// In fa, this message translates to:
+  /// **'هزینه'**
+  String get dashboardExpense;
+
+  /// No description provided for @dashboardNetBalance.
+  ///
+  /// In fa, this message translates to:
+  /// **'تراز ماه'**
+  String get dashboardNetBalance;
+
+  /// No description provided for @dashboardAlertsCount.
+  ///
+  /// In fa, this message translates to:
+  /// **'{count} هشدار'**
+  String dashboardAlertsCount(String count);
+
+  /// No description provided for @dashboardShowAllAlerts.
+  ///
+  /// In fa, this message translates to:
+  /// **'نمایش همه ({count})'**
+  String dashboardShowAllAlerts(String count);
+
+  /// No description provided for @dashboardShowFewerAlerts.
+  ///
+  /// In fa, this message translates to:
+  /// **'نمایش کمتر'**
+  String get dashboardShowFewerAlerts;
+
   /// No description provided for @roleSuperAdmin.
   ///
   /// In fa, this message translates to:

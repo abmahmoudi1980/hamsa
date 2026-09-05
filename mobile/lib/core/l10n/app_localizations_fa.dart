@@ -1229,6 +1229,47 @@ class AppLocalizationsFa extends AppLocalizations {
   String get dashboardNoBuilding => 'ابتدا یک ساختمان ایجاد کنید.';
 
   @override
+  String get dashboardSwitchBuilding => 'تغییر ساختمان';
+
+  @override
+  String dashboardSettledUnits(String paid, String total) {
+    return '$paid از $total واحد تسویه';
+  }
+
+  @override
+  String get dashboardAllUnitsSettled => 'همه واحدها تسویه‌اند';
+
+  @override
+  String get dashboardFinanceTitle => 'درآمد و هزینه ماه';
+
+  @override
+  String dashboardMonthFinance(String month) {
+    return 'درآمد و هزینه $month';
+  }
+
+  @override
+  String get dashboardIncome => 'درآمد';
+
+  @override
+  String get dashboardExpense => 'هزینه';
+
+  @override
+  String get dashboardNetBalance => 'تراز ماه';
+
+  @override
+  String dashboardAlertsCount(String count) {
+    return '$count هشدار';
+  }
+
+  @override
+  String dashboardShowAllAlerts(String count) {
+    return 'نمایش همه ($count)';
+  }
+
+  @override
+  String get dashboardShowFewerAlerts => 'نمایش کمتر';
+
+  @override
   String get roleSuperAdmin => 'سرپرست ارشد';
 
   @override

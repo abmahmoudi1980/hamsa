@@ -514,6 +514,48 @@
   "dashboardNoAlerts": "هشدار فعالی وجود ندارد",
   "dashboardBuildingPicker": "انتخاب ساختمان",
   "dashboardNoBuilding": "ابتدا یک ساختمان ایجاد کنید.",
+  "dashboardSwitchBuilding": "تغییر ساختمان",
+  "dashboardSettledUnits": "{paid} از {total} واحد تسویه",
+  "@dashboardSettledUnits": {
+    "placeholders": {
+      "paid": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "dashboardAllUnitsSettled": "همه واحدها تسویه‌اند",
+  "dashboardFinanceTitle": "درآمد و هزینه ماه",
+  "dashboardMonthFinance": "درآمد و هزینه {month}",
+  "@dashboardMonthFinance": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "dashboardIncome": "درآمد",
+  "dashboardExpense": "هزینه",
+  "dashboardNetBalance": "تراز ماه",
+  "dashboardAlertsCount": "{count} هشدار",
+  "@dashboardAlertsCount": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "dashboardShowAllAlerts": "نمایش همه ({count})",
+  "@dashboardShowAllAlerts": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "dashboardShowFewerAlerts": "نمایش کمتر",
   "roleSuperAdmin": "سرپرست ارشد",
   "superadminHomeTitle": "پنل سرپرست ارشد",
   "superadminHomeHint": "ساختمانی برای مدیریت ندارید؛ برای شروع، مدیر تازه دعوت کنید.",
