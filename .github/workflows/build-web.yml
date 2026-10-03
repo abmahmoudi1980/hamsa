@@ -1,0 +1,88 @@
+name: Build web client
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  # Mirrors build-apk.yml: check, lint, test, then build. No signing needed —
+  # the web client is a static bundle served by nginx.
+  verify:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - run: npm ci
+
+      - run: npm run check
+
+      - run: npm run lint
+
+      # Backend integration tests need a real PostgreSQL: the repo's convention
+      # is real data, never mocks. The unit layer here is deliberately
+      # framework-free so it still runs if the service is unavailable.
+      - name: Start PostgreSQL for integration tests
+        run: |
+          docker compose up -d postgres
+          for i in $(seq 1 30); do
+            if docker compose exec -T postgres pg_isready -U hamsa -d hamsa; then break; fi
+            sleep 2
+          done
+
+      - name: Web unit tests
+        run: npm run test:unit -- --run
+
+      - name: Backend tests (real PostgreSQL)
+        working-directory: backend
+        run: go test ./...
+
+      - name: Upload test results on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-test-results
+          path: |
+            web/test-results/
+            web/playwright-report/
+          retention-days: 7
+          if-no-files-found: ignore
+
+  build:
+    needs: verify
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - run: npm ci
+
+      - run: npm run build
+
+      # The bundle is the deployment artifact: copy build/ out for nginx.
+      - name: Package static bundle
+        run: tar -czf hamsa-web.tar.gz -C build .
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: hamsa-web
+          path: web/hamsa-web.tar.gz
+          retention-days: 30

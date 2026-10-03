@@ -1,0 +1,19 @@
+{
+	"extends": "$app/tsconfig",
+	"compilerOptions": {
+		"strict": true,
+		// SvelteKit 3 removed `$lib` in favour of Node subpath imports, which
+		// are declared in package.json's `imports` map (see `#lib` / `#i18n`).
+		// They are mirrored here for the type checker.
+		"paths": {
+			"#lib": ["./src/lib/index.ts"],
+			"#lib/*": ["./src/lib/*"],
+			"#i18n": ["./src/i18n/index.ts"],
+			"#i18n/*": ["./src/i18n/*"]
+		},
+		"noUncheckedIndexedAccess": true,
+		"noImplicitOverride": true,
+		"noFallthroughCasesInSwitch": true
+	},
+	"include": ["src", "vite.config.ts", "e2e", ".svelte-kit/types"]
+}
