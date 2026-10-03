@@ -92,7 +92,7 @@ func newBillingEnv(t *testing.T) *billEnv {
 	aud := audit.New(gormDB, log)
 
 	gin.SetMode(gin.TestMode)
-	router := httpx.NewRouter(log, "dev")
+	router := httpx.NewRouter(log, "dev", httpx.RouterOptions{})
 	authMW := auth.Authenticate(tokens, auth.NewRepository(gormDB))
 	Register(router.Group("/api/v1", authMW),
 		NewCalcService(repo, nil),

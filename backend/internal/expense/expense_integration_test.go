@@ -92,7 +92,7 @@ func newExpenseEnv(t *testing.T) *expEnv {
 		15*time.Minute, 30*24*time.Hour, &auth.GormRefreshStore{DB: gormDB}, auth.RealClock{})
 
 	gin.SetMode(gin.TestMode)
-	router := httpx.NewRouter(log, "dev")
+	router := httpx.NewRouter(log, "dev", httpx.RouterOptions{})
 	authMW := auth.Authenticate(tokens, auth.NewRepository(gormDB))
 	authed := router.Group("/api/v1", authMW)
 	fileRoot := t.TempDir()

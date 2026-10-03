@@ -3,6 +3,7 @@ package httpx
 import (
 	"log/slog"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -92,15 +93,43 @@ func RequestIDOf(c *gin.Context) string {
 	return ""
 }
 
-// CORS allows browser clients (Flutter web during development) to call the
-// API cross-origin. The JSON content type triggers preflights, so OPTIONS is
-// answered directly. Permissive for P0 — the only consumer is the first-party
-// Flutter client; tighten allowed origins before exposing beyond localhost.
-func CORS() gin.HandlerFunc {
+// CORS allows browser clients to call the API cross-origin. The JSON content
+// type triggers preflights, so OPTIONS is answered directly.
+//
+// allowedOrigins is the configured allowlist (config.cors.allowed_origins). An
+// empty list disables CORS headers entirely, which is the production posture:
+// the web client is served from the same origin that nginx proxies /api/ from,
+// so no cross-origin request is ever made. A single "*" entry keeps the old
+// permissive behaviour and must never appear in a production config.
+//
+// Credentials are never allowed, so responses stay cacheable and no
+// Access-Control-Allow-Origin header is echoed for disallowed origins.
+func CORS(allowedOrigins []string) gin.HandlerFunc {
+	allowAll := len(allowedOrigins) == 1 && allowedOrigins[0] == "*"
+	allowed := make(map[string]struct{}, len(allowedOrigins))
+	for _, o := range allowedOrigins {
+		if o != "" && o != "*" {
+			allowed[strings.ToLower(strings.TrimRight(o, "/"))] = struct{}{}
+		}
+	}
+
 	return func(c *gin.Context) {
-		c.Header("Access-Control-Allow-Origin", "*")
-		c.Header("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS")
-		c.Header("Access-Control-Allow-Headers", "Authorization, Content-Type")
+		if allowAll {
+			c.Header("Access-Control-Allow-Origin", "*")
+		} else if origin := c.GetHeader("Origin"); origin != "" {
+			_, ok := allowed[strings.ToLower(strings.TrimRight(origin, "/"))]
+			if ok {
+				c.Header("Access-Control-Allow-Origin", origin)
+				c.Header("Vary", "Origin")
+			}
+		}
+
+		if origin := c.GetHeader("Origin"); origin != "" {
+			c.Header("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS")
+			c.Header("Access-Control-Allow-Headers", "Authorization, Content-Type")
+			c.Header("Access-Control-Max-Age", "600")
+		}
+
 		if c.Request.Method == http.MethodOptions {
 			c.AbortWithStatus(http.StatusNoContent)
 			return

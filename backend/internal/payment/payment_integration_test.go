@@ -47,7 +47,14 @@ type payEnv struct {
 	repo    *Repository
 	bal     *BalanceService
 	gateway *gateway.Mock
+	aud     *audit.Service
+	authMW  gin.HandlerFunc
+	scopes  *auth.ScopeResolver
 }
+
+// payTestPassword is the password baked into seeded users so a test can
+// exercise the real /auth/login flow instead of minting a token directly.
+const payTestPassword = "Test1234pass"
 
 func (e *payEnv) exec(query string, args ...any) error {
 	return e.gormDB.WithContext(context.Background()).Exec(query, args...).Error
@@ -56,6 +63,13 @@ func (e *payEnv) exec(query string, args ...any) error {
 const payBaseDSN = "host=localhost port=5432 user=hamsa password=hamsa dbname=hamsa sslmode=disable"
 
 func newPaymentEnv(t *testing.T) *payEnv {
+	return newPaymentEnvWebReturn(t, "")
+}
+
+// newPaymentEnvWebReturn builds a payment env whose service has the given
+// browser return origin (app.web_return_url). Passing "" yields the
+// Android-only posture the rest of the suite assumes.
+func newPaymentEnvWebReturn(t *testing.T, webReturn string) *payEnv {
 	t.Helper()
 
 	dsn := os.Getenv("HAMSA_TEST_DSN")
@@ -99,12 +113,20 @@ func newPaymentEnv(t *testing.T) *payEnv {
 	gw := gateway.NewMock()
 
 	gin.SetMode(gin.TestMode)
-	router := httpx.NewRouter(log, "dev")
+	router := httpx.NewRouter(log, "dev", httpx.RouterOptions{})
 	authMW := auth.Authenticate(tokens, auth.NewRepository(gormDB))
-	svc := NewPaymentService(repo, gw, bal, notifSvc, log, "http://test/callback")
+	svc := NewPaymentService(repo, gw, bal, notifSvc, log, "http://test/callback", webReturn)
 	authed := router.Group("/api/v1", authMW)
 	public := router.Group("/api/v1")
-	Register(authed, public, svc, bal, aud, auth.NewScopeResolver(gormDB))
+
+	// The auth routes are registered here too (they are not payment's own
+	// concern) so tests can drive the real POST /auth/login flow and obtain a
+	// token exactly as a browser client does, instead of minting one directly.
+	scopes := auth.NewScopeResolver(gormDB)
+	auth.Register(router.Group("/api/v1/auth"),
+		&auth.Handler{Tokens: tokens, Users: auth.NewRepository(gormDB), Scopes: scopes})
+
+	Register(authed, public, svc, bal, aud, scopes)
 
 	// Billing routes so the tests run against real issued invoices, with the
 	// balance service wired for issue/cancel/adjust recomputes.
@@ -117,8 +139,11 @@ func newPaymentEnv(t *testing.T) *payEnv {
 		aud,
 		auth.NewScopeResolver(gormDB))
 
-	return &payEnv{engine: router, gormDB: gormDB, tokens: tokens, repo: repo, bal: bal, gateway: gw}
+	return &payEnv{engine: router, gormDB: gormDB, tokens: tokens, repo: repo, bal: bal,
+		gateway: gw, aud: aud, authMW: authMW, scopes: auth.NewScopeResolver(gormDB)}
 }
+
+
 
 // billingBalanceProvider adapts the balance service to billing's
 // BalanceProvider (same adapter main.go installs).
@@ -142,10 +167,22 @@ func pgReachablePay(t *testing.T) bool {
 
 func (e *payEnv) seedUser(t *testing.T, role, phone string) (uuid.UUID, string) {
 	t.Helper()
+	return e.seedUserWithPassword(t, role, phone, payTestPassword)
+}
+
+// seedUserWithPassword seeds a user whose password is the given value, so a
+// test can drive the real POST /auth/login flow (which hashes on register) and
+// receive a token exactly as a browser client would.
+func (e *payEnv) seedUserWithPassword(t *testing.T, role, phone, password string) (uuid.UUID, string) {
+	t.Helper()
 	id := uuid.New()
+	hash, err := auth.HashPassword(password)
+	if err != nil {
+		t.Fatalf("hash password: %v", err)
+	}
 	if err := e.exec(
-		`INSERT INTO users (id, phone, role, name) VALUES (?, ?, ?, ?)`,
-		id, phone, role, "تست "+role,
+		`INSERT INTO users (id, phone, role, name, password_hash) VALUES (?, ?, ?, ?, ?)`,
+		id, phone, role, "تست "+role, hash,
 	); err != nil {
 		t.Fatalf("seed user: %v", err)
 	}
@@ -531,6 +568,24 @@ func TestPaymentIsolation(t *testing.T) {
 	if total := num(body, "total"); total != 0 {
 		t.Fatalf("B payment total = %d, want 0", total)
 	}
+}
+
+// login authenticates a seeded user by phone + password through the real
+// /auth/login route and returns the access token, so a test exercises the same
+// path a browser client does.
+func (e *payEnv) login(t *testing.T, phone, password string) string {
+	t.Helper()
+	code, body := e.post(t, "/api/v1/auth/login", "", map[string]any{
+		"phone": phone, "password": password,
+	})
+	if code != http.StatusOK {
+		t.Fatalf("login %s: %d %v", phone, code, body)
+	}
+	tok, _ := body["access_token"].(string)
+	if tok == "" {
+		t.Fatalf("login %s returned no access token: %v", phone, body)
+	}
+	return tok
 }
 
 // --- helpers ---------------------------------------------------------------------

@@ -114,7 +114,7 @@ func newDashEnv(t *testing.T) *dashEnv {
 	svc := NewService(gormDB, auth.NewScopeResolver(gormDB), annRepo, maintRepo)
 
 	gin.SetMode(gin.TestMode)
-	router := httpx.NewRouter(log, "dev")
+	router := httpx.NewRouter(log, "dev", httpx.RouterOptions{})
 	authMW := auth.Authenticate(tokens, auth.NewRepository(gormDB))
 	authed := router.Group("/api/v1", authMW)
 	Register(authed, svc)

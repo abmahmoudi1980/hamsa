@@ -76,7 +76,9 @@ func main() {
 	notifSvc := notification.NewService(gormDB, notification.NoopNotifier{})
 	auditSvc := audit.New(gormDB, log)
 
-	router := httpx.NewRouter(log, cfg.App.Env)
+	router := httpx.NewRouter(log, cfg.App.Env, httpx.RouterOptions{
+		AllowedOrigins: cfg.CORS.AllowedOrigins,
+	})
 	v1 := router.Group("/api/v1")
 
 	authMW := auth.Authenticate(tokens, users)
@@ -112,7 +114,7 @@ func main() {
 		payGW = gateway.NewMock() // dev default
 	}
 	paymentSvc := payment.NewPaymentService(payRepo, payGW, balanceSvc, notifSvc, log,
-		cfg.App.BaseURL+"/api/v1/payments/callback")
+		cfg.App.BaseURL+"/api/v1/payments/callback", cfg.App.WebReturnURL)
 
 	periodSvc := billing.NewPeriodService(billingRepo, notifSvc, auditSvc)
 	periodSvc.SetBalanceRecomputer(balanceSvc) // US5: keep unit_balances current on issue/cancel/adjust

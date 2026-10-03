@@ -118,6 +118,11 @@ func startGateway(svc *PaymentService) gin.HandlerFunc {
 		}
 		var body struct {
 			Amount *string `json:"amount"`
+			// ReturnPath is the browser client's result route (e.g.
+			// "/payment/result"). Only honoured same-origin — see
+			// PaymentService.browserReturnURL. Ignored by the Android app,
+			// which sends no body and follows the deeplink instead.
+			ReturnPath string `json:"return_path"`
 		}
 		_ = c.ShouldBindJSON(&body) // body optional — defaults to outstanding
 		var amount *Money
@@ -129,7 +134,7 @@ func startGateway(svc *PaymentService) gin.HandlerFunc {
 			}
 			amount = &v
 		}
-		p, payURL, err := svc.StartGateway(c.Request.Context(), u, invoiceID, amount)
+		p, payURL, err := svc.StartGateway(c.Request.Context(), u, invoiceID, amount, body.ReturnPath)
 		if err != nil {
 			writeServiceErr(c, err)
 			return
@@ -160,6 +165,16 @@ func gatewayCallback(svc *PaymentService) gin.HandlerFunc {
 		if p.InvoiceID != nil {
 			invoiceID = p.InvoiceID.String()
 		}
+
+		// A browser client sent return_path with the pay request: send it back
+		// to its own result route instead of leaving it on a JSON blob. The
+		// service re-validates the path (same-origin only) so a tampered
+		// callback query cannot turn this into an open redirect.
+		if target := svc.BrowserReturnURL(c.Query("return_path"), p.ID.String(), string(p.Status), invoiceID); target != "" {
+			c.Redirect(http.StatusFound, target)
+			return
+		}
+
 		c.JSON(http.StatusOK, gin.H{
 			"payment_id": p.ID,
 			"status":     p.Status,
@@ -180,6 +195,40 @@ func firstNonEmpty(vals ...string) string {
 
 // --- ledger ----------------------------------------------------------------------------
 
+// pageSizeFromQuery reads the contract-standard `page_size`, falling back to the
+// legacy `size` this module shipped before the envelope was normalized, so an
+// un-updated APK keeps working for one release cycle.
+func pageSizeFromQuery(c *gin.Context) int {
+	if v := c.Query("page_size"); v != "" {
+		return atoiDefault(v, 20)
+	}
+	return atoiDefault(c.Query("size"), 20)
+}
+
+// writePaymentPage emits the standard pagination envelope
+// {items, page, page_size, total} (contracts/api.md). It also includes
+// `payments` as a deprecated alias of `items`: the pre-003 Flutter client read
+// that key on these two routes, and dropping it outright would silently empty
+// the resident payment history on already-installed APKs. New clients use
+// `items`; the alias can be removed once no shipped build reads it.
+func writePaymentPage(c *gin.Context, rows any, total int64, f PaymentFilter) {
+	size := f.Size
+	if size < 1 {
+		size = 20
+	}
+	page := f.Page
+	if page < 1 {
+		page = 1
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"items":     rows,
+		"page":      page,
+		"page_size": size,
+		"total":     total,
+		"payments":  rows, // deprecated alias — see comment above
+	})
+}
+
 func buildingLedger(svc *PaymentService) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		u, ok := currentUser(c)
@@ -190,7 +239,7 @@ func buildingLedger(svc *PaymentService) gin.HandlerFunc {
 		if !ok {
 			return
 		}
-		f := PaymentFilter{Page: atoiDefault(c.Query("page"), 1), Size: atoiDefault(c.Query("size"), 20)}
+		f := PaymentFilter{Page: atoiDefault(c.Query("page"), 1), Size: pageSizeFromQuery(c)}
 		if s := c.Query("unit_id"); s != "" {
 			if uid, err := uuid.Parse(s); err == nil {
 				f.UnitID = uid
@@ -213,7 +262,7 @@ func buildingLedger(svc *PaymentService) gin.HandlerFunc {
 			writeServiceErr(c, err)
 			return
 		}
-		c.JSON(http.StatusOK, gin.H{"payments": rows, "total": total})
+		writePaymentPage(c, rows, total, f)
 	}
 }
 
@@ -223,14 +272,14 @@ func myPayments(svc *PaymentService) gin.HandlerFunc {
 		if !ok {
 			return
 		}
-		f := PaymentFilter{Page: atoiDefault(c.Query("page"), 1), Size: atoiDefault(c.Query("size"), 20)}
+		f := PaymentFilter{Page: atoiDefault(c.Query("page"), 1), Size: pageSizeFromQuery(c)}
 		f.Method = c.Query("method")
 		rows, total, err := svc.MyPayments(c.Request.Context(), u, f)
 		if err != nil {
 			writeServiceErr(c, err)
 			return
 		}
-		c.JSON(http.StatusOK, gin.H{"payments": rows, "total": total})
+		writePaymentPage(c, rows, total, f)
 	}
 }
 

@@ -29,6 +29,10 @@ class PaymentRepository {
   }
 
   /// Manager payment ledger for one building (filter by unit/date/method).
+  ///
+  /// 003-web-frontend F1: both payment lists now answer the standard
+  /// `{items, page, page_size, total}` envelope. `payments` is retained by the
+  /// server as a deprecated alias for one release cycle, so this reads `items`.
   Future<(List<Payment>, int)> buildingPayments(
     String buildingId, {
     String? unitId,
@@ -46,13 +50,10 @@ class PaymentRepository {
         if (from != null) 'from': from,
         if (to != null) 'to': to,
         'page': page,
-        'size': pageSize,
+        'page_size': pageSize,
       },
     );
-    final items = (res.data?['payments'] as List? ?? const [])
-        .map((e) => Payment.fromJson(Map<String, dynamic>.from(e as Map)))
-        .toList();
-    return (items, (res.data?['total'] ?? 0) as int);
+    return _readPage(res.data);
   }
 
   /// Resident payment history.
@@ -62,12 +63,22 @@ class PaymentRepository {
   }) async {
     final res = await _dio.get<Map<String, dynamic>>(
       '/me/payments',
-      queryParameters: {'page': page, 'size': pageSize},
+      queryParameters: {'page': page, 'page_size': pageSize},
     );
-    final items = (res.data?['items'] as List? ?? const [])
+    return _readPage(res.data);
+  }
+
+  /// Unpacks the shared pagination envelope into a list + total.
+  ///
+  /// The `?? const []` fallbacks are deliberate: an unexpected key must render
+  /// an empty list rather than crash the screen, which is exactly how the
+  /// `items`-vs-`payments` mismatch went unnoticed (F1).
+  (List<Payment>, int) _readPage(Map<String, dynamic>? body) {
+    final items = (body?['items'] as List? ?? const [])
         .map((e) => Payment.fromJson(Map<String, dynamic>.from(e as Map)))
         .toList();
-    return (items, (res.data?['total'] ?? 0) as int);
+    final total = (body?['total'] as num?)?.toInt() ?? items.length;
+    return (items, total);
   }
 
   /// Unit balance (spec §9 components).

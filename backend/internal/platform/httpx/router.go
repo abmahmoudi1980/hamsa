@@ -7,17 +7,30 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// RouterOptions carries the runtime configuration NewRouter needs. It is
+// passed as a single struct (rather than more positional args) because the
+// test harnesses construct the engine directly and would otherwise have to
+// thread production-only settings through.
+type RouterOptions struct {
+	// AllowedOrigins is the CORS allowlist (config.cors.allowed_origins).
+	// Empty means no CORS headers — the production posture, since the web
+	// client is served same-origin with the API.
+	AllowedOrigins []string
+}
+
 // NewRouter builds the Gin engine with the standard middleware stack
-// (request-id, structured logging, recovery) and the liveness probe.
+// (request-id, structured logging, recovery, CORS) and the liveness probe.
 // Domain route groups (auth, building, billing, ...) are mounted onto the
 // returned engine by their handlers as those are implemented.
-func NewRouter(log *slog.Logger, env string) *gin.Engine {
+//
+// Callers in tests pass the zero value, which yields no CORS headers.
+func NewRouter(log *slog.Logger, env string, opts RouterOptions) *gin.Engine {
 	if env == "production" {
 		gin.SetMode(gin.ReleaseMode)
 	}
 
 	r := gin.New()
-	r.Use(RequestID(), Logger(log), Recovery(log), CORS())
+	r.Use(RequestID(), Logger(log), Recovery(log), CORS(opts.AllowedOrigins))
 
 	// Liveness probe — outside /api/v1; must not depend on the database so
 	// it reports process health even during a transient DB blip.

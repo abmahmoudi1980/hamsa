@@ -95,7 +95,7 @@ func newAnnEnv(t *testing.T) *annEnv {
 	svc := NewService(repo, notifSvc, audSvc)
 
 	gin.SetMode(gin.TestMode)
-	router := httpx.NewRouter(log, "dev")
+	router := httpx.NewRouter(log, "dev", httpx.RouterOptions{})
 	authMW := auth.Authenticate(tokens, auth.NewRepository(gormDB))
 	authed := router.Group("/api/v1", authMW)
 	Register(authed, svc)

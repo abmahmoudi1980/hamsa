@@ -83,7 +83,7 @@ func newMaintEnv(t *testing.T) *maintEnv {
 	tokens := auth.NewTokenService([]byte("test-secret-32-bytes-long!!!!!!"),
 		15*time.Minute, 30*24*time.Hour, &auth.GormRefreshStore{DB: gormDB}, auth.RealClock{})
 	gin.SetMode(gin.TestMode)
-	router := httpx.NewRouter(log, "dev")
+	router := httpx.NewRouter(log, "dev", httpx.RouterOptions{})
 	authMW := auth.Authenticate(tokens, auth.NewRepository(gormDB))
 	authed := router.Group("/api/v1", authMW)
 	Register(authed, NewService(NewRepository(gormDB), notification.NewService(gormDB, notification.NoopNotifier{}), audit.New(gormDB, log)), audit.New(gormDB, log))

@@ -20,6 +20,7 @@ type Config struct {
 	Payment Payment `yaml:"payment"`
 	Storage Storage `yaml:"storage"`
 	Push    Push    `yaml:"push"`
+	CORS    CORS    `yaml:"cors"`
 }
 
 // App holds application-level settings.
@@ -27,6 +28,20 @@ type App struct {
 	Env     string `yaml:"env"`
 	Addr    string `yaml:"addr"`
 	BaseURL string `yaml:"base_url"`
+	// WebReturnURL is the origin the browser client (web/) is served from.
+	// It is the ONLY origin a payment gateway callback may redirect a browser
+	// to (appended as `return_url` on POST /invoices/{id}/pay), so an
+	// allowlist check can prevent open-redirect abuse. Empty disables the
+	// browser hand-off entirely and leaves the callback returning JSON for the
+	// Android app's deeplink.
+	WebReturnURL string `yaml:"web_return_url"`
+}
+
+// CORS holds the cross-origin allowlist. Empty in production because the web
+// client is served same-origin with the API behind one nginx vhost; the dev
+// config lists the Vite dev-server origins.
+type CORS struct {
+	AllowedOrigins []string `yaml:"allowed_origins"`
 }
 
 // IsDev reports whether the server runs in development mode.
@@ -82,6 +97,13 @@ func Load() (*Config, error) {
 		},
 		Payment: Payment{Provider: "mock"},
 		Storage: Storage{Path: "./data/files"},
+		// Dev defaults: the Vite dev server proxies /api, but a browser opened
+		// against a directly-run backend (Playwright, curl with a browser-like
+		// Origin) still needs these two origins allowed.
+		CORS: CORS{AllowedOrigins: []string{
+			"http://localhost:5173",
+			"http://127.0.0.1:5173",
+		}},
 	}
 
 	raw, err := os.ReadFile(path)
@@ -119,6 +141,9 @@ func applyEnvOverrides(cfg *Config) error {
 	}
 	if v := os.Getenv("HAMSA_PAYMENT_PROVIDER"); v != "" {
 		cfg.Payment.Provider = v
+	}
+	if v := os.Getenv("HAMSA_WEB_RETURN_URL"); v != "" {
+		cfg.App.WebReturnURL = v
 	}
 	return nil
 }

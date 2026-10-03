@@ -111,7 +111,7 @@ func newAuthEnv(t *testing.T) *authEnv {
 	auditor := &fakeAuditor{}
 
 	gin.SetMode(gin.TestMode)
-	router := httpx.NewRouter(slog.New(slog.NewTextHandler(io.Discard, nil)), "dev")
+	router := httpx.NewRouter(slog.New(slog.NewTextHandler(io.Discard, nil)), "dev", httpx.RouterOptions{})
 	Register(router.Group("/api/v1/auth"), &Handler{
 		Invites: invites,
 		Tokens:  tokens,

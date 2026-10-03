@@ -13,7 +13,9 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"net/url"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -53,21 +55,80 @@ type PaymentService struct {
 	notif    *notification.Service
 	log      *slog.Logger
 	callback string // absolute URL of the public GET /payments/callback
-	now      func() time.Time
+	// webReturn is the single allowed origin a browser client may be sent back
+	// to after a gateway redirect (app.web_return_url). Empty disables the
+	// browser hand-off: the callback then only returns the JSON body the
+	// Android app's deeplink flow consumes.
+	webReturn string
+	now       func() time.Time
 }
 
-// NewPaymentService returns the payment service.
+// NewPaymentService returns the payment service. callbackURL is the public
+// gateway-callback endpoint; webReturnURL is the optional single allowed
+// browser return origin (config app.web_return_url).
 func NewPaymentService(repo *Repository, gw gateway.PaymentGateway, balances *BalanceService,
-	notif *notification.Service, log *slog.Logger, callbackURL string) *PaymentService {
+	notif *notification.Service, log *slog.Logger, callbackURL, webReturnURL string) *PaymentService {
 	return &PaymentService{
-		repo:     repo,
-		balances: balances,
-		gw:       gw,
-		notif:    notif,
-		log:      log,
-		callback: callbackURL,
-		now:      time.Now,
+		repo:      repo,
+		balances:  balances,
+		gw:        gw,
+		notif:     notif,
+		log:       log,
+		callback:  callbackURL,
+		webReturn: strings.TrimRight(webReturnURL, "/"),
+		now:       time.Now,
 	}
+}
+
+// WebReturnURL returns the configured browser return origin, or "" when no
+// browser hand-off is configured.
+func (s *PaymentService) WebReturnURL() string { return s.webReturn }
+
+// callbackURLFor returns the callback URL to hand the gateway. A browser
+// client's return path rides along as a query parameter so the stateless
+// callback can redirect without persisting anything on the payment row (no
+// migration, and nothing to clean up if the user abandons the redirect).
+func (s *PaymentService) callbackURLFor(returnPath string) string {
+	if strings.TrimRight(s.webReturn, "/") == "" || returnPath == "" {
+		return s.callback
+	}
+	if !strings.HasPrefix(returnPath, "/") ||
+		strings.HasPrefix(returnPath, "//") || strings.Contains(returnPath, "/\\") {
+		return s.callback
+	}
+	sep := "?"
+	if strings.Contains(s.callback, "?") {
+		sep = "&"
+	}
+	return s.callback + sep + "return_path=" + url.QueryEscape(returnPath)
+}
+
+// BrowserReturnURL builds the redirect target for a completed gateway payment,
+// or "" when no browser hand-off is configured. The caller-supplied path is
+// only honoured when it is a same-origin path
+// (starts with "/" and not "//" or "/\"), which prevents an open redirect to
+// another host while still letting the client choose its result route. Query
+// parameters carry the payment id and final status so the client can render a
+// receipt without a second round trip.
+func (s *PaymentService) BrowserReturnURL(path, paymentID, status, invoiceID string) string {
+	// Normalize here rather than trusting the constructor: this keeps the
+	// redirect well-formed no matter how the service was built (tests and
+	// future callers construct the struct directly).
+	base := strings.TrimRight(s.webReturn, "/")
+	if base == "" {
+		return ""
+	}
+	if path == "" || !strings.HasPrefix(path, "/") ||
+		strings.HasPrefix(path, "//") || strings.Contains(path, "/\\") {
+		path = "/payment/result"
+	}
+	q := url.Values{}
+	q.Set("payment_id", paymentID)
+	q.Set("status", status)
+	if invoiceID != "" {
+		q.Set("invoice_id", invoiceID)
+	}
+	return base + path + "?" + q.Encode()
 }
 
 // ManualPaymentInput is the manager's record-payment payload (contracts/api.md).
@@ -217,7 +278,7 @@ func (s *PaymentService) RecordManual(ctx context.Context, u *auth.User, invoice
 // StartGateway opens an online payment for the invoice's outstanding (or the
 // requested amount). The payment row starts `recorded` (pending verify); only
 // the callback verify — always against the DB amount — completes it.
-func (s *PaymentService) StartGateway(ctx context.Context, u *auth.User, invoiceID uuid.UUID, amount *Money) (*Payment, string, error) {
+func (s *PaymentService) StartGateway(ctx context.Context, u *auth.User, invoiceID uuid.UUID, amount *Money, returnPath string) (*Payment, string, error) {
 	inv, err := s.authorizedInvoice(ctx, u, invoiceID)
 	if err != nil {
 		return nil, "", err
@@ -242,7 +303,7 @@ func (s *PaymentService) StartGateway(ctx context.Context, u *auth.User, invoice
 
 	res, err := s.gw.Start(ctx, gateway.StartRequest{
 		AmountToman: amt,
-		CallbackURL: s.callback,
+		CallbackURL: s.callbackURLFor(returnPath),
 		Description: "پرداخت شارژ صورتحساب " + inv.InvoiceNumber,
 	})
 	if err != nil {
