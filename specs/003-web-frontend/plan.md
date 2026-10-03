@@ -1,6 +1,6 @@
 # Implementation Plan: Web Frontend (Manager & Resident Web App)
 
-**Branch**: `003-web-frontend` | **Date**: 2026-10-03 | **Status**: Phases 0–2 implemented
+**Branch**: `003-web-frontend` | **Date**: 2026-10-03 | **Status**: Phases 0–5 implemented
 **Spec**: to be written (`spec.md` — Phase 0 produces it)
 
 **Input**: Feature request — *"Review the building-management project and write a plan to
@@ -57,7 +57,9 @@ the presentation layer. Five decisions carry the plan:
 | 1 | Toolchain, RTL shell, design tokens, fonts, CI | **Done** |
 | 2 | `lib/` layer: money, Jalali, digits, error envelope, refresh queue | **Done** — 78 tests |
 | 3 | Auth screens, session restore, routing skeleton, design system | Partial — login + restore |
-| 4–9 | Registry, billing, money movement, expenses, maintenance, dashboards, launch | Not started |
+| 4 | Registry: buildings, units, people, occupancy | **Done** — 17baa74 |
+| 5 | Billing: periods, cost items, calculation, preview grid | **Done** — this commit |
+| 6–9 | Money movement, expenses, maintenance, dashboards, launch | Not started |
 
 ---
 
@@ -577,10 +579,21 @@ The first feature phase; establishes the list/form/filter pattern reused everywh
 
 ### Phase 5 — Billing: periods, cost items, calculation, **preview grid**
 
+**Status — implemented.** Built on the Phase 4 patterns (Svelte 5 runes +
+`@tanstack/svelte-query`). Covers period list/create/edit (draft-only edit),
+the cost-item form for all six methods including the `combined` weight editor
+(live sum check) and a searchable `specific_units` multi-select, `calculate` /
+`reopen` / `issue` (confirm names the invoice count) / `close` gated by status,
+and the preview grid: per-unit invoice rows, per-row drill-down into each cost
+item's exact and rounded share, and the BR-08/BR-09 reconciliation footer with
+per-item and overall residual. Added `lib/billing/reconcile.ts` +
+`weights.ts` (pure, unit-tested) and fixed a latent label bug: the wire method
+token is `per_occupant`, not `per_person`.
+
 The crown jewel and the highest-value divergence from mobile.
 
 - Period list + form (start/end/due date via `JalaliDatePicker`, late-fee config).
-- Cost-item form: method select (`equal` / `per_person` / `per_area` / `fixed` /
+- Cost-item form: method select (`equal` / `per_occupant` / `per_area` / `fixed` /
   `specific_units` / `combined`), the `combined` **weight editor** (percentages
   summing to 100, with a live sum check), `include_vacant`, and the specific-units
   **searchable multi-select** — block/floor/number filters over the unit list, far

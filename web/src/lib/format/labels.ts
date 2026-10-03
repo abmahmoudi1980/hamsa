@@ -33,11 +33,24 @@ export const calcMethodLabel = (v: string | null | undefined) =>
 	label(
 		{
 			equal: 'مساوی بین واحدها',
-			per_person: 'بر اساس تعداد نفرات',
+			// The wire token is `per_occupant` (engine.MethodPerOccupant and the
+			// cost_method DB enum); `per_person` is not accepted by the API.
+			per_occupant: 'بر اساس تعداد نفرات',
 			per_area: 'بر اساس متراژ',
 			fixed: 'مبلغ ثابت',
 			specific_units: 'هزینه اختصاصی',
 			combined: 'فرمول ترکیبی'
+		} as const,
+		v
+	);
+
+export const lateFeeTypeLabel = (v: string | null | undefined) =>
+	label(
+		{
+			none: 'بدون جریمه',
+			fixed: 'مبلغ ثابت',
+			percent: 'درصدی از مبلغ',
+			per_day: 'روزانه'
 		} as const,
 		v
 	);

@@ -135,5 +135,32 @@ export function isStrictlyNumeric(input: string): boolean {
 	);
 }
 
+/**
+ * Extracts digits (normalizing Persian/Arabic-Indic to Latin) plus at most one
+ * decimal point.
+ *
+ * Used by percentage fields, where a fraction like `۲.۵` is meaningful. It is
+ * deliberately stricter than `normalizeNumericInput`: letters and stray dots are
+ * dropped, and the caller decides whether the result is a valid number.
+ */
+export function latinDecimalOnly(input: string): string {
+	let out = '';
+	let seenDot = false;
+	for (const ch of stripBidiControls(input)) {
+		const code = ch.codePointAt(0) ?? 0;
+		if (code >= LATIN_ZERO && code <= LATIN_ZERO + 9) {
+			out += ch;
+		} else if (code >= PERSIAN_ZERO && code <= PERSIAN_ZERO + 9) {
+			out += String.fromCharCode(LATIN_ZERO + (code - PERSIAN_ZERO));
+		} else if (code >= ARABIC_ZERO && code <= ARABIC_ZERO + 9) {
+			out += String.fromCharCode(LATIN_ZERO + (code - ARABIC_ZERO));
+		} else if (ch === '.' && !seenDot) {
+			out += '.';
+			seenDot = true;
+		}
+	}
+	return out;
+}
+
 /** Left-to-right mark, for placing a currency suffix after an isolated number. */
 export const LTR_MARK = LRM;

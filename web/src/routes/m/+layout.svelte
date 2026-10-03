@@ -174,6 +174,18 @@
 						</svg>
 						{fa.navPeople}
 					</a>
+					<a class="nav-link" href="/m/periods">
+						<svg viewBox="0 0 24 24" fill="none" class="size-5" aria-hidden="true">
+							<path
+								d="M8 3v3m8-3v3M4 8h16M5 5h14a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Z"
+								stroke="currentColor"
+								stroke-width="1.7"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+							/>
+						</svg>
+						{fa.navPeriods}
+					</a>
 				{:else}
 					<div
 						class="mx-2 rounded-xl bg-surface px-4 py-3 text-sm leading-6 text-on-surface-variant"
@@ -272,7 +284,7 @@
 
 		<nav
 			class="no-print fixed inset-x-0 bottom-0 z-30 grid {auth.user?.role === 'manager'
-				? 'grid-cols-4'
+				? 'grid-cols-5'
 				: 'grid-cols-2'} border-t border-outline-variant/60 bg-white/95 px-3 py-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] backdrop-blur lg:hidden"
 			aria-label={fa.mainNavigation}
 		>
@@ -323,6 +335,18 @@
 						/></svg
 					>
 					{fa.navPeople}
+				</a>
+				<a class="mobile-nav-link" href="/m/periods">
+					<svg viewBox="0 0 24 24" fill="none" class="size-5" aria-hidden="true"
+						><path
+							d="M8 3v3m8-3v3M4 8h16M5 5h14a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Z"
+							stroke="currentColor"
+							stroke-width="1.7"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+						/></svg
+					>
+					{fa.navPeriods}
 				</a>
 			{/if}
 		</nav>
