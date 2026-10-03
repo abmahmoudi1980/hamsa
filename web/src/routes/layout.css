@@ -63,14 +63,12 @@
 	--color-info: #1565c0;
 	--color-info-soft: #e3ecf9;
 
-	/* ---- Spacing (AppTheme spaceXs … spaceXxxl) ------------------------- */
-	--spacing-xs: 4px;
-	--spacing-s: 8px;
-	--spacing-m: 12px;
-	--spacing-l: 16px;
-	--spacing-xl: 20px;
-	--spacing-2xl: 24px;
-	--spacing-3xl: 32px;
+	/* ---- Spacing --------------------------------------------------------
+		Do NOT add named `--spacing-*` tokens here. Tailwind resolves
+		`max-w-{xs,xl,2xl,3xl}` from the spacing namespace whenever a matching
+		key exists, so a `--spacing-3xl: 32px` silently collapses `max-w-3xl`
+		(48rem) to 32px on every form page. The components consume the default
+		numeric scale (0.25rem base) exclusively — verified by grep. */
 
 	/* ---- Radii (AppTheme radiusSmall / radius / radiusLarge) ------------- */
 	--radius-sm: 8px;
