@@ -150,6 +150,30 @@
 						</svg>
 						{fa.navBuildings}
 					</a>
+					<a class="nav-link" href="/m/units">
+						<svg viewBox="0 0 24 24" fill="none" class="size-5" aria-hidden="true">
+							<path
+								d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-5h6v5M9 10h.01M15 10h.01M9 13h.01M15 13h.01"
+								stroke="currentColor"
+								stroke-width="1.7"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+							/>
+						</svg>
+						{fa.navUnits}
+					</a>
+					<a class="nav-link" href="/m/persons">
+						<svg viewBox="0 0 24 24" fill="none" class="size-5" aria-hidden="true">
+							<path
+								d="M16 20v-1.5a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4V20M9.5 10.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7ZM21 20v-1.5a4 4 0 0 0-3-3.87M16.5 3.63a4 4 0 0 1 0 7.75"
+								stroke="currentColor"
+								stroke-width="1.7"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+							/>
+						</svg>
+						{fa.navPeople}
+					</a>
 				{:else}
 					<div
 						class="mx-2 rounded-xl bg-surface px-4 py-3 text-sm leading-6 text-on-surface-variant"
@@ -247,7 +271,9 @@
 		</div>
 
 		<nav
-			class="no-print fixed inset-x-0 bottom-0 z-30 grid grid-cols-2 border-t border-outline-variant/60 bg-white/95 px-3 py-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] backdrop-blur lg:hidden"
+			class="no-print fixed inset-x-0 bottom-0 z-30 grid {auth.user?.role === 'manager'
+				? 'grid-cols-4'
+				: 'grid-cols-2'} border-t border-outline-variant/60 bg-white/95 px-3 py-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] backdrop-blur lg:hidden"
 			aria-label={fa.mainNavigation}
 		>
 			<a class="mobile-nav-link" href="/m" aria-current="page">
@@ -273,6 +299,30 @@
 						/></svg
 					>
 					{fa.navBuildings}
+				</a>
+				<a class="mobile-nav-link" href="/m/units">
+					<svg viewBox="0 0 24 24" fill="none" class="size-5" aria-hidden="true"
+						><path
+							d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-5h6v5M9 10h.01M15 10h.01"
+							stroke="currentColor"
+							stroke-width="1.7"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+						/></svg
+					>
+					{fa.navUnits}
+				</a>
+				<a class="mobile-nav-link" href="/m/persons">
+					<svg viewBox="0 0 24 24" fill="none" class="size-5" aria-hidden="true"
+						><path
+							d="M16 20v-1.5a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4V20M9.5 10.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z"
+							stroke="currentColor"
+							stroke-width="1.7"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+						/></svg
+					>
+					{fa.navPeople}
 				</a>
 			{/if}
 		</nav>

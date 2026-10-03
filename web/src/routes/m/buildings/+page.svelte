@@ -62,54 +62,71 @@
 		</div>
 		<section class="grid gap-4 md:grid-cols-2 xl:grid-cols-3" aria-label={fa.navBuildings}>
 			{#each buildingsQuery.data as building (building.id)}
-				<button
-					class="group relative w-full overflow-hidden rounded-2xl border border-outline-variant/60 bg-white p-5 text-start shadow-sm transition-all hover:-translate-y-0.5 hover:border-primary/35 hover:shadow-md"
-					type="button"
-					onclick={() => openBuilding(building.id)}
+				<div
+					class="group relative overflow-hidden rounded-2xl border border-outline-variant/60 bg-white shadow-sm transition-all hover:-translate-y-0.5 hover:border-primary/35 hover:shadow-md"
 				>
-					<div class="flex items-start justify-between gap-3">
-						<div
-							class="grid size-12 shrink-0 place-items-center rounded-2xl bg-primary/10 text-primary"
+					<button
+						class="w-full p-5 text-start"
+						type="button"
+						onclick={() => openBuilding(building.id)}
+					>
+						<div class="flex items-start justify-between gap-3">
+							<div
+								class="grid size-12 shrink-0 place-items-center rounded-2xl bg-primary/10 text-primary"
+							>
+								<svg viewBox="0 0 24 24" fill="none" class="size-6" aria-hidden="true">
+									<path
+										d="M4 21V5l8-3v19m0-12h8v12M2 21h20M8 7h1m-1 4h1m-1 4h1m7-3h1m-1 4h1"
+										stroke="currentColor"
+										stroke-width="1.7"
+										stroke-linecap="round"
+										stroke-linejoin="round"
+									/>
+								</svg>
+							</div>
+							<span
+								class="rounded-full bg-success-soft px-3 py-1 text-xs font-semibold text-success"
+								>{fa.statusActive}</span
+							>
+						</div>
+						<h2 class="mt-5 truncate text-lg font-bold">{building.name}</h2>
+						<p class="mt-1 min-h-6 truncate text-sm text-on-surface-variant">
+							{building.address || fa.addressNotSet}
+						</p>
+						<div class="mt-5 grid grid-cols-3 gap-2 border-t border-outline-variant/40 pt-4">
+							<div>
+								<p class="text-[11px] text-on-surface-variant">{fa.blockCount}</p>
+								<p class="mt-1 font-bold">{building.block_count.toLocaleString('fa-IR')}</p>
+							</div>
+							<div>
+								<p class="text-[11px] text-on-surface-variant">{fa.floorCount}</p>
+								<p class="mt-1 font-bold">{building.floor_count.toLocaleString('fa-IR')}</p>
+							</div>
+							<div>
+								<p class="text-[11px] text-on-surface-variant">{fa.unitCount}</p>
+								<p class="mt-1 font-bold">{building.unit_count.toLocaleString('fa-IR')}</p>
+							</div>
+						</div>
+						<div class="mt-4 flex items-center justify-between text-xs text-on-surface-variant">
+							<span>{building.manager_phone || fa.managerPhoneNotSet}</span>
+							{#if building.created_at}
+								<span>{dateLabel(building.created_at)}</span>
+							{/if}
+						</div>
+					</button>
+					<div
+						class="flex items-center justify-end gap-4 border-t border-outline-variant/40 px-5 py-3 text-xs"
+					>
+						<a
+							class="font-semibold text-primary hover:underline"
+							href={`/m/buildings/${building.id}/edit`}>{fa.edit}</a
 						>
-							<svg viewBox="0 0 24 24" fill="none" class="size-6" aria-hidden="true">
-								<path
-									d="M4 21V5l8-3v19m0-12h8v12M2 21h20M8 7h1m-1 4h1m-1 4h1m7-3h1m-1 4h1"
-									stroke="currentColor"
-									stroke-width="1.7"
-									stroke-linecap="round"
-									stroke-linejoin="round"
-								/>
-							</svg>
-						</div>
-						<span class="rounded-full bg-success-soft px-3 py-1 text-xs font-semibold text-success"
-							>{fa.statusActive}</span
+						<a
+							class="font-semibold text-primary hover:underline"
+							href={`/m/buildings/${building.id}/managers`}>{fa.managers}</a
 						>
 					</div>
-					<h2 class="mt-5 truncate text-lg font-bold">{building.name}</h2>
-					<p class="mt-1 min-h-6 truncate text-sm text-on-surface-variant">
-						{building.address || fa.addressNotSet}
-					</p>
-					<div class="mt-5 grid grid-cols-3 gap-2 border-t border-outline-variant/40 pt-4">
-						<div>
-							<p class="text-[11px] text-on-surface-variant">{fa.blockCount}</p>
-							<p class="mt-1 font-bold">{building.block_count.toLocaleString('fa-IR')}</p>
-						</div>
-						<div>
-							<p class="text-[11px] text-on-surface-variant">{fa.floorCount}</p>
-							<p class="mt-1 font-bold">{building.floor_count.toLocaleString('fa-IR')}</p>
-						</div>
-						<div>
-							<p class="text-[11px] text-on-surface-variant">{fa.unitCount}</p>
-							<p class="mt-1 font-bold">{building.unit_count.toLocaleString('fa-IR')}</p>
-						</div>
-					</div>
-					<div class="mt-4 flex items-center justify-between text-xs text-on-surface-variant">
-						<span>{building.manager_phone || fa.managerPhoneNotSet}</span>
-						{#if building.created_at}
-							<span>{dateLabel(building.created_at)}</span>
-						{/if}
-					</div>
-				</button>
+				</div>
 			{/each}
 		</section>
 	{:else}

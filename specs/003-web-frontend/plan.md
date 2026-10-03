@@ -553,6 +553,15 @@ conversion is proven.
 
 ### Phase 4 — Registry: buildings, units, people, occupancy
 
+**Status — implemented.** Built with Svelte 5 runes + `@tanstack/svelte-query`
+rather than the `react-table`/RHF named below, per the D1 resolution (SvelteKit).
+Covers: building edit + managers screen (add/list/remove, last-manager and
+self-removal guards surfaced verbatim), unit list with the server-side
+`?q=&block=&floor=&status=` filter bar + paging, unit create/edit/archive, unit
+history, occupancy history + add/end, occupant-count history + record, and person
+list/create/edit/archive. A shared `JalaliDateInput` parses tolerant Solar-Hijri
+input to ISO (unit-tested in `dateInput.test.ts`).
+
 The first feature phase; establishes the list/form/filter pattern reused everywhere.
 
 - Buildings: list, create/edit, **managers screen** (list/add/remove with the
