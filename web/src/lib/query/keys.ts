@@ -105,6 +105,13 @@ export const invalidations = {
 		qk.invoices.list(buildingId, '*'),
 		[qk.balances.unit('*')]
 	],
+	/** Cancelling an invoice or appending an adjustment note (FR-017/BR-10). */
+	invoiceChanged: (buildingId: string, invoiceId: string) => [
+		qk.invoices.detail(invoiceId),
+		qk.invoices.list(buildingId, '*'),
+		[qk.balances.unit('*')],
+		qk.dashboard.manager(buildingId)
+	],
 	/** Recording a payment or a gateway verification. */
 	paymentRecorded: (invoiceId: string, buildingId: string) => [
 		qk.invoices.detail(invoiceId),

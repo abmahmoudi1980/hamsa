@@ -86,7 +86,7 @@
 		</main>
 
 		<nav
-			class="no-print fixed inset-x-0 bottom-0 z-30 grid grid-cols-1 border-t border-outline-variant/60 bg-white/95 px-3 py-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] backdrop-blur"
+			class="no-print fixed inset-x-0 bottom-0 z-30 grid grid-cols-3 border-t border-outline-variant/60 bg-white/95 px-3 py-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] backdrop-blur"
 			aria-label={fa.mainNavigation}
 		>
 			<a class="mobile-nav-link" href="/r" aria-current="page">
@@ -99,6 +99,30 @@
 					/></svg
 				>
 				{fa.navHome}
+			</a>
+			<a class="mobile-nav-link" href="/r/invoices">
+				<svg viewBox="0 0 24 24" fill="none" class="size-5" aria-hidden="true"
+					><path
+						d="M7 3h10a1 1 0 0 1 1 1v16l-3-2-3 2-3-2-3 2V4a1 1 0 0 1 1-1ZM9 8h6M9 12h6"
+						stroke="currentColor"
+						stroke-width="1.7"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+					/></svg
+				>
+				{fa.navInvoices}
+			</a>
+			<a class="mobile-nav-link" href="/r/payments">
+				<svg viewBox="0 0 24 24" fill="none" class="size-5" aria-hidden="true"
+					><path
+						d="M2 8h20v10a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V8Zm0-3h20v3H2V5Zm4 9h4"
+						stroke="currentColor"
+						stroke-width="1.7"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+					/></svg
+				>
+				{fa.navPayments}
 			</a>
 		</nav>
 	</div>

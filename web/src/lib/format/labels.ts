@@ -93,7 +93,27 @@ export const paymentStatusLabel = (v: string | null | undefined) =>
 		{
 			recorded: 'ثبت‌شده',
 			verified: 'تأییدشده',
-			failed: 'ناموفق'
+			failed: 'ناموفق',
+			reversed: 'برگشت‌خورده'
+		} as const,
+		v
+	);
+
+export const invoiceItemKindLabel = (v: string | null | undefined) =>
+	label(
+		{
+			charge: 'شارژ',
+			late_fee: 'جریمه دیرکرد',
+			adjustment: 'اصلاحیه'
+		} as const,
+		v
+	);
+
+export const adjustmentKindLabel = (v: string | null | undefined) =>
+	label(
+		{
+			debit: 'بدهکار',
+			credit: 'بستانکار'
 		} as const,
 		v
 	);

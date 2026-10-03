@@ -49,8 +49,10 @@ type Payment struct {
 	CreatedAt      time.Time     `gorm:"column:created_at" json:"created_at"`
 	UpdatedAt      time.Time     `gorm:"column:updated_at" json:"updated_at"`
 
-	// UnitNumber denormalized for ledger display (not a column).
-	UnitNumber string `gorm:"-" json:"unit_number,omitempty"`
+	// UnitNumber denormalized for ledger display. "->" (not "-") so GORM maps
+	// the subquery alias on Scan while never writing/migrating it — matching
+	// Invoice.UnitNumber. With "-" the ledger column was silently always empty.
+	UnitNumber string `gorm:"->" json:"unit_number,omitempty"`
 }
 
 func (Payment) TableName() string { return "payments" }

@@ -186,6 +186,30 @@
 						</svg>
 						{fa.navPeriods}
 					</a>
+					<a class="nav-link" href="/m/invoices">
+						<svg viewBox="0 0 24 24" fill="none" class="size-5" aria-hidden="true">
+							<path
+								d="M7 3h10a1 1 0 0 1 1 1v16l-3-2-3 2-3-2-3 2V4a1 1 0 0 1 1-1ZM9 8h6M9 12h6"
+								stroke="currentColor"
+								stroke-width="1.7"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+							/>
+						</svg>
+						{fa.navInvoices}
+					</a>
+					<a class="nav-link" href="/m/payments">
+						<svg viewBox="0 0 24 24" fill="none" class="size-5" aria-hidden="true">
+							<path
+								d="M2 8h20v10a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V8Zm0-3h20v3H2V5Zm4 9h4"
+								stroke="currentColor"
+								stroke-width="1.7"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+							/>
+						</svg>
+						{fa.navPayments}
+					</a>
 				{:else}
 					<div
 						class="mx-2 rounded-xl bg-surface px-4 py-3 text-sm leading-6 text-on-surface-variant"
@@ -283,9 +307,7 @@
 		</div>
 
 		<nav
-			class="no-print fixed inset-x-0 bottom-0 z-30 grid {auth.user?.role === 'manager'
-				? 'grid-cols-5'
-				: 'grid-cols-2'} border-t border-outline-variant/60 bg-white/95 px-3 py-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] backdrop-blur lg:hidden"
+			class="no-print fixed inset-x-0 bottom-0 z-30 flex gap-1 overflow-x-auto border-t border-outline-variant/60 bg-white/95 px-3 py-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] backdrop-blur lg:hidden"
 			aria-label={fa.mainNavigation}
 		>
 			<a class="mobile-nav-link" href="/m" aria-current="page">
@@ -347,6 +369,30 @@
 						/></svg
 					>
 					{fa.navPeriods}
+				</a>
+				<a class="mobile-nav-link" href="/m/invoices">
+					<svg viewBox="0 0 24 24" fill="none" class="size-5" aria-hidden="true"
+						><path
+							d="M7 3h10a1 1 0 0 1 1 1v16l-3-2-3 2-3-2-3 2V4a1 1 0 0 1 1-1ZM9 8h6M9 12h6"
+							stroke="currentColor"
+							stroke-width="1.7"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+						/></svg
+					>
+					{fa.navInvoices}
+				</a>
+				<a class="mobile-nav-link" href="/m/payments">
+					<svg viewBox="0 0 24 24" fill="none" class="size-5" aria-hidden="true"
+						><path
+							d="M2 8h20v10a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V8Zm0-3h20v3H2V5Zm4 9h4"
+							stroke="currentColor"
+							stroke-width="1.7"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+						/></svg
+					>
+					{fa.navPayments}
 				</a>
 			{/if}
 		</nav>
