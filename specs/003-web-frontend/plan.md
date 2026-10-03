@@ -78,8 +78,9 @@ the presentation layer. Five decisions carry the plan:
 >   `vite.config.ts` under the `sveltekit()` plugin, and `$app/tsconfig` ships an
 >   **empty** `paths` map, so aliases must be declared explicitly.
 
-**Storage**: none in the browser beyond `localStorage` for the refresh token. All
-domain data lives in PostgreSQL 16 behind the existing API. No IndexedDB, no offline
+**Storage**: only the display user and the active-building preference live in
+`localStorage`; the refresh token is in an httpOnly cookie, never JavaScript-reachable.
+All domain data lives in PostgreSQL 16 behind the existing API. No IndexedDB, no offline
 queue (out of scope — see Out of Scope).
 
 **Testing**: `vitest` for the pure library layer (money, Jalali, digits, validation,
@@ -121,8 +122,9 @@ JS gzip + 12 KB CSS gzip + 18 KB font per weight.*
 **Scale/Scope**: 1 new top-level directory (`web/`), ~60–70 routes, ~520 Persian
 strings, 0 migrations, ~6 small backend files touched (Phase 0 only).
 
-**Storage**: none in the browser beyond `localStorage` for the refresh token. All
-domain data lives in PostgreSQL 16 behind the existing API. No IndexedDB, no offline
+**Storage**: only the display user and the active-building preference live in
+`localStorage`; the refresh token is in an httpOnly cookie, never JavaScript-reachable.
+All domain data lives in PostgreSQL 16 behind the existing API. No IndexedDB, no offline
 queue (out of scope — see Out of Scope).
 
 **Testing**: `vitest` for the pure library layer (money, Jalali, digits, validation,
@@ -258,17 +260,22 @@ client was Flutter. Consequences:
   Convert the hardcoded `*` to a config-driven `cors.allowed_origins` list, defaulting
   to dev origins and empty in prod (where nothing is cross-origin).
 
-### F6 — research R8's "session cookies rejected" is now stale
+### F6 — research R8's "session cookies rejected" is now stale — RESOLVED
 
 `specs/001/.../research.md` R8 rejected session cookies with the reason *"mobile app,
-not browser"*. That premise no longer holds. Re-opened as a P1 hardening item, not a
-Phase 0 blocker:
+not browser"*. That premise no longer holds. **Implemented**, not deferred:
 
-- **v1 (this plan)**: access token in memory only; refresh token in `localStorage`;
-  strict CSP; no `innerHTML` on any server string; no third-party script tags.
-- **P1**: move the refresh token to an `httpOnly` + `SameSite=Lax` + `Secure` cookie
-  (issued *in addition to* the JSON body so mobile is untouched) and add CSRF
-  protection. Removes the XSS token-theft vector entirely.
+- Access token in memory only; strict CSP; no `innerHTML` on any server string; no
+  third-party script tags.
+- The refresh token is issued as an `httpOnly` + `SameSite=Lax` cookie (plus `Secure`
+  in every non-dev environment), scoped to `/api/v1/auth`. The Android client still
+  receives it in the JSON body; a request declaring `X-Hamsa-Client: web` gets it only
+  in the cookie, so the body never hands page JavaScript the long-lived token.
+- Cookie-authenticated state changes (`/auth/refresh`, `/auth/logout`) additionally
+  require the double-submit `X-CSRF-Token`; `SameSite=Lax` also blocks the cross-site
+  POST a CSRF attack needs. The readable CSRF cookie is scoped to `/`.
+
+No secret is reachable from JavaScript, so the XSS token-theft vector is removed.
 
 ---
 
@@ -404,7 +411,7 @@ web/
     │   ├── api/
     │   │   ├── http.ts            # fetch wrapper: base URL, JSON, 401→refresh→replay
     │   │   ├── apiError.ts        # {error:{code,message,details[]}} → ApiError + per-field map
-    │   │   ├── tokenStore.ts      # access in memory · refresh in localStorage
+    │   │   ├── tokenStore.ts      # access in memory · refresh in httpOnly cookie
     │   │   ├── refreshQueue.ts    # single-flight refresh (R4)
     │   │   └── endpoints/         # auth · buildings · units · persons · occupancies ·
     │   │                          # periods · costItems · invoices · payments · expenses ·
@@ -675,7 +682,7 @@ period and an issued invoice via HTTP — no DB dumps, no fixture JSON), with
 |---|---|---|---|
 | 1 | Hand-rolled Jalali conversion has a leap-year or boundary bug (research R3) | Medium | Exhaustive 1300–1500 SH round-trip suite as a Phase 2 gate; fall back to a library if it fails |
 | 2 | ICU group separator differs across browsers (research R1), breaking money display | Medium | Assert the exact string in a unit test in Phase 2; `formatToParts` + manual separator swap as the fallback |
-| 3 | Refresh token in `localStorage` is exfiltrable by XSS (F6/R8) | Low | Access token in memory only; strict CSP; no third-party scripts; no `innerHTML` on server strings; httpOnly-cookie migration tracked as P1 |
+| 3 | XSS token theft (F6/R8) | Low | Access token in memory only; refresh token in an httpOnly + SameSite=Lax cookie; double-submit CSRF on cookie-auth writes; strict CSP; no third-party scripts; no `innerHTML` on server strings |
 | 4 | Feature parity drifts from the mobile app as both evolve | Medium | The 42-screen parity table in `quickstart.md` (R9) is re-checked each phase; `features/*` directory parity makes drift visible in review |
 | 5 | Backend changes in Phase 0 break the shipped APK (which users update slowly) | Medium | Additive-only deltas; `size` kept as a deprecated alias for one release; Flutter fixes ship in the same commits |
 | 6 | Bundle creeps past budget as tables/editors land | Medium | Route-level `lazy()`, TanStack Table is headless, no PDF/grid library; CI budget gate |
@@ -726,6 +733,7 @@ than a clean re-implementation behind a frozen contract.
    that would materially change the plan.
 3. **Create `spec.md`** from the phase list above: one user story per phase group, with
    the acceptance gates as functional requirements.
-4. **Decide on F6/P1** (httpOnly refresh cookie) — whether it is in scope for this
-   feature or a follow-up.
+4. ~~**Decide on F6/P1** (httpOnly refresh cookie) — whether it is in scope for this
+   feature or a follow-up.~~ **RESOLVED — implemented**: refresh token via httpOnly
+   cookie + double-submit CSRF (see F6 above).
 5. Point `AGENTS.md`'s SPECKIT block at `specs/003-web-frontend/plan.md` once created.

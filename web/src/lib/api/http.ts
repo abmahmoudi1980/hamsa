@@ -12,12 +12,21 @@
  */
 
 import { API_BASE } from '#lib/config';
-import { ApiError, apiErrorFromBody, apiErrorFromException } from './apiError';
+import { apiErrorFromBody, apiErrorFromException } from './apiError';
+import { CSRF_HEADER_NAME, readCsrfToken } from './csrf';
 import { ensureFreshToken, refreshOnce, reportSessionExpired } from './refreshQueue';
-import { getAccessToken, getRefreshToken, saveRotatedTokens } from './tokenStore';
+import { getAccessToken, saveRotatedTokens } from './tokenStore';
 
 /** Paths that must never trigger a refresh-and-replay. */
-const AUTH_PATHS = ['/auth/refresh', '/auth/login', '/auth/setup', '/auth/register'];
+const AUTH_PATHS = [
+	'/auth/refresh',
+	'/auth/login',
+	'/auth/setup',
+	'/auth/register',
+	// Logout is cookie-authenticated: it must never refresh first (a dead
+	// session would abort the sign-out before the server clears the cookies).
+	'/auth/logout'
+];
 
 export interface RequestOptions {
 	method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
@@ -35,7 +44,8 @@ export interface RequestOptions {
 /** The `/auth/refresh` response, in the wire's snake_case. */
 export interface AuthTokens {
 	access_token: string;
-	refresh_token: string;
+	/** Still returned for the Android client; the browser uses the cookie. */
+	refresh_token?: string;
 	/** Seconds until the new access token expires. */
 	expires_in?: number;
 }
@@ -119,7 +129,7 @@ async function send(path: string, options: RequestOptions, retried = false): Pro
 	const method = options.method ?? 'GET';
 	const url = buildUrl(path, options.query);
 
-	const headers = new Headers({ Accept: 'application/json' });
+	const headers = new Headers({ Accept: 'application/json', 'X-Hamsa-Client': 'web' });
 	let body: BodyInit | undefined;
 
 	if (options.formData) {
@@ -128,6 +138,13 @@ async function send(path: string, options: RequestOptions, retried = false): Pro
 	} else if (options.body !== undefined) {
 		headers.set('Content-Type', 'application/json; charset=utf-8');
 		body = JSON.stringify(options.body);
+	}
+
+	// Cookie-authenticated writes (refresh, logout) must echo the double-submit
+	// token; harmless on every other request, which the server never checks.
+	const csrf = readCsrfToken();
+	if (csrf && method !== 'GET') {
+		headers.set(CSRF_HEADER_NAME, csrf);
 	}
 
 	// A pre-flight refresh avoids a wasted round trip on the very first request
@@ -140,6 +157,9 @@ async function send(path: string, options: RequestOptions, retried = false): Pro
 		headers,
 		body,
 		signal: options.signal,
+		// Sends the httpOnly refresh cookie on same-origin calls; required
+		// explicitly for the cross-origin dev setup.
+		credentials: 'include',
 		...(options.onUploadProgress && options.formData ? { duplex: 'half' } : {})
 	} as RequestInit);
 
@@ -180,19 +200,25 @@ async function readBody(response: Response): Promise<unknown> {
 }
 
 /**
- * Exchanges the refresh token for a new pair.
+ * Exchanges the refresh cookie for a new access token.
  *
  * Must bypass `request()` entirely: it is the one call that cannot itself be
- * retried, or a failing refresh would recurse.
+ * retried, or a failing refresh would recurse. The refresh token travels in the
+ * httpOnly cookie (credentials: include) and the matching CSRF token is echoed
+ * in the header; the browser never reads the refresh token itself.
  */
 export async function refreshAccessToken(): Promise<string> {
-	const refreshToken = getRefreshToken();
-	if (!refreshToken) throw new ApiError('UNAUTHENTICATED', 'نشستی وجود ندارد.', 401);
+	const headers: Record<string, string> = {
+		Accept: 'application/json',
+		'X-Hamsa-Client': 'web'
+	};
+	const csrf = readCsrfToken();
+	if (csrf) headers[CSRF_HEADER_NAME] = csrf;
 
 	const response = await fetch(`${API_BASE}/auth/refresh`, {
 		method: 'POST',
-		headers: { 'Content-Type': 'application/json; charset=utf-8', Accept: 'application/json' },
-		body: JSON.stringify({ refresh_token: refreshToken })
+		headers,
+		credentials: 'include'
 	});
 
 	if (!response.ok) {
@@ -200,10 +226,10 @@ export async function refreshAccessToken(): Promise<string> {
 	}
 
 	const data = (await readBody(response)) as AuthTokens | null;
-	if (!data?.access_token || !data.refresh_token) {
+	if (!data?.access_token) {
 		throw apiErrorFromException(new Error('malformed refresh response'));
 	}
 
-	saveRotatedTokens(data.access_token, data.expires_in ?? 900, data.refresh_token);
+	saveRotatedTokens(data.access_token, data.expires_in ?? 900);
 	return data.access_token;
 }

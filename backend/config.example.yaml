@@ -31,6 +31,12 @@ auth:
   access_ttl: 15m
   # Refresh token lifetime (rotating)
   refresh_ttl: 720h
+  #
+  # Browser session cookies (003-web-frontend): the refresh token is also issued
+  # as an httpOnly + SameSite=Lax cookie, and cookie-authenticated state changes
+  # require the double-submit X-CSRF-Token header. The cookie is marked Secure
+  # automatically whenever app.env is not "dev", so production MUST be served
+  # over HTTPS (nginx terminates TLS). No setting is needed here.
 
 payment:
   # mock | zarinpal — mock auto-verifies payments in dev

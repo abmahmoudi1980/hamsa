@@ -88,6 +88,9 @@ func main() {
 		Scopes:  auth.NewScopeResolver(gormDB),
 		Invites: auth.NewInviteService(&auth.GormInviteStore{DB: gormDB}, auth.RealClock{}),
 		Auditor: auditSvc, // user.login audit entries (FR-038, T025)
+		// Secure cookie in every non-dev environment (HTTPS); dev runs on
+		// plain HTTP so it must stay off (003-web-frontend, F6).
+		Cookies: auth.CookieConfig{Secure: !cfg.App.IsDev()},
 	})
 	storage.Register(v1.Group("/files", authMW), fileStore, gormDB)
 	notification.Register(v1.Group("/me/notifications", authMW), notifSvc)

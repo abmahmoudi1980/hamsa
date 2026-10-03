@@ -31,6 +31,10 @@ type Handler struct {
 	// Auditor appends the user.login audit entry (FR-038) on successful
 	// login; nil disables auditing (tests).
 	Auditor LoginAuditor
+
+	// Cookies configures the browser session cookie (003-web-frontend, F6).
+	// The zero value is valid for plain-HTTP development.
+	Cookies CookieConfig
 }
 
 // Register mounts the public auth routes plus the authenticated /auth routes
@@ -291,12 +295,20 @@ func (h *Handler) respondSession(c *gin.Context, u *User) {
 		_ = h.Auditor.Append(ctx, &u.ID, "user.login", "user", &u.ID, nil, gin.H{"phone": u.Phone, "role": u.Role})
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"access_token":  access,
-		"refresh_token": refresh,
-		"expires_in":    int64(expiresAt.Sub(h.Tokens.clock.Now()).Seconds()),
-		"user":          userPayload(u),
-	})
+	h.setSessionCookies(c, refresh)
+
+	body := gin.H{
+		"access_token": access,
+		"expires_in":   int64(expiresAt.Sub(h.Tokens.clock.Now()).Seconds()),
+		"user":         userPayload(u),
+	}
+	// The browser session is cookie-only: handing the long-lived refresh token
+	// to page JS would undo the F6 guarantee. The Android client, which has no
+	// cookie jar, still gets it.
+	if !h.browserClient(c) {
+		body["refresh_token"] = refresh
+	}
+	c.JSON(http.StatusOK, body)
 }
 
 type refreshReq struct {
@@ -304,36 +316,54 @@ type refreshReq struct {
 }
 
 func (h *Handler) refresh(c *gin.Context) {
-	var req refreshReq
-	if err := c.ShouldBindJSON(&req); err != nil || req.RefreshToken == "" {
-		httpx.WriteError(c, httpx.BadRequest("توکن به‌روزرسانی الزامی است.").WithDetail("refresh_token", "required"))
+	raw, fromCookie := h.refreshTokenFrom(c)
+	if raw == "" {
+		// No token at all means no session to renew — a 401, not a validation
+		// error, so the client routes to sign-in instead of showing a form error.
+		httpx.WriteError(c, httpx.Unauthorized("نشستی برای تمدید وجود ندارد."))
+		return
+	}
+	// An ambient cookie is browser-attached, so a cross-site page could trigger
+	// this call; the double-submit token proves the request came from our JS.
+	if fromCookie && !h.validCSRF(c) {
+		httpx.WriteError(c, httpx.Forbidden("توکن CSRF نامعتبر است."))
 		return
 	}
 
-	rot, err := h.Tokens.RotateRefreshToken(c.Request.Context(), req.RefreshToken)
+	rot, err := h.Tokens.RotateRefreshToken(c.Request.Context(), raw)
 	if err != nil {
 		httpx.WriteError(c, err)
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"access_token":  rot.AccessToken,
-		"refresh_token": rot.RefreshToken,
-		"expires_in":    rot.ExpiresIn,
-	})
+	h.setSessionCookies(c, rot.RefreshToken)
+
+	body := gin.H{
+		"access_token": rot.AccessToken,
+		"expires_in":   rot.ExpiresIn,
+	}
+	// Same rule as respondSession: only a client that presents the token itself
+	// (the Android app) gets a replacement token back in the body.
+	if !fromCookie && !h.browserClient(c) {
+		body["refresh_token"] = rot.RefreshToken
+	}
+	c.JSON(http.StatusOK, body)
 }
 
 func (h *Handler) logout(c *gin.Context) {
-	var req refreshReq
-	if err := c.ShouldBindJSON(&req); err != nil || req.RefreshToken == "" {
-		httpx.WriteError(c, httpx.BadRequest("توکن به‌روزرسانی الزامی است.").WithDetail("refresh_token", "required"))
+	raw, fromCookie := h.refreshTokenFrom(c)
+	if fromCookie && !h.validCSRF(c) {
+		httpx.WriteError(c, httpx.Forbidden("توکن CSRF نامعتبر است."))
 		return
 	}
 
-	if err := h.Tokens.RevokeFamilyByToken(c.Request.Context(), req.RefreshToken); err != nil {
-		httpx.WriteError(c, httpx.Internal("خطا در خروج از حساب."))
-		return
+	if raw != "" {
+		if err := h.Tokens.RevokeFamilyByToken(c.Request.Context(), raw); err != nil {
+			httpx.WriteError(c, httpx.Internal("خطا در خروج از حساب."))
+			return
+		}
 	}
+	h.clearSessionCookies(c)
 	c.Status(http.StatusNoContent)
 }
 

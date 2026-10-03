@@ -41,7 +41,6 @@ describe('HTTP authentication recovery', () => {
 		saveSession({
 			accessToken: 'expired-access',
 			expiresIn: 900,
-			refreshToken: 'refresh-1',
 			user: { id: 'user-1', name: 'مدیر', role: 'manager' }
 		});
 		const fetchMock = vi
@@ -70,7 +69,6 @@ describe('HTTP authentication recovery', () => {
 		saveSession({
 			accessToken: 'expired-access',
 			expiresIn: 900,
-			refreshToken: 'refresh-1',
 			user: { id: 'user-1', name: 'مدیر', role: 'manager' }
 		});
 		const unauthorized = () =>
@@ -97,15 +95,11 @@ describe('HTTP authentication recovery', () => {
 		saveSession({
 			accessToken: 'old-access',
 			expiresIn: 900,
-			refreshToken: 'refresh-1',
 			user: { id: 'user-1', name: 'مدیر', role: 'manager' }
 		});
+		// A reload drops the in-memory access token; the refresh cookie (kept by
+		// the browser, invisible to JS) is what restores the session.
 		clearSession();
-		localStorage.setItem('hamsa.refreshToken', 'refresh-1');
-		localStorage.setItem(
-			'hamsa.user',
-			JSON.stringify({ id: 'user-1', name: 'مدیر', role: 'manager' })
-		);
 		const fetchMock = vi
 			.fn<typeof fetch>()
 			.mockResolvedValueOnce(
@@ -126,6 +120,9 @@ describe('HTTP authentication recovery', () => {
 		const refreshCall = calls.at(0);
 		const mutationCall = calls.at(1);
 		expect(refreshCall?.[0]).toBe('/api/v1/auth/refresh');
+		// The refresh relies on the httpOnly cookie, never a body token.
+		expect(refreshCall?.[1]?.body).toBeUndefined();
+		expect(refreshCall?.[1]?.credentials).toBe('include');
 		expect((mutationCall?.[1]?.headers as Headers).get('Authorization')).toBe(
 			'Bearer fresh-access'
 		);
@@ -143,5 +140,20 @@ describe('HTTP authentication recovery', () => {
 			post('/auth/login', { phone: '09120000000', password: 'wrong' })
 		).rejects.toBeInstanceOf(ApiError);
 		expect(fetchMock).toHaveBeenCalledOnce();
+	});
+
+	it('echoes the double-submit CSRF token on a state-changing request', async () => {
+		vi.stubGlobal('document', { cookie: 'hamsa_csrf=csrf-abc' });
+		const fetchMock = vi
+			.fn<typeof fetch>()
+			.mockResolvedValueOnce(new Response(null, { status: 204 }));
+		vi.stubGlobal('fetch', fetchMock);
+
+		await post('/auth/logout');
+
+		expect(fetchMock).toHaveBeenCalledOnce();
+		const headers = fetchMock.mock.calls[0]?.[1]?.headers as Headers;
+		expect(headers.get('X-CSRF-Token')).toBe('csrf-abc');
+		expect(fetchMock.mock.calls[0]?.[1]?.credentials).toBe('include');
 	});
 });

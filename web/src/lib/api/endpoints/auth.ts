@@ -7,7 +7,8 @@ export type UserRole = StoredUser['role'];
 
 export interface SessionResponse {
 	access_token: string;
-	refresh_token: string;
+	/** Still returned for the Android client; the browser relies on the cookie. */
+	refresh_token?: string;
 	/** Seconds until the access token expires. */
 	expires_in: number;
 	user: { id: string; name: string; role: UserRole };
@@ -76,7 +77,6 @@ function adoptSession(data: SessionResponse): StoredUser {
 	saveSession({
 		accessToken: data.access_token,
 		expiresIn: data.expires_in,
-		refreshToken: data.refresh_token,
 		user
 	});
 	return user;
@@ -112,7 +112,12 @@ export async function me(): Promise<MeResponse> {
 	return get<MeResponse>('/auth/me');
 }
 
-/** `POST /auth/logout` — revokes the refresh token family server-side. */
+/**
+ * `POST /auth/logout` — revokes the refresh token family server-side.
+ *
+ * No body needed: the refresh token is in the httpOnly cookie and the request
+ * carries the double-submit CSRF token. The server clears both cookies.
+ */
 export async function logout(): Promise<void> {
 	await post<null>('/auth/logout');
 }

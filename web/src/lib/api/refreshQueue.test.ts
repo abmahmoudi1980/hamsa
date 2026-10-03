@@ -110,7 +110,7 @@ describe('ensureFreshToken', () => {
 	});
 
 	it('reuses a still-valid access token without refreshing', async () => {
-		saveRotatedTokens('valid-token', 900, 'refresh-1');
+		saveRotatedTokens('valid-token', 900);
 		const ensure = vi.fn(async () => 'should-not-be-used');
 
 		expect(await ensureFreshToken(ensure)).toBe('valid-token');
@@ -119,7 +119,7 @@ describe('ensureFreshToken', () => {
 
 	it('refreshes a token that is inside the expiry skew', async () => {
 		// 60s TTL with the default 30s skew: not yet expired, but about to be.
-		saveRotatedTokens('nearly-expired', 20, 'refresh-1');
+		saveRotatedTokens('nearly-expired', 20);
 		expect(needsRefresh()).toBe(true);
 
 		const ensure = vi.fn(async () => 'refreshed');
@@ -133,7 +133,6 @@ describe('reportSessionExpired', () => {
 		saveSession({
 			accessToken: 'a',
 			expiresIn: 900,
-			refreshToken: 'r',
 			user: { id: 'u1', name: 'مدیر', role: 'manager' }
 		});
 		expect(getAccessToken()).toBe('a');

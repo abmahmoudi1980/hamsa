@@ -102,8 +102,11 @@ func RequestIDOf(c *gin.Context) string {
 // so no cross-origin request is ever made. A single "*" entry keeps the old
 // permissive behaviour and must never appear in a production config.
 //
-// Credentials are never allowed, so responses stay cacheable and no
-// Access-Control-Allow-Origin header is echoed for disallowed origins.
+// An allowlisted origin is echoed back and gets
+// Access-Control-Allow-Credentials, because the web client sends its refresh
+// cookie with the request (003-web-frontend, F6). Credentials are never
+// combined with "*": the legacy wildcard path stays credential-less, so a
+// random site still cannot read authenticated responses.
 func CORS(allowedOrigins []string) gin.HandlerFunc {
 	allowAll := len(allowedOrigins) == 1 && allowedOrigins[0] == "*"
 	allowed := make(map[string]struct{}, len(allowedOrigins))
@@ -120,13 +123,14 @@ func CORS(allowedOrigins []string) gin.HandlerFunc {
 			_, ok := allowed[strings.ToLower(strings.TrimRight(origin, "/"))]
 			if ok {
 				c.Header("Access-Control-Allow-Origin", origin)
+				c.Header("Access-Control-Allow-Credentials", "true")
 				c.Header("Vary", "Origin")
 			}
 		}
 
 		if origin := c.GetHeader("Origin"); origin != "" {
 			c.Header("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS")
-			c.Header("Access-Control-Allow-Headers", "Authorization, Content-Type")
+			c.Header("Access-Control-Allow-Headers", "Authorization, Content-Type, X-CSRF-Token, X-Hamsa-Client")
 			c.Header("Access-Control-Max-Age", "600")
 		}
 

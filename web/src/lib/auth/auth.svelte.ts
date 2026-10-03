@@ -7,14 +7,14 @@
  * function by accident.
  *
  * The flow mirrors the mobile app's auth controller:
- *   unknown → (restore from the stored refresh token) → authenticated | guest
+ *   unknown → (restore from the httpOnly refresh cookie) → authenticated | guest
  *
  * `unknown` exists because the access token lives in memory only, so after a
  * page load we cannot know whether the session is valid until /auth/me answers.
  * Routes must wait on this state rather than assuming a session.
  */
 
-import { clearSession, getCachedUser, hasStoredSession, type StoredUser } from '../api/tokenStore';
+import { clearSession, getCachedUser, hasPersistedUser, type StoredUser } from '../api/tokenStore';
 import { setSessionExpiredHandler } from '../api/refreshQueue';
 import { me } from '../api/endpoints/auth';
 import { apiErrorFromException } from '../api/apiError';
@@ -31,7 +31,7 @@ export interface AuthState {
 }
 
 export const auth = $state<AuthState>({
-	status: hasStoredSession() ? 'unknown' : 'guest',
+	status: hasPersistedUser() ? 'unknown' : 'guest',
 	user: getCachedUser(),
 	error: null,
 	pending: false
@@ -44,7 +44,7 @@ export function restoreSession(): Promise<StoredUser | null> {
 	if (restorePromise) return restorePromise;
 
 	restorePromise = (async () => {
-		if (!hasStoredSession()) {
+		if (!hasPersistedUser()) {
 			setGuest();
 			return null;
 		}

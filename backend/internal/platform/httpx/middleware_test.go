@@ -3,6 +3,7 @@ package httpx
 import (
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"github.com/gin-gonic/gin"
@@ -34,6 +35,11 @@ func TestCORSAllowedOriginReflected(t *testing.T) {
 	if got := rec.Header().Get("Vary"); got != "Origin" {
 		t.Fatalf("Vary = %q, want Origin (per-origin responses must not be cached across origins)", got)
 	}
+	// The web client sends its refresh cookie, so an allowlisted origin must
+	// permit credentials (003-web-frontend, F6).
+	if got := rec.Header().Get("Access-Control-Allow-Credentials"); got != "true" {
+		t.Fatalf("Allow-Credentials = %q, want true for an allowlisted origin", got)
+	}
 }
 
 // TestCORSDeniesUnlistedOrigin is the host-theft guard: an unlisted origin must
@@ -64,6 +70,11 @@ func TestCORSWildcardKeepsLegacyBehaviour(t *testing.T) {
 
 	if got := rec.Header().Get("Access-Control-Allow-Origin"); got != "*" {
 		t.Fatalf("Allow-Origin = %q, want *", got)
+	}
+	// "*" cannot be combined with credentials; the legacy escape hatch must
+	// stay credential-less or a browser would reject it.
+	if got := rec.Header().Get("Access-Control-Allow-Credentials"); got != "" {
+		t.Fatalf("Allow-Credentials = %q, want empty on the wildcard path", got)
 	}
 }
 
@@ -101,5 +112,8 @@ func TestCORSPreflightShortCircuits(t *testing.T) {
 	}
 	if got := rec.Header().Get("Access-Control-Allow-Headers"); got == "" {
 		t.Fatal("preflight must advertise the Authorization header")
+	}
+	if got := rec.Header().Get("Access-Control-Allow-Headers"); !strings.Contains(got, "X-CSRF-Token") {
+		t.Fatalf("Allow-Headers = %q, want it to include X-CSRF-Token", got)
 	}
 }
