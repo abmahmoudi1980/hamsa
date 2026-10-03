@@ -1,6 +1,6 @@
 # Implementation Plan: Web Frontend (Manager & Resident Web App)
 
-**Branch**: `003-web-frontend` | **Date**: 2026-10-03 | **Status**: Phases 0–5 implemented
+**Branch**: `003-web-frontend` | **Date**: 2026-10-03 | **Status**: Phases 0–6 implemented
 **Spec**: to be written (`spec.md` — Phase 0 produces it)
 
 **Input**: Feature request — *"Review the building-management project and write a plan to
@@ -58,8 +58,9 @@ the presentation layer. Five decisions carry the plan:
 | 2 | `lib/` layer: money, Jalali, digits, error envelope, refresh queue | **Done** — 78 tests |
 | 3 | Auth screens, session restore, routing skeleton, design system | Partial — login + restore |
 | 4 | Registry: buildings, units, people, occupancy | **Done** — 17baa74 |
-| 5 | Billing: periods, cost items, calculation, preview grid | **Done** — this commit |
-| 6–9 | Money movement, expenses, maintenance, dashboards, launch | Not started |
+| 5 | Billing: periods, cost items, calculation, preview grid | **Done** — 3fe7459 |
+| 6 | Money movement: invoices, payments, balances, ledger, resident pay | **Done** — 7b5c64f |
+| 7–9 | Expenses, maintenance, dashboards, launch | Not started |
 
 ---
 
@@ -610,6 +611,19 @@ The crown jewel and the highest-value divergence from mobile.
   **۲٬۶۰۰٬۰۰۰ تومان**, and reconciliation shows zero residual. This is an E2E test.
 
 ### Phase 6 — Money movement: invoices, payments, balances, ledger
+
+**Status — implemented.** Manager invoice list (`?period_id=&unit_id=&status=`,
+server-side paging) and detail (amounts, item breakdown, adjustments,
+record-manual-payment with partial support, cancel-with-reason, adjustment
+notes); a shared print view at `/invoice/:id/print`; the payment ledger
+(`?unit_id=&method=&from=&to=`) with a `/m/payments/new` invoice picker for
+recording; the unit balance view with all seven §9 components, the formula
+rendered live and a reconciliation check; and the resident portal
+(`/r/invoices`, `/r/invoices/:id` pay-online via `return_path`, `/r/payments`,
+`/payment/result`). Pure logic lives in `lib/payments/balance.ts` with 16 unit
+tests. A pre-existing backend defect was fixed en route: `Payment.UnitNumber`
+was tagged `gorm:"-"`, so the ledger's `unit_number` subquery was dropped and
+the column always rendered empty.
 
 - Manager invoice list (`?period_id=&unit_id=&status=`), invoice detail with item
   breakdown, cancel-with-reason, debit/credit adjustments.
