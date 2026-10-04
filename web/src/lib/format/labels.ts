@@ -134,7 +134,7 @@ export const maintenanceStatusLabel = (v: string | null | undefined) =>
 			new: 'جدید',
 			under_review: 'در حال بررسی',
 			in_progress: 'در حال انجام',
-			resolved: 'انجام شد',
+			done: 'انجام شد',
 			closed: 'بسته شد'
 		} as const,
 		v
@@ -154,11 +154,11 @@ export const maintenanceCategoryLabel = (v: string | null | undefined) =>
 	label(
 		{
 			elevator: 'آسانسور',
-			facilities: 'تأسیسات',
-			electricity: 'برق',
+			utilities: 'تأسیسات',
+			electrical: 'برق',
 			water: 'آب',
 			cleaning: 'نظافت',
-			common_areas: 'مشاعات',
+			common_area: 'مشاعات',
 			parking: 'پارکینگ',
 			other: 'سایر'
 		} as const,
@@ -231,7 +231,7 @@ export const periodStatusTone = (v: string | null | undefined): Tone =>
 export const maintenanceStatusTone = (v: string | null | undefined): Tone =>
 	v === 'closed'
 		? 'neutral'
-		: v === 'resolved'
+		: v === 'done'
 			? 'success'
 			: v === 'in_progress' || v === 'under_review'
 				? 'info'

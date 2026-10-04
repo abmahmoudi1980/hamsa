@@ -1,6 +1,6 @@
 # Implementation Plan: Web Frontend (Manager & Resident Web App)
 
-**Branch**: `003-web-frontend` | **Date**: 2026-10-03 | **Status**: Phases 0–7 implemented
+**Branch**: `003-web-frontend` | **Date**: 2026-10-03 | **Status**: Phases 0–8 implemented
 **Spec**: to be written (`spec.md` — Phase 0 produces it)
 
 **Input**: Feature request — *"Review the building-management project and write a plan to
@@ -61,7 +61,8 @@ the presentation layer. Five decisions carry the plan:
 | 5 | Billing: periods, cost items, calculation, preview grid | **Done** — 3fe7459 |
 | 6 | Money movement: invoices, payments, balances, ledger, resident pay | **Done** — 7b5c64f |
 | 7 | Expenses and financial report | **Done** — receipt upload/preview (F2), approve/reject, Jalali report |
-| 8–9 | Maintenance, announcements, dashboards, launch | Not started |
+| 8 | Maintenance, announcements, notifications | **Done** — resident and manager flows |
+| 9 | Dashboards, print polish, launch | Not started |
 
 ---
 
@@ -660,8 +661,23 @@ Pure logic (`monthKey`, `reportMonthLabel`) and the file-reference parser are un
 
 ### Phase 8 — Maintenance, announcements, notifications
 
+**Status — implemented.** Resident request submission with authenticated photo upload,
+paginated request tracking and current-state/timestamp timeline; manager maintenance
+filters, detail and guarded next-state updates with assignee, recorded cost and notes;
+manager announcement create/edit/delete with audience targeting, optional Jalali
+publish/expiry schedules, unit lookup and authenticated attachment preview; resident
+targeted announcement list/detail with automatic read tracking; and a paginated,
+unread-filterable notification center with mark-one/mark-all and unread badges in both
+shells. All writes invalidate the related notification, dashboard and list queries.
+
+The UI uses the backend's actual maintenance enum tokens (`done`, `utilities`,
+`electrical`, `common_area`). The API exposes the current maintenance row and its
+`created_at`/`updated_at`/`closed_at` values, but no transition-history endpoint, so the
+timeline shows only those verifiable timestamps rather than inventing intermediate
+transition times.
+
 - Manager: maintenance list filtered by status/priority/category, detail with the
-  status machine (`new → under_review → in_progress → resolved → closed`), assignee,
+  status machine (`new → under_review → in_progress → done → closed`), assignee,
   recorded cost, note; announcements publish/edit/delete with audience targeting
   (all / block / floor / specific unit) and attachment.
 - Resident: submit a request with photo upload, track status with a timeline; read

@@ -11,6 +11,7 @@
 	import { fa } from '#i18n/fa';
 	import { roleLabel } from '#lib/format/labels';
 	import { qk } from '#lib/query/keys';
+	import NotificationBell from '#lib/components/NotificationBell.svelte';
 
 	let { children } = $props();
 	const queryClient = useQueryClient();
@@ -236,6 +237,42 @@
 						</svg>
 						{fa.navExpenses}
 					</a>
+					<a class="nav-link" href="/m/maintenance">
+						<svg viewBox="0 0 24 24" fill="none" class="size-5" aria-hidden="true"
+							><path
+								d="M14.7 6.3a4 4 0 0 0-5.7 5.7l-5.5 5.5a2 2 0 0 0 2.8 2.8l5.5-5.5a4 4 0 0 0 5.7-5.7l-2.3 2.3-3-3 2.5-2.1Z"
+								stroke="currentColor"
+								stroke-width="1.7"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+							/></svg
+						>
+						{fa.navMaintenance}
+					</a>
+					<a class="nav-link" href="/m/announcements">
+						<svg viewBox="0 0 24 24" fill="none" class="size-5" aria-hidden="true"
+							><path
+								d="M4 14V8a2 2 0 0 1 2-2h2l9-3v18l-9-3H6a2 2 0 0 1-2-2Zm4 2 2 5h4l-2.2-4.3M20 8a5 5 0 0 1 0 6"
+								stroke="currentColor"
+								stroke-width="1.7"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+							/></svg
+						>
+						{fa.navAnnouncements}
+					</a>
+					<a class="nav-link" href="/m/notifications">
+						<svg viewBox="0 0 24 24" fill="none" class="size-5" aria-hidden="true"
+							><path
+								d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9ZM10 21h4"
+								stroke="currentColor"
+								stroke-width="1.7"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+							/></svg
+						>
+						{fa.navNotifications}
+					</a>
 				{:else}
 					<div
 						class="mx-2 rounded-xl bg-surface px-4 py-3 text-sm leading-6 text-on-surface-variant"
@@ -306,6 +343,7 @@
 							{/each}
 						</select>
 					{/if}
+					<NotificationBell href="/m/notifications" />
 					<button
 						class="icon-button lg:hidden"
 						type="button"
@@ -431,6 +469,42 @@
 						/></svg
 					>
 					{fa.navExpenses}
+				</a>
+				<a class="mobile-nav-link" href="/m/maintenance">
+					<svg viewBox="0 0 24 24" fill="none" class="size-5" aria-hidden="true"
+						><path
+							d="M14.7 6.3a4 4 0 0 0-5.7 5.7l-5.5 5.5a2 2 0 0 0 2.8 2.8l5.5-5.5a4 4 0 0 0 5.7-5.7l-2.3 2.3-3-3 2.5-2.1Z"
+							stroke="currentColor"
+							stroke-width="1.7"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+						/></svg
+					>
+					{fa.navMaintenance}
+				</a>
+				<a class="mobile-nav-link" href="/m/announcements">
+					<svg viewBox="0 0 24 24" fill="none" class="size-5" aria-hidden="true"
+						><path
+							d="M4 14V8a2 2 0 0 1 2-2h2l9-3v18l-9-3H6a2 2 0 0 1-2-2Zm4 2 2 5h4l-2.2-4.3M20 8a5 5 0 0 1 0 6"
+							stroke="currentColor"
+							stroke-width="1.7"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+						/></svg
+					>
+					{fa.navAnnouncements}
+				</a>
+				<a class="mobile-nav-link" href="/m/notifications">
+					<svg viewBox="0 0 24 24" fill="none" class="size-5" aria-hidden="true"
+						><path
+							d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9ZM10 21h4"
+							stroke="currentColor"
+							stroke-width="1.7"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+						/></svg
+					>
+					{fa.navNotifications}
 				</a>
 				<a class="mobile-nav-link" href="/m/game">
 					<svg viewBox="0 0 24 24" fill="none" class="size-5" aria-hidden="true">

@@ -76,7 +76,8 @@ export const qk = {
 	},
 
 	notifications: {
-		list: (filters: string) => ['notifications', filters] as const
+		list: (filters: string) => ['notifications', filters] as const,
+		unreadCount: () => ['notifications', 'unread-count'] as const
 	},
 
 	dashboard: {

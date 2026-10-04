@@ -8,6 +8,7 @@
 	import { clearFileObjectUrls } from '#lib/files/fileCache';
 	import { fa } from '#i18n/fa';
 	import { roleLabel } from '#lib/format/labels';
+	import NotificationBell from '#lib/components/NotificationBell.svelte';
 
 	let { children } = $props();
 	const queryClient = useQueryClient();
@@ -68,17 +69,20 @@
 					<span class="text-xs text-on-surface-variant">{roleLabel(auth.user.role)}</span>
 				</span>
 			</a>
-			<button class="icon-button" type="button" aria-label={fa.logout} onclick={signOut}>
-				<svg viewBox="0 0 24 24" fill="none" class="size-5" aria-hidden="true">
-					<path
-						d="M10 17l5-5-5-5m5 5H3m9-9h6a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-6"
-						stroke="currentColor"
-						stroke-width="1.8"
-						stroke-linecap="round"
-						stroke-linejoin="round"
-					/>
-				</svg>
-			</button>
+			<div class="flex items-center gap-1">
+				<NotificationBell href="/r/notifications" />
+				<button class="icon-button" type="button" aria-label={fa.logout} onclick={signOut}>
+					<svg viewBox="0 0 24 24" fill="none" class="size-5" aria-hidden="true">
+						<path
+							d="M10 17l5-5-5-5m5 5H3m9-9h6a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-6"
+							stroke="currentColor"
+							stroke-width="1.8"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+						/>
+					</svg>
+				</button>
+			</div>
 		</header>
 
 		<main
@@ -88,7 +92,7 @@
 		</main>
 
 		<nav
-			class="no-print fixed inset-x-0 bottom-0 z-30 grid grid-cols-3 border-t border-outline-variant/60 bg-white/95 px-3 py-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] backdrop-blur"
+			class="no-print fixed inset-x-0 bottom-0 z-30 flex gap-1 overflow-x-auto border-t border-outline-variant/60 bg-white/95 px-3 py-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] backdrop-blur"
 			aria-label={fa.mainNavigation}
 		>
 			<a class="mobile-nav-link" href="/r" aria-current="page">
@@ -125,6 +129,42 @@
 					/></svg
 				>
 				{fa.navPayments}
+			</a>
+			<a class="mobile-nav-link" href="/r/maintenance">
+				<svg viewBox="0 0 24 24" fill="none" class="size-5" aria-hidden="true"
+					><path
+						d="M14.7 6.3a4 4 0 0 0-5.7 5.7l-5.5 5.5a2 2 0 0 0 2.8 2.8l5.5-5.5a4 4 0 0 0 5.7-5.7l-2.3 2.3-3-3 2.5-2.1Z"
+						stroke="currentColor"
+						stroke-width="1.7"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+					/></svg
+				>
+				{fa.navMaintenance}
+			</a>
+			<a class="mobile-nav-link" href="/r/announcements">
+				<svg viewBox="0 0 24 24" fill="none" class="size-5" aria-hidden="true"
+					><path
+						d="M4 14V8a2 2 0 0 1 2-2h2l9-3v18l-9-3H6a2 2 0 0 1-2-2Zm4 2 2 5h4l-2.2-4.3M20 8a5 5 0 0 1 0 6"
+						stroke="currentColor"
+						stroke-width="1.7"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+					/></svg
+				>
+				{fa.navAnnouncements}
+			</a>
+			<a class="mobile-nav-link" href="/r/notifications">
+				<svg viewBox="0 0 24 24" fill="none" class="size-5" aria-hidden="true"
+					><path
+						d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9ZM10 21h4"
+						stroke="currentColor"
+						stroke-width="1.7"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+					/></svg
+				>
+				{fa.navNotifications}
 			</a>
 		</nav>
 	</div>
