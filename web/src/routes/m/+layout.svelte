@@ -6,6 +6,7 @@
 	import { listBuildings } from '#lib/api/endpoints/buildings';
 	import { logout } from '#lib/api/endpoints/auth';
 	import { clearSession } from '#lib/api/tokenStore';
+	import { clearFileObjectUrls } from '#lib/files/fileCache';
 	import { buildingSelection, selectBuilding } from '#lib/building/selection.svelte';
 	import { fa } from '#i18n/fa';
 	import { roleLabel } from '#lib/format/labels';
@@ -37,16 +38,16 @@
 	$effect(() => {
 		const status = auth.status;
 		const role = auth.user?.role;
-		if (status === 'guest') void goto('/login', { replaceState: true });
+		if (status === 'guest') void goto('/login', { replace: true });
 		if (status === 'authenticated' && role === 'resident') {
-			void goto('/r', { replaceState: true });
+			void goto('/r', { replace: true });
 		}
 	});
 
 	onMount(async () => {
 		if (auth.status === 'unknown') await restoreSession();
 		if (auth.status === 'authenticated' && !isManager()) {
-			await goto('/r', { replaceState: true });
+			await goto('/r', { replace: true });
 		}
 	});
 
@@ -57,6 +58,7 @@
 			clearSession();
 		} finally {
 			queryClient.clear();
+			clearFileObjectUrls();
 			setGuest();
 		}
 	}
@@ -138,6 +140,18 @@
 					{fa.navDashboard}
 				</a>
 				{#if auth.user?.role === 'manager'}
+					<a class="nav-link" href="/m/game">
+						<svg viewBox="0 0 24 24" fill="none" class="size-5" aria-hidden="true">
+							<path
+								d="M4 20V8l8-5 8 5v12M8 20v-5h8v5M2 20h20M8 9h.01M12 9h.01M16 9h.01"
+								stroke="currentColor"
+								stroke-width="1.7"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+							/>
+						</svg>
+						{fa.navStrategyGame}
+					</a>
 					<a class="nav-link" href="/m/buildings">
 						<svg viewBox="0 0 24 24" fill="none" class="size-5" aria-hidden="true">
 							<path
@@ -209,6 +223,18 @@
 							/>
 						</svg>
 						{fa.navPayments}
+					</a>
+					<a class="nav-link" href="/m/expenses">
+						<svg viewBox="0 0 24 24" fill="none" class="size-5" aria-hidden="true">
+							<path
+								d="M6 2h9l4 4v16l-2-1.5L15 22l-3-1.5L9 22l-3-1.5V3a1 1 0 0 1 1-1ZM9 8h6M9 12h6M9 16h4"
+								stroke="currentColor"
+								stroke-width="1.7"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+							/>
+						</svg>
+						{fa.navExpenses}
 					</a>
 				{:else}
 					<div
@@ -393,6 +419,30 @@
 						/></svg
 					>
 					{fa.navPayments}
+				</a>
+				<a class="mobile-nav-link" href="/m/expenses">
+					<svg viewBox="0 0 24 24" fill="none" class="size-5" aria-hidden="true"
+						><path
+							d="M6 2h9l4 4v16l-2-1.5L15 22l-3-1.5L9 22l-3-1.5V3a1 1 0 0 1 1-1ZM9 8h6M9 12h6M9 16h4"
+							stroke="currentColor"
+							stroke-width="1.7"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+						/></svg
+					>
+					{fa.navExpenses}
+				</a>
+				<a class="mobile-nav-link" href="/m/game">
+					<svg viewBox="0 0 24 24" fill="none" class="size-5" aria-hidden="true">
+						<path
+							d="M4 20V8l8-5 8 5v12M8 20v-5h8v5M2 20h20M8 9h.01M12 9h.01M16 9h.01"
+							stroke="currentColor"
+							stroke-width="1.7"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+						/>
+					</svg>
+					{fa.navStrategyGame}
 				</a>
 			{/if}
 		</nav>

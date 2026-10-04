@@ -174,7 +174,7 @@ export const expenseCategoryLabel = (v: string | null | undefined) =>
 			elevator: 'آسانسور',
 			cleaning: 'نظافت',
 			security: 'نگهبانی',
-			repairs: 'تعمیرات',
+			repair: 'تعمیرات',
 			insurance: 'بیمه',
 			equipment: 'تجهیزات',
 			other: 'سایر'

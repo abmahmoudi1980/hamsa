@@ -22,7 +22,7 @@
 
 	onMount(async () => {
 		const user = auth.status === 'authenticated' ? auth.user : await restoreSession();
-		if (user) await goto(isManagerRole(user.role) ? '/m' : '/r', { replaceState: true });
+		if (user) await goto(isManagerRole(user.role) ? '/m' : '/r', { replace: true });
 	});
 
 	async function submit(event: SubmitEvent) {
@@ -55,7 +55,7 @@
 				name: name.trim() || undefined
 			});
 			setAuthenticated(user);
-			await goto(isManagerRole(user.role) ? '/m' : '/r', { replaceState: true });
+			await goto(isManagerRole(user.role) ? '/m' : '/r', { replace: true });
 		} catch (cause) {
 			error = cause instanceof ApiError ? cause.message : fa.errorGeneric;
 			setAuthPending(false);

@@ -77,7 +77,7 @@
 			periodId ? updatePeriod(periodId, input) : createPeriod(buildingId, input),
 		onSuccess: async (period) => {
 			await queryClient.invalidateQueries({ queryKey: ['periods', buildingId] });
-			await goto(`/m/periods/${period.id}`, { replaceState: true });
+			await goto(`/m/periods/${period.id}`, { replace: true });
 		}
 	}));
 

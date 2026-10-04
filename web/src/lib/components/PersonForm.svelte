@@ -44,7 +44,7 @@
 			personId ? updatePerson(personId, input) : createPerson(buildingId, input),
 		onSuccess: async () => {
 			await queryClient.invalidateQueries({ queryKey: ['persons'] });
-			await goto('/m/persons', { replaceState: true });
+			await goto('/m/persons', { replace: true });
 		}
 	}));
 

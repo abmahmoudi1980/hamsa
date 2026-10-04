@@ -81,7 +81,7 @@
 	>
 		<button class="btn-secondary" type="button" onclick={onCancel}>{fa.back}</button>
 		<button
-			class="btn-primary bg-danger hover:bg-danger/90"
+			class="btn-primary bg-danger shadow-[0_8px_20px_-10px_rgba(198,40,40,0.75)] hover:bg-danger/90"
 			type="submit"
 			disabled={mutation.isPending}
 		>

@@ -171,35 +171,44 @@
 	box-shadow: 0 0 0 3px color-mix(in oklab, var(--color-primary) 18%, transparent);
 }
 
+/* Button padding/gap are written as literals, not `--spacing-*` tokens:
+   Tailwind resolves `max-w-{xs,xl,...}` from the spacing namespace, so a
+   `--spacing-xl` token would silently collapse `max-w-xl`. The values match
+   the original design tokens (gap 8px, inline padding 20px). */
 @utility btn-primary {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	gap: var(--spacing-s);
+	gap: 0.5rem;
 	min-height: 48px;
-	padding-inline: var(--spacing-xl);
+	padding-inline: 1.25rem;
 	background-color: var(--color-primary);
 	color: var(--color-on-primary);
 	border-radius: var(--radius-md);
 	font-weight: 700;
 	cursor: pointer;
-	transition: background-color 120ms ease;
+	transition:
+		background-color 120ms ease,
+		transform 120ms ease,
+		box-shadow 120ms ease;
 }
 
 @utility btn-secondary {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	gap: var(--spacing-s);
+	gap: 0.5rem;
 	min-height: 48px;
-	padding-inline: var(--spacing-xl);
+	padding-inline: 1.25rem;
 	background-color: transparent;
 	color: var(--color-primary);
 	border: 1px solid var(--color-outline-variant);
 	border-radius: var(--radius-md);
 	font-weight: 700;
 	cursor: pointer;
-	transition: background-color 120ms ease;
+	transition:
+		background-color 120ms ease,
+		transform 120ms ease;
 }
 
 @utility nav-link {
@@ -290,6 +299,17 @@
 	}
 	.btn-secondary:hover:not(:disabled) {
 		background-color: var(--color-surface-high);
+	}
+	/* Primary buttons carry the login button's treatment everywhere: a soft
+	   brand-tinted lift and a subtle press. Both live in the components layer
+	   so an element's own `shadow-*`/`bg-*` utility (e.g. the destructive red
+	   confirm) still wins. */
+	.btn-primary {
+		box-shadow: 0 8px 20px -10px color-mix(in oklab, var(--color-primary) 75%, transparent);
+	}
+	.btn-primary:active:not(:disabled),
+	.btn-secondary:active:not(:disabled) {
+		transform: scale(0.99);
 	}
 	.nav-link:hover,
 	.mobile-nav-link:hover,

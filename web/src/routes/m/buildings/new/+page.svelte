@@ -31,7 +31,7 @@
 		onSuccess: async (building) => {
 			await queryClient.invalidateQueries({ queryKey: qk.buildings.list() });
 			selectBuilding(building.id);
-			await goto('/m', { replaceState: true });
+			await goto('/m', { replace: true });
 		}
 	}));
 

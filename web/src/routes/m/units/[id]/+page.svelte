@@ -160,7 +160,7 @@
 		mutationFn: () => archiveUnit(unitId),
 		onSuccess: async () => {
 			await queryClient.invalidateQueries({ queryKey: ['units'] });
-			await goto('/m/units', { replaceState: true });
+			await goto('/m/units', { replace: true });
 		}
 	}));
 

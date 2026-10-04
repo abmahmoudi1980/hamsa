@@ -20,7 +20,7 @@
 	async function restore() {
 		// No session at all: nothing to restore.
 		if (auth.status === 'guest') {
-			await goto('/login', { replaceState: true });
+			await goto('/login', { replace: true });
 			return;
 		}
 
@@ -29,14 +29,14 @@
 			const profile = await me();
 			auth.user = { id: profile.id, name: profile.name, role: profile.role };
 			auth.status = 'authenticated';
-			await goto(homeFor(), { replaceState: true });
+			await goto(homeFor(), { replace: true });
 		} catch (err) {
 			// An invalid or expired refresh token is the normal case here (the
 			// stored token can be days old), so it lands on the login screen with
 			// no scary message. Anything else keeps the session and says so.
 			if (err instanceof ApiError && (err.isUnauthenticated || err.isForbidden)) {
 				setGuest(null);
-				await goto('/login', { replaceState: true });
+				await goto('/login', { replace: true });
 			} else {
 				auth.status = 'unknown';
 				auth.error = err instanceof ApiError ? err.message : fa.errorGeneric;

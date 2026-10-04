@@ -22,7 +22,7 @@
 
 	onMount(async () => {
 		const user = auth.status === 'authenticated' ? auth.user : await restoreSession();
-		if (user) await goto(isManagerRole(user.role) ? '/m' : '/r', { replaceState: true });
+		if (user) await goto(isManagerRole(user.role) ? '/m' : '/r', { replace: true });
 	});
 
 	const phoneError = $derived.by(() => {
@@ -52,7 +52,7 @@
 		try {
 			const user = await login({ phone: canonical, password });
 			setAuthenticated(user);
-			await goto(isManagerRole(user.role) ? '/m' : '/r', { replaceState: true });
+			await goto(isManagerRole(user.role) ? '/m' : '/r', { replace: true });
 		} catch (err) {
 			const message =
 				err instanceof ApiError ? err.message : 'خطایی رخ داد. لطفاً دوباره تلاش کنید.';
@@ -307,11 +307,7 @@
 						{/if}
 					</div>
 
-					<button
-						type="submit"
-						class="btn-primary w-full gap-2 shadow-[0_8px_20px_-10px_rgba(0,105,92,0.75)] transition-transform active:scale-[0.99]"
-						disabled={!canSubmit}
-					>
+					<button type="submit" class="btn-primary w-full" disabled={!canSubmit}>
 						{#if auth.pending}
 							<svg viewBox="0 0 24 24" fill="none" class="size-5 animate-spin" aria-hidden="true"
 								><circle

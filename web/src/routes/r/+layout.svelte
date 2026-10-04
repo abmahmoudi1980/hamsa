@@ -5,6 +5,7 @@
 	import { useQueryClient } from '@tanstack/svelte-query';
 	import { logout } from '#lib/api/endpoints/auth';
 	import { clearSession, isManagerRole } from '#lib/api/tokenStore';
+	import { clearFileObjectUrls } from '#lib/files/fileCache';
 	import { fa } from '#i18n/fa';
 	import { roleLabel } from '#lib/format/labels';
 
@@ -14,16 +15,16 @@
 	$effect(() => {
 		const status = auth.status;
 		const role = auth.user?.role;
-		if (status === 'guest') void goto('/login', { replaceState: true });
+		if (status === 'guest') void goto('/login', { replace: true });
 		if (status === 'authenticated' && role && isManagerRole(role)) {
-			void goto('/m', { replaceState: true });
+			void goto('/m', { replace: true });
 		}
 	});
 
 	onMount(async () => {
 		if (auth.status === 'unknown') await restoreSession();
 		if (auth.status === 'authenticated' && auth.user && isManagerRole(auth.user.role)) {
-			await goto('/m', { replaceState: true });
+			await goto('/m', { replace: true });
 		}
 	});
 
@@ -34,6 +35,7 @@
 			clearSession();
 		} finally {
 			queryClient.clear();
+			clearFileObjectUrls();
 			setGuest();
 		}
 	}

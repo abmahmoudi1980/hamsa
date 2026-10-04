@@ -74,7 +74,7 @@
 			unitId ? updateUnit(unitId, input) : createUnit(buildingId, input),
 		onSuccess: async (unit) => {
 			await queryClient.invalidateQueries({ queryKey: ['units'] });
-			await goto(`/m/units/${unit.id}`, { replaceState: true });
+			await goto(`/m/units/${unit.id}`, { replace: true });
 		}
 	}));
 

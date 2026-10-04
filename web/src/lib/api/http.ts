@@ -83,8 +83,40 @@ export async function del<T>(path: string, options: RequestOptions = {}): Promis
 	return request<T>(path, { ...options, method: 'DELETE' });
 }
 
-/** 204 No Content (and empty bodies generally) resolve to null. */
-async function request<T>(path: string, options: RequestOptions, retried = false): Promise<T> {
+/**
+ * Raw JSON request. 204/empty bodies resolve to null.
+ *
+ * Delegates the auth/refresh/error handling to `requestResponse`, then reads
+ * the body as JSON.
+ */
+async function request<T>(path: string, options: RequestOptions): Promise<T> {
+	const response = await requestResponse(path, options);
+	return (await readBody(response)) as T;
+}
+
+/**
+ * Fetches a binary body (an uploaded receipt/photo/attachment) with the bearer
+ * token attached, so a browser can render it as an object URL.
+ *
+ * `GET /files/{id}` is Bearer-gated, so this MUST go through here: a bare
+ * `<img src="/files/...">` sends no Authorization header and silently fails.
+ * See `#lib/files/fileCache`.
+ */
+export async function getBlob(path: string, options: RequestOptions = {}): Promise<Blob> {
+	const response = await requestResponse(path, { ...options, method: 'GET' });
+	return await response.blob();
+}
+
+/**
+ * Sends a request and returns the successful `Response`, refreshing once and
+ * replaying on a 401. Throws `ApiError` on any non-2xx. Callers decide how to
+ * read the body (JSON vs blob).
+ */
+async function requestResponse(
+	path: string,
+	options: RequestOptions,
+	retried = false
+): Promise<Response> {
 	let response: Response;
 	try {
 		({ response } = await send(path, options, retried));
@@ -109,14 +141,14 @@ async function request<T>(path: string, options: RequestOptions, retried = false
 			if (apiError.isUnauthenticated) reportSessionExpired();
 			throw apiError;
 		}
-		return request<T>(path, options, true);
+		return requestResponse(path, options, true);
 	}
 
 	if (!response.ok) {
 		throw apiErrorFromBody(response.status, await readBody(response));
 	}
 
-	return (await readBody(response)) as T;
+	return response;
 }
 
 interface SendResult {

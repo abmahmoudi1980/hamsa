@@ -1,6 +1,6 @@
 # Implementation Plan: Web Frontend (Manager & Resident Web App)
 
-**Branch**: `003-web-frontend` | **Date**: 2026-10-03 | **Status**: Phases 0–6 implemented
+**Branch**: `003-web-frontend` | **Date**: 2026-10-03 | **Status**: Phases 0–7 implemented
 **Spec**: to be written (`spec.md` — Phase 0 produces it)
 
 **Input**: Feature request — *"Review the building-management project and write a plan to
@@ -60,7 +60,8 @@ the presentation layer. Five decisions carry the plan:
 | 4 | Registry: buildings, units, people, occupancy | **Done** — 17baa74 |
 | 5 | Billing: periods, cost items, calculation, preview grid | **Done** — 3fe7459 |
 | 6 | Money movement: invoices, payments, balances, ledger, resident pay | **Done** — 7b5c64f |
-| 7–9 | Expenses, maintenance, dashboards, launch | Not started |
+| 7 | Expenses and financial report | **Done** — receipt upload/preview (F2), approve/reject, Jalali report |
+| 8–9 | Maintenance, announcements, dashboards, launch | Not started |
 
 ---
 
@@ -640,6 +641,16 @@ the column always rendered empty.
   in a browser, E2E-covered against the mock gateway.
 
 ### Phase 7 — Expenses and financial report
+
+**Status — implemented.** Covers the filtered expense list (`?category=&approval=&from=&to=`,
+server-side paging), create/edit with receipt upload (`POST /files`) and inline preview,
+the approve/reject workflow, and the FR-027 monthly report with a Jalali month
+selector. The F2 gap is closed by `lib/files/fileCache.ts` — a small LRU of
+Bearer-fetched object URLs (with `revokeObjectURL` on eviction and on sign-out) plus
+an `AttachmentPreview` component, so no bare `/files/...` URL is ever rendered. A new
+`getBlob` on the HTTP client shares the refresh-on-401 path with JSON requests. En
+route, the expense category label bug (`repairs` vs the wire token `repair`) is fixed.
+Pure logic (`monthKey`, `reportMonthLabel`) and the file-reference parser are unit-tested.
 
 - Expense list with category/date/approval filters; create/edit with **receipt upload
   and preview** (`POST /files` then `useFileUrl`, F2); approve/reject workflow.
